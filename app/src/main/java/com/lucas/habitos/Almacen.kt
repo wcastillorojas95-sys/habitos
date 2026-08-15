@@ -6,54 +6,140 @@ import org.json.JSONObject
 import java.time.LocalDate
 
 /**
- * Guarda y recupera los habitos del telefono.
+ * Guarda los habitos en el telefono como JSON dentro de SharedPreferences.
  *
- * Usa SharedPreferences con un JSON adentro: no necesita base de datos ni
- * dependencias extra, y los datos sobreviven a cerrar y reabrir la app.
+ * Entiende tambien el formato de la version 1 (una lista de fechas cumplidas)
+ * y lo convierte al formato nuevo la primera vez que se abre la app.
  */
 class Almacen(context: Context) {
 
-    private val prefs = context.getSharedPreferences(ARCHIVO, Context.MODE_PRIVATE)
+    private val prefs = context.applicationContext
+        .getSharedPreferences(ARCHIVO, Context.MODE_PRIVATE)
 
     fun cargar(): List<Habito> {
         val texto = prefs.getString(CLAVE, null) ?: return emptyList()
         return try {
             val arreglo = JSONArray(texto)
-            (0 until arreglo.length()).map { i ->
-                val o = arreglo.getJSONObject(i)
-                val fechas = o.optJSONArray("hechos") ?: JSONArray()
-                Habito(
-                    id = o.optString("id", System.nanoTime().toString()),
-                    nombre = o.optString("nombre", "Hábito"),
-                    emoji = o.optString("emoji", "✅"),
-                    color = o.optInt("color", 0),
-                    creado = o.optString("creado", LocalDate.now().toString()),
-                    hechos = (0 until fechas.length()).map { fechas.getString(it) }.toSet()
-                )
-            }
+            (0 until arreglo.length()).mapNotNull { i -> leerHabito(arreglo.getJSONObject(i)) }
         } catch (e: Exception) {
-            // Si el archivo quedo corrupto preferimos empezar limpio antes que cerrar la app.
             emptyList()
         }
     }
 
     fun guardar(lista: List<Habito>) {
         val arreglo = JSONArray()
-        lista.forEach { h ->
-            val o = JSONObject()
-            o.put("id", h.id)
-            o.put("nombre", h.nombre)
-            o.put("emoji", h.emoji)
-            o.put("color", h.color)
-            o.put("creado", h.creado)
-            o.put("hechos", JSONArray(h.hechos.toList()))
-            arreglo.put(o)
-        }
+        lista.forEach { arreglo.put(escribirHabito(it)) }
         prefs.edit().putString(CLAVE, arreglo.toString()).apply()
+    }
+
+    /** Cambia un solo habito sin tocar los demas. Lo usa el widget. */
+    fun actualizarUno(id: String, cambio: (Habito) -> Habito): List<Habito> {
+        val nuevos = cargar().map { if (it.id == id) cambio(it) else it }
+        guardar(nuevos)
+        return nuevos
+    }
+
+    var idCalendario: Long
+        get() = prefs.getLong(CLAVE_CALENDARIO, -1L)
+        set(valor) = prefs.edit().putLong(CLAVE_CALENDARIO, valor).apply()
+
+    // ---------- lectura ----------
+
+    private fun leerHabito(o: JSONObject): Habito? = try {
+        val registros = mutableMapOf<String, Int>()
+
+        // Formato nuevo: objeto fecha -> cantidad
+        o.optJSONObject("registros")?.let { reg ->
+            val claves = reg.keys()
+            while (claves.hasNext()) {
+                val k = claves.next()
+                registros[k] = reg.optInt(k, 0)
+            }
+        }
+
+        // Formato de la version 1: lista de fechas cumplidas
+        o.optJSONArray("hechos")?.let { arr ->
+            for (i in 0 until arr.length()) registros[arr.getString(i)] = 1
+        }
+
+        Habito(
+            id = o.optString("id", System.nanoTime().toString()),
+            nombre = o.optString("nombre", "Hábito"),
+            emoji = o.optString("emoji", "✅"),
+            color = o.optInt("color", 0),
+            creado = o.optString("creado", LocalDate.now().toString()),
+            categoria = o.optString("categoria", ""),
+            archivado = o.optBoolean("archivado", false),
+            frecuencia = leerEnum(o.optString("frecuencia"), Frecuencia.DIARIO),
+            diasSemana = leerEnteros(o.optJSONArray("diasSemana"), setOf(1, 2, 3, 4, 5, 6, 7)),
+            vecesPorSemana = o.optInt("vecesPorSemana", 3),
+            cadaNDias = o.optInt("cadaNDias", 2),
+            meta = leerMeta(o.optString("meta")),
+            metaCantidad = o.optInt("metaCantidad", 1),
+            unidad = o.optString("unidad", ""),
+            recordatorio = o.optBoolean("recordatorio", false),
+            recordatorioMinutos = o.optInt("recordatorioMinutos", 8 * 60),
+            enCalendario = o.optBoolean("enCalendario", false),
+            registros = registros,
+            descansos = leerTextos(o.optJSONArray("descansos"))
+        )
+    } catch (e: Exception) {
+        null
+    }
+
+    private fun leerEnum(valor: String?, porDefecto: Frecuencia): Frecuencia =
+        Frecuencia.entries.firstOrNull { it.name == valor } ?: porDefecto
+
+    private fun leerMeta(valor: String?): Meta =
+        Meta.entries.firstOrNull { it.name == valor } ?: Meta.SI_NO
+
+    private fun leerEnteros(arr: JSONArray?, porDefecto: Set<Int>): Set<Int> {
+        if (arr == null) return porDefecto
+        val s = mutableSetOf<Int>()
+        for (i in 0 until arr.length()) s.add(arr.optInt(i))
+        return if (s.isEmpty()) porDefecto else s
+    }
+
+    private fun leerTextos(arr: JSONArray?): Set<String> {
+        if (arr == null) return emptySet()
+        val s = mutableSetOf<String>()
+        for (i in 0 until arr.length()) s.add(arr.optString(i))
+        return s
+    }
+
+    // ---------- escritura ----------
+
+    private fun escribirHabito(h: Habito): JSONObject {
+        val o = JSONObject()
+        o.put("id", h.id)
+        o.put("nombre", h.nombre)
+        o.put("emoji", h.emoji)
+        o.put("color", h.color)
+        o.put("creado", h.creado)
+        o.put("categoria", h.categoria)
+        o.put("archivado", h.archivado)
+        o.put("frecuencia", h.frecuencia.name)
+        o.put("diasSemana", JSONArray(h.diasSemana.toList()))
+        o.put("vecesPorSemana", h.vecesPorSemana)
+        o.put("cadaNDias", h.cadaNDias)
+        o.put("meta", h.meta.name)
+        o.put("metaCantidad", h.metaCantidad)
+        o.put("unidad", h.unidad)
+        o.put("recordatorio", h.recordatorio)
+        o.put("recordatorioMinutos", h.recordatorioMinutos)
+        o.put("enCalendario", h.enCalendario)
+        o.put("descansos", JSONArray(h.descansos.toList()))
+
+        val reg = JSONObject()
+        h.registros.forEach { (fecha, cantidad) -> if (cantidad > 0) reg.put(fecha, cantidad) }
+        o.put("registros", reg)
+
+        return o
     }
 
     private companion object {
         const val ARCHIVO = "habitos_datos"
         const val CLAVE = "lista"
+        const val CLAVE_CALENDARIO = "id_calendario"
     }
 }
