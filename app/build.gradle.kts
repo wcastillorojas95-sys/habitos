@@ -12,8 +12,29 @@ android {
         applicationId = "com.lucas.habitos"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "2.0"
+        versionCode = 3
+        versionName = "2.1"
+    }
+
+    /*
+     * Firma fija para las compilaciones de debug.
+     *
+     * Sin esto, GitHub Actions crea un debug.keystore nuevo en cada compilación,
+     * la firma cambia, y Android se niega a instalar el APK encima del anterior
+     * ("App no instalada"). Con un keystore versionado la firma es siempre la
+     * misma y las actualizaciones se instalan sin desinstalar ni perder datos.
+     *
+     * No es un secreto: "android" es la contraseña que usa Android por defecto y
+     * este keystore solo sirve para depurar. Para publicar en Play hay que crear
+     * otro y guardarlo en GitHub Secrets, nunca en el repositorio.
+     */
+    signingConfigs {
+        getByName("debug") {
+            storeFile = rootProject.file("habitos-debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
     }
 
     buildTypes {
@@ -58,4 +79,9 @@ dependencies {
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.animation:animation")
     implementation("androidx.compose.material3:material3")
+
+    // Corrutinas para la cuenta atrás del servicio de enfoque. Llegan de forma
+    // transitiva con lifecycle, pero se declaran a la vista para que nadie las
+    // quite por error al tocar dependencias.
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 }

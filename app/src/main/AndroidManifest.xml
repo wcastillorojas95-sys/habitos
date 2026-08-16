@@ -5,6 +5,15 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- Sesiones de enfoque: la cuenta atrás vive en un servicio en primer plano
+         para que Android no la mate al cambiar de app o apagar la pantalla. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- Activar "No molestar" durante la sesión. Se concede a mano desde Ajustes;
+         si no se concede, la app funciona igual. -->
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
 
@@ -56,6 +65,39 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_info" />
         </receiver>
+
+        <!--
+            Pantalla de la sesión de enfoque.
+
+            - showWhenLocked/turnScreenOn: aparece sobre la pantalla de bloqueo,
+              igual que hace un despertador.
+            - singleTask: una sola instancia, para que volver desde la
+              notificación no apile pantallas encima.
+            - lockTaskMode="if_whitelisted": si algún día el teléfono se
+              aprovisiona como device owner, esta actividad ya queda autorizada
+              para el bloqueo total sin tocar nada más.
+        -->
+        <activity
+            android:name=".PantallaEnfoque"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:lockTaskMode="if_whitelisted"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true" />
+
+        <!--
+            Android 14 exige declarar para qué sirve un servicio en primer plano.
+            No hay tipo "temporizador", así que el correcto es specialUse con su
+            justificación; es lo que usan las apps de pomodoro y concentración.
+        -->
+        <service
+            android:name=".ServicioEnfoque"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Cuenta atrás de una sesión de enfoque iniciada por el usuario, que debe seguir corriendo con la pantalla apagada." />
+        </service>
 
     </application>
 

@@ -52,7 +52,8 @@ fun PantallaHoy(
     habitos: List<Habito>,
     onCambiar: (List<Habito>) -> Unit,
     onNuevo: () -> Unit,
-    onEditar: (Habito) -> Unit
+    onEditar: (Habito) -> Unit,
+    onEnfocar: (Habito) -> Unit
 ) {
     val contexto = LocalContext.current
     val haptica = LocalHapticFeedback.current
@@ -139,7 +140,8 @@ fun PantallaHoy(
                     hoy = hoy,
                     onSumar = { sumar(habito, it) },
                     onDescanso = { alternarDescanso(habito) },
-                    onEditar = { onEditar(habito) }
+                    onEditar = { onEditar(habito) },
+                    onEnfocar = { onEnfocar(habito) }
                 )
             }
 
@@ -279,7 +281,8 @@ private fun TarjetaHabito(
     hoy: LocalDate,
     onSumar: (Int) -> Unit,
     onDescanso: () -> Unit,
-    onEditar: () -> Unit
+    onEditar: () -> Unit,
+    onEnfocar: () -> Unit
 ) {
     val color = PALETA[habito.color % PALETA.size]
     val descanso = habito.esDescanso(dia)
@@ -371,6 +374,27 @@ private fun TarjetaHabito(
                 }
 
                 Spacer(Modifier.width(4.dp))
+
+                // Enfocarse solo tiene sentido sobre hoy y sobre algo pendiente:
+                // no se puede dedicar tiempo real a un martes que ya pasó.
+                if (dia == hoy && !descanso && !listo) {
+                    Box(
+                        modifier = Modifier
+                            .size(34.dp)
+                            .clip(CircleShape)
+                            .background(color.copy(alpha = 0.16f))
+                            .clickable { onEnfocar() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = IconoPlay,
+                            contentDescription = "Enfocarse en este hábito",
+                            tint = color,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                    Spacer(Modifier.width(4.dp))
+                }
 
                 Box(
                     modifier = Modifier

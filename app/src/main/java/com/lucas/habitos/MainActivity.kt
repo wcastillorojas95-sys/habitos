@@ -36,10 +36,24 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import java.time.LocalDate
 
 class MainActivity : ComponentActivity() {
+
+    /** Una sesión estricta no debería poder esquivarse volviendo a la lista. */
+    override fun onStart() {
+        super.onStart()
+        val sesion = AlmacenEnfoque(this).sesionActiva()
+        if (sesion != null && !sesion.terminada() && sesion.estricto) abrirEnfoque()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         Recordatorios.crearCanal(this)
+
+        // Si la app se reabre con una sesión de enfoque viva, la recuperamos del
+        // disco: el objeto en memoria se pierde si el sistema mató el proceso.
+        val enfoque = AlmacenEnfoque(this)
+        EstadoEnfoque.sesion = enfoque.sesionActiva()?.takeIf { !it.terminada() }
+
         setContent {
             HabitosTheme {
                 App()
@@ -59,6 +73,9 @@ private fun App() {
     var pantalla by remember { mutableStateOf(Pantalla.HOY) }
     var editando by remember { mutableStateOf<Habito?>(null) }
     var abriendoEditor by remember { mutableStateOf(false) }
+    var aEnfocar by remember { mutableStateOf<Habito?>(null) }
+
+    val almacenEnfoque = remember { AlmacenEnfoque(contexto) }
 
     val pedirNotificaciones = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -159,7 +176,8 @@ private fun App() {
                     habitos = habitos,
                     onCambiar = { aplicar(it) },
                     onNuevo = { editando = null; abriendoEditor = true },
-                    onEditar = { editando = it; abriendoEditor = true }
+                    onEditar = { editando = it; abriendoEditor = true },
+                    onEnfocar = { aEnfocar = it }
                 )
             }
             AnimatedVisibility(
@@ -170,6 +188,20 @@ private fun App() {
                 PantallaEstadisticas(habitos = habitos, hoy = LocalDate.now())
             }
         }
+    }
+
+    aEnfocar?.let { objetivo ->
+        DialogoEnfoque(
+            habito = objetivo,
+            hoy = LocalDate.now(),
+            almacenEnfoque = almacenEnfoque,
+            onCancelar = { aEnfocar = null },
+            onEmpezar = { sesion ->
+                aEnfocar = null
+                ServicioEnfoque.iniciar(contexto, sesion)
+                contexto.actividad()?.abrirEnfoque()
+            }
+        )
     }
 }
 
