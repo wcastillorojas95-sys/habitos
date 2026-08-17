@@ -313,10 +313,10 @@ val IconoGrafico: ImageVector by lazy {
 val IconoEngranaje: ImageVector by lazy {
     vector {
         moveTo(12f, 8.4f)
-        cubicTo(10f, 8.4f, 8.4f, 10f, 8.4f, 12f)
-        cubicTo(8.4f, 14f, 10f, 15.6f, 12f, 15.6f)
-        cubicTo(14f, 15.6f, 15.6f, 14f, 15.6f, 12f)
-        cubicTo(15.6f, 10f, 14f, 8.4f, 12f, 8.4f)
+        curveTo(10f, 8.4f, 8.4f, 10f, 8.4f, 12f)
+        curveTo(8.4f, 14f, 10f, 15.6f, 12f, 15.6f)
+        curveTo(14f, 15.6f, 15.6f, 14f, 15.6f, 12f)
+        curveTo(15.6f, 10f, 14f, 8.4f, 12f, 8.4f)
         close()
         moveTo(10.4f, 2f); lineTo(13.6f, 2f); lineTo(14.1f, 4.6f)
         lineTo(16.3f, 5.5f); lineTo(18.5f, 4f); lineTo(20f, 5.5f)
