@@ -1,6 +1,7 @@
 package com.lucas.habitos
 
 import android.content.Intent
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -63,6 +64,11 @@ fun PantallaAjustes(
     val minutos = remember(hoy) { almacenEnfoque.minutosUltimos(hoy, 7) }
     val activos = habitos.count { !it.archivado }
 
+    // Se recalculan en cada recomposición a propósito: el usuario puede irse a los
+    // ajustes del sistema, conceder el permiso y volver, y al volver debe verlo.
+    val avisosOk = Recordatorios.avisosPermitidos(contexto)
+    val exactasOk = Recordatorios.alarmasExactas(contexto)
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -116,6 +122,46 @@ fun PantallaAjustes(
                 )
             }
 
+            item { Seccion("Avisos") }
+            item {
+                FilaAccion(
+                    titulo = if (avisosOk) "Avisos activados" else "Activar los avisos",
+                    detalle = if (avisosOk) {
+                        "Los recordatorios pueden llegarte. Toca para revisarlos o silenciar alguno."
+                    } else {
+                        "Ahora mismo el teléfono los tiene bloqueados, así que ningún recordatorio te llegará."
+                    },
+                    onClick = {
+                        contexto.startActivity(
+                            Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                                .putExtra(
+                                    android.provider.Settings.EXTRA_APP_PACKAGE,
+                                    contexto.packageName
+                                )
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        )
+                    }
+                )
+            }
+            if (!exactasOk) {
+                item {
+                    FilaAccion(
+                        titulo = "Permitir avisos a la hora exacta",
+                        detalle = "Sin esto Android agrupa las alarmas para ahorrar batería y el " +
+                            "recordatorio de las 8:00 puede llegarte a las 8:40 o no llegar.",
+                        onClick = {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                contexto.startActivity(
+                                    Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+                                        .setData(android.net.Uri.parse("package:${contexto.packageName}"))
+                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                )
+                            }
+                        }
+                    )
+                }
+            }
+
             item { Seccion("Modo estricto") }
             item {
                 FilaAccion(
@@ -151,7 +197,7 @@ fun PantallaAjustes(
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         Text(
-                            text = "Hábitos 2.3.1",
+                            text = "Hábitos 2.4",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface

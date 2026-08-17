@@ -2,10 +2,13 @@ package com.lucas.habitos
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -153,9 +156,20 @@ private val Oscuro = darkColorScheme(
 @Composable
 fun HabitosTheme(oscuro: Boolean? = false, content: @Composable () -> Unit) {
     val esOscuro = oscuro ?: isSystemInDarkTheme()
+    val esquema = if (esOscuro) Oscuro else Claro
     MaterialTheme(
-        colorScheme = if (esOscuro) Oscuro else Claro,
-        typography = TipografiaHabitos,
-        content = content
-    )
+        colorScheme = esquema,
+        typography = TipografiaHabitos
+    ) {
+        // Este Surface no es decoración: sin él, LocalContentColor se queda en el
+        // negro puro que trae Compose por defecto, y todo el texto o icono que no
+        // lleve color explícito sale negro. En claro desentona con el marrón de la
+        // paleta; en oscuro es texto negro sobre fondo negro, ilegible.
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = esquema.background,
+            contentColor = esquema.onBackground,
+            content = content
+        )
+    }
 }

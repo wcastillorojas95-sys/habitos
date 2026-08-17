@@ -1,6 +1,7 @@
 package com.lucas.habitos
 
 import android.Manifest
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -33,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,6 +54,22 @@ import java.time.LocalDate
 
 class MainActivity : ComponentActivity() {
 
+    /**
+     * La app se ha abierto desde el botón "Empezar ahora" de una notificación.
+     * Se anota en el estado compartido para que la interfaz lo recoja.
+     */
+    private fun leerPedidoDeEnfoque(entrante: Intent?) {
+        entrante?.getStringExtra(Recordatorios.EXTRA_ENFOCAR)?.let {
+            EstadoEnfoque.pedidoEnfoque = it
+        }
+    }
+
+    override fun onNewIntent(entrante: Intent) {
+        super.onNewIntent(entrante)
+        setIntent(entrante)
+        leerPedidoDeEnfoque(entrante)
+    }
+
     /** Una sesión estricta no debería poder esquivarse volviendo a la lista. */
     override fun onStart() {
         super.onStart()
@@ -63,6 +81,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         Recordatorios.crearCanal(this)
+        leerPedidoDeEnfoque(intent)
 
         val enfoque = AlmacenEnfoque(this)
         // Si la app se reabre con una sesión viva, la recuperamos del disco: el
@@ -138,6 +157,35 @@ private fun App(oscuro: Boolean, onCambiarTema: (Boolean) -> Unit) {
         }
         // Recién creado: ofrecemos arrancar ya. Es el momento de más ganas.
         if (!existe) recienCreado = habito
+    }
+
+    // Si la app se abrió desde "Empezar ahora", arranca el cronómetro directo con
+    // la duración que le tocaría hoy: el usuario ya dijo que sí en la notificación.
+    val pedido = EstadoEnfoque.pedidoEnfoque
+    LaunchedEffect(pedido, habitos) {
+        val id = pedido ?: return@LaunchedEffect
+        val habito = habitos.firstOrNull { it.id == id } ?: return@LaunchedEffect
+        EstadoEnfoque.pedidoEnfoque = null
+        val minutos = Sesion.minutosSugeridos(
+            habito, LocalDate.now(), almacenEnfoque.duracionPreferidaMin
+        )
+        ServicioEnfoque.iniciar(
+            contexto,
+            Sesion.para(habito, minutos, almacenEnfoque.modoEstrictoPreferido)
+        )
+        contexto.actividad()?.abrirEnfoque()
+    }
+
+    // Sin este permiso los recordatorios no salen, y hasta ahora solo se pedía al
+    // guardar un hábito con aviso: quien lo activó antes de Android 13 se quedaba
+    // sin avisos y sin saber por qué.
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            habitos.any { it.recordatorio && !it.archivado } &&
+            !Recordatorios.avisosPermitidos(contexto)
+        ) {
+            pedirNotificaciones.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 
     fun borrarHabito(habito: Habito) {

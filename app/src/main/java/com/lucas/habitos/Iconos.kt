@@ -17,6 +17,9 @@ package com.lucas.habitos
 
 val IconoAtras = R.drawable.ic_arrow_back
 val IconoBasura = R.drawable.ic_delete
+
+/** Papelera de línea: más ligera que la maciza para una acción destructiva. */
+val IconoBasuraLinea = R.drawable.ic_delete_outline
 val IconoCheck = R.drawable.ic_check
 val IconoCirculo = R.drawable.ic_radio_button_unchecked
 val IconoMarcado = R.drawable.ic_check_circle

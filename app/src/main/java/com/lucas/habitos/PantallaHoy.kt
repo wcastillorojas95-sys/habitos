@@ -585,7 +585,7 @@ private fun TarjetaHabito(
                             },
                             leadingIcon = {
                                 Icon(
-                                    painter = painterResource(IconoBasura),
+                                    painter = painterResource(IconoBasuraLinea),
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.error,
                                     modifier = Modifier.size(18.dp)

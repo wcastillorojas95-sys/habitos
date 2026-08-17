@@ -2,7 +2,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!--
+         Dos permisos para lo mismo, y hacen falta los dos.
+
+         Desde Android 13, SCHEDULE_EXACT_ALARM nace denegado y hay que ir a
+         ajustes a concederlo a mano; sin él las alarmas se agrupan para ahorrar
+         batería y un recordatorio de las 8:00 puede llegar a las 8:40. Con
+         USE_EXACT_ALARM el sistema lo concede solo, que es lo correcto aquí
+         porque la hora la fija el usuario y sin ella el aviso no sirve.
+    -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
 

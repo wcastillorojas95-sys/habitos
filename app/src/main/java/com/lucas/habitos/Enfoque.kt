@@ -103,6 +103,15 @@ enum class Desenlace { COMPLETADA, ABANDONADA }
 object EstadoEnfoque {
     var sesion by mutableStateOf<Sesion?>(null)
     var ultimoDesenlace by mutableStateOf<Pair<Sesion, Desenlace>?>(null)
+
+    /**
+     * Id del habito que hay que arrancar en cuanto la interfaz este viva.
+     *
+     * Lo pone MainActivity cuando la abre el boton "Empezar ahora" de una
+     * notificacion. Va por aqui y no por el Intent porque la actividad ya puede
+     * estar abierta y Compose necesita enterarse del cambio.
+     */
+    var pedidoEnfoque by mutableStateOf<String?>(null)
 }
 
 /**

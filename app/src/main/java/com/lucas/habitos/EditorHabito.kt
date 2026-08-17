@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -77,10 +80,16 @@ fun EditorHabito(
 
     val acento = PALETA[color % PALETA.size]
 
+    // El editor se dibuja fuera del Scaffold, así que nadie le reserva el hueco
+    // de la barra de estado ni el de la de navegación: sin esto, la flecha de
+    // volver y la papelera quedan pegadas al reloj del teléfono.
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .imePadding()
     ) {
 
         // Cabecera
@@ -119,7 +128,7 @@ fun EditorHabito(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        painter = painterResource(IconoBasura),
+                        painter = painterResource(IconoBasuraLinea),
                         contentDescription = "Eliminar",
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(20.dp)
