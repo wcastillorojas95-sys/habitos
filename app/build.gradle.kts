@@ -13,8 +13,8 @@ android {
         applicationId = "com.lucas.habitos"
         minSdk = 26
         targetSdk = 35
-        versionCode = 8
-        versionName = "2.5"
+        versionCode = 9
+        versionName = "2.5.1"
     }
 
     /*
@@ -83,7 +83,12 @@ dependencies {
 
     // Entrar con Google. firebase-auth guarda la sesión y la renueva sola;
     // play-services-auth es quien abre el selector de cuentas del teléfono.
-    implementation(platform("com.google.firebase:firebase-bom:34.17.0"))
+    //
+    // La versión está fijada al BOM 33.7.0 a propósito, no por descuido: a partir
+    // del 34 la librería viene compilada con Kotlin 2.3 y este proyecto usa el
+    // 2.0.21, que no sabe leer sus metadatos ("expected version is 2.0.0"). El
+    // día que se suba Kotlin, se puede subir también este número.
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.android.gms:play-services-auth:21.3.0")
 
