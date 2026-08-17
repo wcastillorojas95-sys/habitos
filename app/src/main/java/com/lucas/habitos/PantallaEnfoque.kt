@@ -24,9 +24,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,6 +49,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -84,18 +90,37 @@ class PantallaEnfoque : ComponentActivity() {
         })
 
         setContent {
-            HabitosTheme {
+            HabitosTheme(oscuro = almacenEnfoque.temaOscuro) {
                 val sesion = EstadoEnfoque.sesion
                 if (sesion == null) {
                     PantallaFin(onCerrar = { salir() })
                 } else {
+                    var pidiendoPin by remember { mutableStateOf(false) }
+
                     CuentaAtras(
                         sesion = sesion,
                         onRendirse = {
-                            soltarFijado()
-                            ServicioEnfoque.abandonar(this)
+                            // Con PIN puesto, la pulsación larga solo abre la
+                            // pregunta; sin PIN abandona directamente.
+                            if (almacenEnfoque.tienePin) pidiendoPin = true
+                            else {
+                                soltarFijado()
+                                ServicioEnfoque.abandonar(this)
+                            }
                         }
                     )
+
+                    if (pidiendoPin) {
+                        DialogoDesbloqueo(
+                            correcto = almacenEnfoque.pin,
+                            onCancelar = { pidiendoPin = false },
+                            onAcertado = {
+                                pidiendoPin = false
+                                soltarFijado()
+                                ServicioEnfoque.abandonar(this)
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -305,6 +330,62 @@ class PantallaEnfoque : ComponentActivity() {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+    }
+
+    /**
+     * Pide el PIN para abandonar una sesion estricta.
+     *
+     * No protege nada: la comparacion es en claro y el PIN se guarda sin cifrar.
+     * Su unico trabajo es que rendirse cueste mas que un gesto reflejo.
+     */
+    @Composable
+    private fun DialogoDesbloqueo(
+        correcto: String,
+        onCancelar: () -> Unit,
+        onAcertado: () -> Unit
+    ) {
+        var valor by remember { mutableStateOf("") }
+        var fallo by remember { mutableStateOf(false) }
+
+        AlertDialog(
+            onDismissRequest = onCancelar,
+            title = { Text("Escribe tu PIN") },
+            text = {
+                Column {
+                    Text(
+                        text = "Lo pusiste para no rendirte a la primera. Todavía estás a tiempo de seguir.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(14.dp))
+                    OutlinedTextField(
+                        value = valor,
+                        onValueChange = { valor = it.filter { c -> c.isDigit() }.take(6); fallo = false },
+                        label = { Text("PIN") },
+                        singleLine = true,
+                        isError = fallo,
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    if (fallo) {
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = "No es ese.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { if (valor == correcto) onAcertado() else fallo = true },
+                    enabled = valor.isNotEmpty()
+                ) { Text("Abandonar") }
+            },
+            dismissButton = { TextButton(onClick = onCancelar) { Text("Seguir") } }
+        )
     }
 
     @Composable
