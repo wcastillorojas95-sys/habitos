@@ -275,7 +275,10 @@ private fun App(oscuro: Boolean, onCambiarTema: (Boolean) -> Unit) {
                     almacenEnfoque = almacenEnfoque,
                     oscuro = oscuro,
                     onCambiarTema = onCambiarTema,
-                    habitos = habitos
+                    habitos = habitos,
+                    // Copia.importar ya guardó y reprogramó todo; aquí solo hay que
+                    // refrescar lo que la interfaz tiene en memoria.
+                    onDatosRestaurados = { habitos = it }
                 )
             }
         }

@@ -152,6 +152,20 @@ class AlmacenEnfoque(context: Context) {
 
     fun minutosDe(dia: LocalDate): Int = prefs.getInt(CLAVE_MINUTOS + dia.toString(), 0)
 
+    /** Todos los días con minutos anotados, para la copia de seguridad. */
+    fun minutosTodos(): Map<String, Int> =
+        prefs.all
+            .filterKeys { it.startsWith(CLAVE_MINUTOS) }
+            .mapNotNull { (clave, valor) ->
+                (valor as? Int)?.let { clave.removePrefix(CLAVE_MINUTOS) to it }
+            }
+            .toMap()
+
+    /** Restaura el total de un día concreto. Solo lo usa la importación. */
+    fun ponerMinutos(dia: String, minutos: Int) {
+        prefs.edit().putInt(CLAVE_MINUTOS + dia, minutos).apply()
+    }
+
     fun minutosUltimos(hoy: LocalDate, dias: Int): Int =
         (0 until dias).sumOf { minutosDe(hoy.minusDays(it.toLong())) }
 

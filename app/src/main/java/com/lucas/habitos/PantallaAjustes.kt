@@ -1,6 +1,8 @@
 package com.lucas.habitos
 
 import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -54,7 +56,8 @@ fun PantallaAjustes(
     almacenEnfoque: AlmacenEnfoque,
     oscuro: Boolean,
     onCambiarTema: (Boolean) -> Unit,
-    habitos: List<Habito>
+    habitos: List<Habito>,
+    onDatosRestaurados: (List<Habito>) -> Unit
 ) {
     val contexto = LocalContext.current
     val hoy = remember { LocalDate.now() }
@@ -70,6 +73,27 @@ fun PantallaAjustes(
     // ajustes del sistema, conceder el permiso y volver, y al volver debe verlo.
     val avisosOk = Recordatorios.avisosPermitidos(contexto)
     val exactasOk = Recordatorios.alarmasExactas(contexto)
+    var avisoCopia by remember { mutableStateOf<String?>(null) }
+    var confirmandoImportar by remember { mutableStateOf(false) }
+
+    // El selector de archivos del sistema evita pedir permisos de almacenamiento:
+    // Android entrega el archivo ya abierto y solo ese.
+    val guardarCopia = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { destino ->
+        if (destino != null) avisoCopia = Copia.exportar(contexto, destino).mensaje
+    }
+
+    val abrirCopia = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { origen ->
+        if (origen != null) {
+            val resultado = Copia.importar(contexto, origen)
+            avisoCopia = resultado.mensaje
+            if (resultado.ok) onDatosRestaurados(resultado.habitos)
+        }
+    }
+
     val calendarioOk = Calendario.tienePermiso(contexto)
     var cuentaCalendario by remember {
         mutableStateOf(if (calendarioOk) Calendario.nombreDelCalendario(contexto) else "")
@@ -259,6 +283,24 @@ fun PantallaAjustes(
                 )
             }
 
+            item { Seccion("Copia de seguridad") }
+            item {
+                FilaAccion(
+                    titulo = "Guardar una copia",
+                    detalle = "Un archivo con todos tus hábitos, su historial y tus minutos de " +
+                        "enfoque. Guárdalo en Drive o donde quieras. El PIN no se incluye.",
+                    onClick = { guardarCopia.launch(Copia.nombreSugerido()) }
+                )
+            }
+            item {
+                FilaAccion(
+                    titulo = "Restaurar una copia",
+                    detalle = "Recupera todo desde un archivo guardado. Sustituye lo que tengas " +
+                        "ahora, así que se te pedirá confirmación.",
+                    onClick = { confirmandoImportar = true }
+                )
+            }
+
             item { Seccion("Acerca de") }
             item {
                 Card(
@@ -269,7 +311,7 @@ fun PantallaAjustes(
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         Text(
-                            text = "Hábitos 2.6",
+                            text = "Hábitos 2.7",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -286,6 +328,40 @@ fun PantallaAjustes(
                 }
             }
         }
+    }
+
+    avisoCopia?.let { mensaje ->
+        AlertDialog(
+            onDismissRequest = { avisoCopia = null },
+            title = { Text("Copia de seguridad", fontWeight = FontWeight.Bold) },
+            text = { Text(mensaje) },
+            confirmButton = {
+                TextButton(onClick = { avisoCopia = null }) { Text("Entendido") }
+            }
+        )
+    }
+
+    if (confirmandoImportar) {
+        AlertDialog(
+            onDismissRequest = { confirmandoImportar = false },
+            title = { Text("¿Restaurar una copia?", fontWeight = FontWeight.Bold) },
+            text = {
+                Text(
+                    "Los hábitos que tengas ahora se sustituyen por los del archivo, con su " +
+                        "historial. Esto no se puede deshacer, así que si tienes algo que no " +
+                        "esté en la copia, guarda una antes."
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmandoImportar = false
+                    abrirCopia.launch(arrayOf("application/json", "text/plain", "*/*"))
+                }) { Text("Elegir archivo") }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmandoImportar = false }) { Text("Cancelar") }
+            }
+        )
     }
 
     if (cerrandoSesion) {

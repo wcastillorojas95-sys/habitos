@@ -48,6 +48,21 @@ class Almacen(context: Context) {
         get() = prefs.getString(CLAVE_CUENTA_CAL, "") ?: ""
         set(valor) = prefs.edit().putString(CLAVE_CUENTA_CAL, valor).apply()
 
+    // ---------- copia de seguridad ----------
+
+    /** Los hábitos tal cual se guardan, para meterlos en la copia. */
+    fun comoJson(): JSONArray {
+        val arreglo = JSONArray()
+        cargar().forEach { arreglo.put(escribirHabito(it)) }
+        return arreglo
+    }
+
+    /** Lee los hábitos de una copia. Se salta en silencio los que vengan rotos. */
+    fun desdeJson(arreglo: JSONArray): List<Habito> =
+        (0 until arreglo.length()).mapNotNull { i ->
+            runCatching { leerHabito(arreglo.getJSONObject(i)) }.getOrNull()
+        }
+
     // ---------- lectura ----------
 
     private fun leerHabito(o: JSONObject): Habito? = try {
