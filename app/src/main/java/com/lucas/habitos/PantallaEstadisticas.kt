@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +26,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -44,7 +47,11 @@ fun PantallaEstadisticas(habitos: List<Habito>, hoy: LocalDate) {
     ) {
 
         item {
-            Text(text = "Progreso", style = MaterialTheme.typography.headlineLarge)
+            Text(
+                text = "Progreso",
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.ExtraBold
+            )
         }
 
         if (activos.isEmpty()) {
@@ -55,11 +62,17 @@ fun PantallaEstadisticas(habitos: List<Habito>, hoy: LocalDate) {
                         .padding(top = 70.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(text = "📊", fontSize = 48.sp)
+                    Icon(
+                        painter = painterResource(R.drawable.ic_bar_chart),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                        modifier = Modifier.size(48.dp)
+                    )
                     Spacer(Modifier.height(12.dp))
                     Text(
                         text = "Aún no hay nada que medir",
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
@@ -81,6 +94,7 @@ fun PantallaEstadisticas(habitos: List<Habito>, hoy: LocalDate) {
             Text(
                 text = "HÁBITO POR HÁBITO",
                 style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.ExtraBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -123,12 +137,14 @@ private fun Dato(valor: String, etiqueta: String) {
         Text(
             text = valor,
             style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.ExtraBold,
             color = MaterialTheme.colorScheme.onPrimaryContainer
         )
         Spacer(Modifier.height(3.dp))
         Text(
             text = etiqueta,
             style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
         )
@@ -301,7 +317,14 @@ private fun FilaHabito(habito: Habito, hoy: LocalDate) {
                     .clip(CircleShape)
                     .background(color.copy(alpha = 0.18f)),
                 contentAlignment = Alignment.Center
-            ) { Text(text = habito.emoji, fontSize = 19.sp) }
+            ) {
+                Icon(
+                    painter = painterResource(recursoDeIcono(habito.icono)),
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
 
             Spacer(Modifier.width(12.dp))
 
@@ -309,6 +332,7 @@ private fun FilaHabito(habito: Habito, hoy: LocalDate) {
                 Text(
                     text = habito.nombre,
                     style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -323,6 +347,7 @@ private fun FilaHabito(habito: Habito, hoy: LocalDate) {
             Text(
                 text = "$constancia%",
                 style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.ExtraBold,
                 color = color
             )
         }
@@ -342,9 +367,10 @@ private fun Tarjeta(titulo: String, contenido: @Composable () -> Unit) {
             Text(
                 text = titulo.uppercase(),
                 style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.ExtraBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(Modifier.height(14.dp))
+            Spacer(Modifier.height(16.dp))
             contenido()
         }
     }

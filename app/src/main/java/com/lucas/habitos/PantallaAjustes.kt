@@ -84,6 +84,7 @@ fun PantallaAjustes(
                         Text(
                             text = "Lucas",
                             style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.ExtraBold,
                             color = MaterialTheme.colorScheme.onBackground
                         )
                         Text(
@@ -99,6 +100,7 @@ fun PantallaAjustes(
                 Text(
                     text = "Ajustes",
                     style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
@@ -149,15 +151,16 @@ fun PantallaAjustes(
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         Text(
-                            text = "Hábitos 2.2",
+                            text = "Hábitos 2.3",
                             style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(Modifier.height(6.dp))
                         Text(
                             text = "Tipografía MK Saans. Ilustraciones de illlustrations.co " +
-                                "(Vijay Verma, licencia MIT). Avatares e iconos dibujados para " +
-                                "esta app.",
+                                "(Vijay Verma, licencia MIT). Iconos: Material Icons de Google " +
+                                "(Apache 2.0). Avatares dibujados para esta app.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -224,9 +227,9 @@ private fun Seccion(texto: String) {
     Text(
         text = texto,
         style = MaterialTheme.typography.labelLarge,
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight.ExtraBold,
         color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(start = 4.dp, top = 14.dp, bottom = 2.dp)
+        modifier = Modifier.padding(start = 4.dp, top = 18.dp, bottom = 4.dp)
     )
 }
 
@@ -251,9 +254,10 @@ private fun FilaInterruptor(
                 Text(
                     text = titulo,
                     style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                Spacer(Modifier.height(2.dp))
+                Spacer(Modifier.height(3.dp))
                 Text(
                     text = detalle,
                     style = MaterialTheme.typography.bodySmall,
@@ -280,9 +284,10 @@ private fun FilaAccion(titulo: String, detalle: String, onClick: () -> Unit) {
             Text(
                 text = titulo,
                 style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            Spacer(Modifier.height(2.dp))
+            Spacer(Modifier.height(3.dp))
             Text(
                 text = detalle,
                 style = MaterialTheme.typography.bodySmall,

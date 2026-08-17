@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -30,6 +31,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,19 +39,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import java.time.LocalDate
 import java.util.UUID
-
-val EMOJIS = listOf(
-    "💧", "🏃", "📖", "🧘", "💪", "🥗",
-    "😴", "🎸", "✍️", "🧹", "💊", "🌱",
-    "🚭", "☀️", "🧠", "🎯", "📵", "🚿"
-)
 
 @Composable
 fun EditorHabito(
@@ -61,7 +61,7 @@ fun EditorHabito(
     val contexto = LocalContext.current
 
     var nombre by remember { mutableStateOf(original?.nombre ?: "") }
-    var emoji by remember { mutableStateOf(original?.emoji ?: EMOJIS.first()) }
+    var icono by remember { mutableStateOf(claveDeIcono(original?.icono)) }
     var color by remember { mutableStateOf(original?.color ?: 0) }
     var frecuencia by remember { mutableStateOf(original?.frecuencia ?: Frecuencia.DIARIO) }
     var dias by remember { mutableStateOf(original?.diasSemana ?: setOf(1, 2, 3, 4, 5, 6, 7)) }
@@ -97,12 +97,17 @@ fun EditorHabito(
                     .clickable { onCancelar() },
                 contentAlignment = Alignment.Center
             ) {
-                Icon(IconoAtras, contentDescription = "Volver", modifier = Modifier.size(20.dp))
+                Icon(
+                    painter = painterResource(IconoAtras),
+                    contentDescription = "Volver",
+                    modifier = Modifier.size(21.dp)
+                )
             }
             Spacer(Modifier.width(6.dp))
             Text(
                 text = if (original == null) "Nuevo hábito" else "Editar hábito",
                 style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f)
             )
             if (original != null) {
@@ -114,10 +119,10 @@ fun EditorHabito(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        IconoBasura,
+                        painter = painterResource(IconoBasura),
                         contentDescription = "Eliminar",
                         tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(19.dp)
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }
@@ -140,17 +145,26 @@ fun EditorHabito(
             )
 
             Titulo("Ícono")
-            Rejilla(EMOJIS, 6) { e ->
+            Rejilla(ICONOS_HABITO, 6) { entrada ->
+                val elegido = entrada.clave == icono
                 Box(
                     modifier = Modifier
                         .size(46.dp)
                         .clip(RoundedCornerShape(14.dp))
                         .background(
-                            if (e == emoji) acento.copy(alpha = 0.18f) else Color.Transparent
+                            if (elegido) acento.copy(alpha = 0.18f)
+                            else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
                         )
-                        .clickable { emoji = e },
+                        .clickable { icono = entrada.clave },
                     contentAlignment = Alignment.Center
-                ) { Text(text = e, fontSize = 21.sp) }
+                ) {
+                    Icon(
+                        painter = painterResource(entrada.recurso),
+                        contentDescription = entrada.clave,
+                        tint = if (elegido) acento else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
             }
 
             Titulo("Color")
@@ -214,6 +228,7 @@ fun EditorHabito(
                                 Text(
                                     text = LETRAS_DIA[d - 1],
                                     style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = if (activo) FontWeight.Bold else FontWeight.Medium,
                                     color = if (activo) acento
                                     else MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -261,7 +276,7 @@ fun EditorHabito(
                     valor = cantidad,
                     acento = acento,
                     minimo = 1,
-                    maximo = if (meta == Meta.TIEMPO) 240 else 100,
+                    maximo = if (meta == Meta.TIEMPO) 480 else 1000,
                     paso = if (meta == Meta.TIEMPO) 5 else 1
                 ) { cantidad = it }
 
@@ -326,12 +341,12 @@ fun EditorHabito(
                     val h = (original ?: Habito(
                         id = UUID.randomUUID().toString(),
                         nombre = "",
-                        emoji = emoji,
+                        icono = icono,
                         color = color,
                         creado = LocalDate.now().toString()
                     )).copy(
                         nombre = nombre.trim(),
-                        emoji = emoji,
+                        icono = icono,
                         color = color,
                         frecuencia = frecuencia,
                         diasSemana = dias,
@@ -386,13 +401,14 @@ fun EditorHabito(
 
 @Composable
 private fun Titulo(texto: String) {
-    Spacer(Modifier.height(26.dp))
+    Spacer(Modifier.height(28.dp))
     Text(
         text = texto.uppercase(),
         style = MaterialTheme.typography.labelSmall,
+        fontWeight = FontWeight.ExtraBold,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
-    Spacer(Modifier.height(10.dp))
+    Spacer(Modifier.height(12.dp))
 }
 
 @Composable
@@ -415,6 +431,7 @@ private fun Chip(texto: String, activo: Boolean, acento: Color, onClick: () -> U
         Text(
             text = texto,
             style = MaterialTheme.typography.labelLarge,
+            fontWeight = if (activo) FontWeight.Bold else FontWeight.Medium,
             color = if (activo) acento else MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
@@ -422,13 +439,13 @@ private fun Chip(texto: String, activo: Boolean, acento: Color, onClick: () -> U
 
 @Composable
 private fun Rejilla(
-    elementos: List<String>,
+    elementos: List<IconoHabito>,
     porFila: Int,
-    contenido: @Composable (String) -> Unit
+    contenido: @Composable (IconoHabito) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         elementos.chunked(porFila).forEach { fila ->
-            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 fila.forEach { contenido(it) }
             }
         }
@@ -445,6 +462,14 @@ private fun Contador(
     paso: Int = 1,
     onCambiar: (Int) -> Unit
 ) {
+    // El texto va aparte del número para poder dejar el campo vacío mientras se
+    // escribe sin que salte al mínimo en cuanto se borra la última cifra.
+    var texto by remember { mutableStateOf(valor.toString()) }
+    var editando by remember { mutableStateOf(false) }
+
+    // Si el valor cambia desde fuera (los botones − y +), el texto lo sigue.
+    LaunchedEffect(valor) { if (!editando) texto = valor.toString() }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -461,17 +486,53 @@ private fun Contador(
                 .clickable { onCambiar((valor - paso).coerceAtLeast(minimo)) },
             contentAlignment = Alignment.Center
         ) {
-            Icon(IconoMenos, contentDescription = "Restar", tint = acento, modifier = Modifier.size(14.dp))
+            Icon(
+                painter = painterResource(IconoMenos),
+                contentDescription = "Restar",
+                tint = acento,
+                modifier = Modifier.size(16.dp)
+            )
         }
 
         Column(
             modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = valor.toString(), style = MaterialTheme.typography.headlineSmall)
+            // Campo escribible, no solo un número: para poner 33 minutos con los
+            // botones harían falta siete toques.
+            BasicTextField(
+                value = texto,
+                onValueChange = { entrada ->
+                    val limpio = entrada.filter { it.isDigit() }.take(4)
+                    texto = limpio
+                    limpio.toIntOrNull()?.let { n -> if (n in minimo..maximo) onCambiar(n) }
+                },
+                singleLine = true,
+                textStyle = MaterialTheme.typography.headlineSmall.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center
+                ),
+                cursorBrush = SolidColor(acento),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier
+                    .width(96.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(vertical = 4.dp)
+                    .onFocusChanged { estado ->
+                        editando = estado.isFocused
+                        if (!estado.isFocused) {
+                            val n = texto.toIntOrNull()?.coerceIn(minimo, maximo) ?: valor
+                            onCambiar(n)
+                            texto = n.toString()
+                        }
+                    }
+            )
+            Spacer(Modifier.height(3.dp))
             Text(
                 text = etiqueta,
                 style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -484,7 +545,12 @@ private fun Contador(
                 .clickable { onCambiar((valor + paso).coerceAtMost(maximo)) },
             contentAlignment = Alignment.Center
         ) {
-            Icon(IconoMas, contentDescription = "Sumar", tint = acento, modifier = Modifier.size(14.dp))
+            Icon(
+                painter = painterResource(IconoMas),
+                contentDescription = "Sumar",
+                tint = acento,
+                modifier = Modifier.size(16.dp)
+            )
         }
     }
 }
@@ -507,7 +573,11 @@ private fun Interruptor(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = titulo, style = MaterialTheme.typography.titleSmall)
+            Text(
+                text = titulo,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold
+            )
             Spacer(Modifier.height(2.dp))
             Text(
                 text = detalle,

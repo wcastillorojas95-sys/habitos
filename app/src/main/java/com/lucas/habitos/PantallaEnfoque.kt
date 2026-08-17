@@ -27,6 +27,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -45,6 +46,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
@@ -195,7 +197,12 @@ class PantallaEnfoque : ComponentActivity() {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(28.dp)
             ) {
-                Text(text = sesion.emoji, fontSize = 44.sp)
+                Icon(
+                    painter = painterResource(recursoDeIcono(sesion.icono)),
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier.size(46.dp)
+                )
                 Spacer(Modifier.height(10.dp))
                 Text(
                     text = sesion.nombre,
@@ -408,7 +415,14 @@ class PantallaEnfoque : ComponentActivity() {
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier.padding(32.dp)
             ) {
-                Text(text = if (completada) "✅" else "⏸️", fontSize = 58.sp)
+                Icon(
+                    painter = painterResource(
+                        if (completada) R.drawable.ic_check_circle else R.drawable.ic_timer
+                    ),
+                    contentDescription = null,
+                    tint = if (completada) PALETA[1] else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(58.dp)
+                )
                 Spacer(Modifier.height(16.dp))
                 Text(
                     text = if (completada) "Actividad completada" else "Sesión interrumpida",

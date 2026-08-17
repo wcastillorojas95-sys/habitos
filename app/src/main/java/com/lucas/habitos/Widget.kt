@@ -103,9 +103,12 @@ class WidgetHabitos : AppWidgetProvider() {
                 val fila = RemoteViews(contexto.packageName, R.layout.widget_fila)
                 val listo = habito.cumplido(hoy)
 
-                fila.setTextViewText(R.id.fila_emoji, habito.emoji)
+                fila.setImageViewResource(R.id.fila_icono, recursoDeIcono(habito.icono))
                 fila.setTextViewText(R.id.fila_nombre, habito.nombre)
-                fila.setTextViewText(R.id.fila_marca, if (listo) "✓" else "○")
+                fila.setImageViewResource(
+                    R.id.fila_marca,
+                    if (listo) IconoMarcado else IconoCirculo
+                )
 
                 val alternar = Intent(contexto, WidgetHabitos::class.java).apply {
                     action = ACCION_ALTERNAR

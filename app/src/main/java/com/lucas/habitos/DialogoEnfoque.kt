@@ -13,12 +13,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -33,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import java.time.LocalDate
@@ -65,7 +68,15 @@ fun DialogoEnfoque(
 
     AlertDialog(
         onDismissRequest = onCancelar,
-        title = { Text("${habito.emoji}  ${habito.nombre}") },
+        icon = {
+            Icon(
+                painter = painterResource(recursoDeIcono(habito.icono)),
+                contentDescription = null,
+                tint = color,
+                modifier = Modifier.size(26.dp)
+            )
+        },
+        title = { Text(habito.nombre, fontWeight = FontWeight.Bold) },
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
 
@@ -78,7 +89,11 @@ fun DialogoEnfoque(
                     Spacer(Modifier.height(12.dp))
                 }
 
-                Text("¿Cuánto tiempo?", style = MaterialTheme.typography.labelLarge)
+                Text(
+                    text = "¿Cuánto tiempo?",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.ExtraBold
+                )
                 Spacer(Modifier.height(10.dp))
 
                 opciones.chunked(3).forEach { fila ->
@@ -124,7 +139,11 @@ fun DialogoEnfoque(
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
-                        Text("Modo estricto", style = MaterialTheme.typography.titleSmall)
+                        Text(
+                            text = "Modo estricto",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold
+                        )
                         Spacer(Modifier.height(2.dp))
                         Text(
                             text = "Fija la app en pantalla y bloquea Inicio y Recientes. " +

@@ -72,7 +72,7 @@ object Calendario {
     fun registrar(contexto: Context, habito: Habito, fecha: LocalDate) {
         if (!tienePermiso(contexto)) return
         val calendario = calendarioPreferido(contexto) ?: return
-        val titulo = "${habito.emoji} ${habito.nombre}"
+        val titulo = habito.nombre
         val inicio = fecha.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli()
 
         if (yaExiste(contexto, calendario, titulo, inicio)) return
@@ -99,7 +99,7 @@ object Calendario {
     fun borrar(contexto: Context, habito: Habito, fecha: LocalDate) {
         if (!tienePermiso(contexto)) return
         val calendario = calendarioPreferido(contexto) ?: return
-        val titulo = "${habito.emoji} ${habito.nombre}"
+        val titulo = habito.nombre
         val inicio = fecha.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli()
 
         try {

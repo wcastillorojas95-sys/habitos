@@ -40,7 +40,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import java.time.LocalDate
 import java.util.UUID
 
@@ -60,7 +59,7 @@ private data class Categoria(
 
 private data class Plantilla(
     val nombre: String,
-    val emoji: String,
+    val icono: String,
     val meta: Meta = Meta.SI_NO,
     val cantidad: Int = 1,
     val unidad: String = ""
@@ -68,44 +67,44 @@ private data class Plantilla(
 
 private val CATEGORIAS = listOf(
     Categoria("Esencial", R.drawable.ilu_essential, 0, listOf(
-        Plantilla("Escribir el diario", "✍️"),
-        Plantilla("Planificar el día", "🗒️"),
-        Plantilla("Leer", "📖", Meta.TIEMPO, 20, "min")
+        Plantilla("Escribir el diario", "escribir"),
+        Plantilla("Planificar el día", "nota"),
+        Plantilla("Leer", "leer", Meta.TIEMPO, 20, "min")
     )),
     Categoria("Salud", R.drawable.ilu_health, 1, listOf(
-        Plantilla("Beber agua", "💧", Meta.CANTIDAD, 8, "vasos"),
-        Plantilla("Comer fruta", "🍎", Meta.CANTIDAD, 2, "piezas"),
-        Plantilla("Dormir 8 horas", "😴")
+        Plantilla("Beber agua", "agua", Meta.CANTIDAD, 8, "vasos"),
+        Plantilla("Comer fruta", "comida", Meta.CANTIDAD, 2, "piezas"),
+        Plantilla("Dormir 8 horas", "dormir")
     )),
     Categoria("Ejercicio", R.drawable.ilu_exercise, 2, listOf(
-        Plantilla("Entrenar", "💪", Meta.TIEMPO, 30, "min"),
-        Plantilla("Caminar", "🚶", Meta.CANTIDAD, 8000, "pasos"),
-        Plantilla("Estirar", "🧘", Meta.TIEMPO, 10, "min")
+        Plantilla("Entrenar", "pesas", Meta.TIEMPO, 30, "min"),
+        Plantilla("Caminar", "caminar", Meta.CANTIDAD, 8000, "pasos"),
+        Plantilla("Estirar", "meditar", Meta.TIEMPO, 10, "min")
     )),
     Categoria("Relaciones", R.drawable.ilu_relationship, 3, listOf(
-        Plantilla("Llamar a la familia", "📞"),
-        Plantilla("Quedar con alguien", "☕"),
-        Plantilla("Escribir a un amigo", "💬")
+        Plantilla("Llamar a la familia", "llamar"),
+        Plantilla("Quedar con alguien", "cafe"),
+        Plantilla("Escribir a un amigo", "chat")
     )),
     Categoria("Casa", R.drawable.ilu_home, 4, listOf(
-        Plantilla("Ordenar 10 minutos", "🧹", Meta.TIEMPO, 10, "min"),
-        Plantilla("Cocinar en casa", "🍳"),
-        Plantilla("Hacer la cama", "🛏️")
+        Plantilla("Ordenar 10 minutos", "limpiar", Meta.TIEMPO, 10, "min"),
+        Plantilla("Cocinar en casa", "cocina"),
+        Plantilla("Hacer la cama", "cama")
     )),
     Categoria("Trabajo", R.drawable.ilu_work, 5, listOf(
-        Plantilla("Trabajo profundo", "🎯", Meta.TIEMPO, 60, "min"),
-        Plantilla("Vaciar la bandeja", "📥"),
-        Plantilla("Estudiar", "📚", Meta.TIEMPO, 45, "min")
+        Plantilla("Trabajo profundo", "objetivo", Meta.TIEMPO, 60, "min"),
+        Plantilla("Vaciar la bandeja", "bandeja"),
+        Plantilla("Estudiar", "estudiar", Meta.TIEMPO, 45, "min")
     )),
     Categoria("Mente", R.drawable.ilu_mindfulness, 2, listOf(
-        Plantilla("Meditar", "🧘", Meta.TIEMPO, 10, "min"),
-        Plantilla("Sin móvil una hora", "📵"),
-        Plantilla("Anotar 3 cosas buenas", "🌟")
+        Plantilla("Meditar", "meditar", Meta.TIEMPO, 10, "min"),
+        Plantilla("Sin móvil una hora", "nomovil"),
+        Plantilla("Anotar 3 cosas buenas", "estrella")
     )),
     Categoria("Dinero", R.drawable.ilu_finance, 1, listOf(
-        Plantilla("Anotar gastos", "🧾"),
-        Plantilla("Día sin gastar", "🚫"),
-        Plantilla("Revisar el presupuesto", "📊")
+        Plantilla("Anotar gastos", "dinero"),
+        Plantilla("Día sin gastar", "nogastar"),
+        Plantilla("Revisar el presupuesto", "grafico")
     ))
 )
 
@@ -133,7 +132,7 @@ fun PantallaExplorar(onCrear: (Habito) -> Unit) {
             Habito(
                 id = UUID.randomUUID().toString(),
                 nombre = p.nombre,
-                emoji = p.emoji,
+                icono = p.icono,
                 color = cat.color,
                 creado = LocalDate.now().toString(),
                 categoria = cat.nombre,
@@ -159,6 +158,7 @@ fun PantallaExplorar(onCrear: (Habito) -> Unit) {
                 Text(
                     text = "Explorar",
                     style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
             }
@@ -189,8 +189,9 @@ fun PantallaExplorar(onCrear: (Habito) -> Unit) {
                     text = if (buscando) "${resultados.size} resultados"
                     else "Actividades de ${CATEGORIAS[elegida].nombre}",
                     style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(top = 6.dp)
+                    modifier = Modifier.padding(top = 10.dp, bottom = 2.dp)
                 )
             }
 
@@ -224,7 +225,7 @@ private fun Buscador(valor: String, onCambiar: (String) -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = IconoLupa,
+            painter = painterResource(IconoLupa),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(17.dp)
@@ -287,11 +288,11 @@ private fun TarjetaCategoria(
                     modifier = Modifier.fillMaxSize()
                 )
             }
-            Spacer(Modifier.height(9.dp))
+            Spacer(Modifier.height(12.dp))
             Text(
                 text = categoria.nombre,
                 style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 color = if (activa) MaterialTheme.colorScheme.onPrimary
@@ -323,17 +324,24 @@ private fun FilaActividad(categoria: Categoria, plantilla: Plantilla, onCrear: (
                     .background(color.copy(alpha = 0.18f)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = plantilla.emoji, fontSize = 20.sp)
+                Icon(
+                    painter = painterResource(recursoDeIcono(plantilla.icono)),
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier.size(21.dp)
+                )
             }
             Spacer(Modifier.width(13.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = plantilla.nombre,
                     style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+                Spacer(Modifier.height(2.dp))
                 Text(
                     text = when (plantilla.meta) {
                         Meta.SI_NO -> "Todos los días"
@@ -341,6 +349,7 @@ private fun FilaActividad(categoria: Categoria, plantilla: Plantilla, onCrear: (
                         Meta.CANTIDAD -> "${plantilla.cantidad} ${plantilla.unidad} al día"
                     },
                     style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -352,35 +361,12 @@ private fun FilaActividad(categoria: Categoria, plantilla: Plantilla, onCrear: (
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = IconoMas,
+                    painter = painterResource(IconoMas),
                     contentDescription = "Añadir",
                     tint = color,
                     modifier = Modifier.size(15.dp)
                 )
             }
         }
-    }
-}
-
-/** Lupa dibujada a mano, al estilo del resto de iconos. */
-val IconoLupa: androidx.compose.ui.graphics.vector.ImageVector by lazy {
-    vector {
-        moveTo(11f, 3.5f)
-        curveTo(15.1f, 3.5f, 18.5f, 6.9f, 18.5f, 11f)
-        curveTo(18.5f, 15.1f, 15.1f, 18.5f, 11f, 18.5f)
-        curveTo(6.9f, 18.5f, 3.5f, 15.1f, 3.5f, 11f)
-        curveTo(3.5f, 6.9f, 6.9f, 3.5f, 11f, 3.5f)
-        close()
-        moveTo(11f, 6f)
-        curveTo(8.2f, 6f, 6f, 8.2f, 6f, 11f)
-        curveTo(6f, 13.8f, 8.2f, 16f, 11f, 16f)
-        curveTo(13.8f, 16f, 16f, 13.8f, 16f, 11f)
-        curveTo(16f, 8.2f, 13.8f, 6f, 11f, 6f)
-        close()
-        moveTo(16.6f, 15.2f)
-        lineTo(21f, 19.6f)
-        lineTo(19.6f, 21f)
-        lineTo(15.2f, 16.6f)
-        close()
     }
 }

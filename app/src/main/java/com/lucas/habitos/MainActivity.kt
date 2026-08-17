@@ -40,8 +40,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -139,6 +139,11 @@ private fun App(oscuro: Boolean, onCambiarTema: (Boolean) -> Unit) {
         if (!existe) recienCreado = habito
     }
 
+    fun borrarHabito(habito: Habito) {
+        Recordatorios.cancelar(contexto, habito.id)
+        aplicar(habitos.filterNot { it.id == habito.id })
+    }
+
     if (abriendoEditor) {
         EditorHabito(
             original = editando,
@@ -149,8 +154,7 @@ private fun App(oscuro: Boolean, onCambiarTema: (Boolean) -> Unit) {
                 editando = null
             },
             onBorrar = { h ->
-                Recordatorios.cancelar(contexto, h.id)
-                aplicar(habitos.filterNot { it.id == h.id })
+                borrarHabito(h)
                 abriendoEditor = false
                 editando = null
             }
@@ -175,6 +179,7 @@ private fun App(oscuro: Boolean, onCambiarTema: (Boolean) -> Unit) {
                     onCambiar = { aplicar(it) },
                     onNuevo = { editando = null; abriendoEditor = true },
                     onEditar = { editando = it; abriendoEditor = true },
+                    onBorrar = { borrarHabito(it) },
                     onEnfocar = { aEnfocar = it }
                 )
             }
@@ -198,7 +203,15 @@ private fun App(oscuro: Boolean, onCambiarTema: (Boolean) -> Unit) {
     recienCreado?.let { nuevo ->
         AlertDialog(
             onDismissRequest = { recienCreado = null },
-            title = { Text("${nuevo.emoji}  ${nuevo.nombre}") },
+            icon = {
+                Icon(
+                    painter = painterResource(recursoDeIcono(nuevo.icono)),
+                    contentDescription = null,
+                    tint = PALETA[nuevo.color % PALETA.size],
+                    modifier = Modifier.size(26.dp)
+                )
+            },
+            title = { Text(nuevo.nombre, fontWeight = FontWeight.Bold) },
             text = { Text("Creado. ¿Le dedicas un rato ahora mismo? Empezar el primer día es lo que decide si el hábito cuaja.") },
             confirmButton = {
                 TextButton(onClick = { recienCreado = null; aEnfocar = nuevo }) {
@@ -255,7 +268,7 @@ private fun BarraFlotante(actual: Pantalla, onElegir: (Pantalla) -> Unit) {
 /** Círculo blanco, o píldora naranja con texto si está activa. */
 @Composable
 private fun PestanaPildora(
-    icono: ImageVector,
+    icono: Int,
     texto: String,
     activa: Boolean,
     onClick: () -> Unit
@@ -269,7 +282,7 @@ private fun PestanaPildora(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = icono,
+            painter = painterResource(icono),
             contentDescription = texto,
             tint = if (activa) Color.White else Color(0xFF151312),
             modifier = Modifier.size(19.dp)
@@ -283,52 +296,5 @@ private fun PestanaPildora(
                 color = Color.White
             )
         }
-    }
-}
-
-/** Iconos dibujados a mano para no depender de la librería de iconos. */
-val IconoCasa: ImageVector by lazy {
-    vector {
-        moveTo(12f, 3.2f)
-        lineTo(3.5f, 10.2f)
-        lineTo(3.5f, 20.5f)
-        lineTo(9.5f, 20.5f)
-        lineTo(9.5f, 14.5f)
-        lineTo(14.5f, 14.5f)
-        lineTo(14.5f, 20.5f)
-        lineTo(20.5f, 20.5f)
-        lineTo(20.5f, 10.2f)
-        close()
-    }
-}
-
-val IconoGrafico: ImageVector by lazy {
-    vector {
-        moveTo(4f, 20f); lineTo(8f, 20f); lineTo(8f, 11f); lineTo(4f, 11f); close()
-        moveTo(10f, 20f); lineTo(14f, 20f); lineTo(14f, 4f); lineTo(10f, 4f); close()
-        moveTo(16f, 20f); lineTo(20f, 20f); lineTo(20f, 14f); lineTo(16f, 14f); close()
-    }
-}
-
-val IconoEngranaje: ImageVector by lazy {
-    vector {
-        moveTo(12f, 8.4f)
-        curveTo(10f, 8.4f, 8.4f, 10f, 8.4f, 12f)
-        curveTo(8.4f, 14f, 10f, 15.6f, 12f, 15.6f)
-        curveTo(14f, 15.6f, 15.6f, 14f, 15.6f, 12f)
-        curveTo(15.6f, 10f, 14f, 8.4f, 12f, 8.4f)
-        close()
-        moveTo(10.4f, 2f); lineTo(13.6f, 2f); lineTo(14.1f, 4.6f)
-        lineTo(16.3f, 5.5f); lineTo(18.5f, 4f); lineTo(20f, 5.5f)
-        lineTo(18.5f, 7.7f); lineTo(19.4f, 9.9f); lineTo(22f, 10.4f)
-        lineTo(22f, 13.6f); lineTo(19.4f, 14.1f); lineTo(18.5f, 16.3f)
-        lineTo(20f, 18.5f); lineTo(18.5f, 20f); lineTo(16.3f, 18.5f)
-        lineTo(14.1f, 19.4f); lineTo(13.6f, 22f); lineTo(10.4f, 22f)
-        lineTo(9.9f, 19.4f); lineTo(7.7f, 18.5f); lineTo(5.5f, 20f)
-        lineTo(4f, 18.5f); lineTo(5.5f, 16.3f); lineTo(4.6f, 14.1f)
-        lineTo(2f, 13.6f); lineTo(2f, 10.4f); lineTo(4.6f, 9.9f)
-        lineTo(5.5f, 7.7f); lineTo(4f, 5.5f); lineTo(5.5f, 4f)
-        lineTo(7.7f, 5.5f); lineTo(9.9f, 4.6f)
-        close()
     }
 }

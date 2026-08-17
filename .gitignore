@@ -8,3 +8,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Carpeta de descartes: copias de seguridad temporales, no va al repo
+_to_delete/

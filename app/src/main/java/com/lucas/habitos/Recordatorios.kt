@@ -109,7 +109,7 @@ object Recordatorios {
 
         val aviso: Notification = NotificationCompat.Builder(contexto, CANAL)
             .setSmallIcon(R.drawable.ic_notificacion)
-            .setContentTitle("${habito.emoji}  ${habito.nombre}")
+            .setContentTitle(habito.nombre)
             .setContentText(detalle)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)

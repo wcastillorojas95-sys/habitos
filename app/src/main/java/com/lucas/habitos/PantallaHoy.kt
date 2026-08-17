@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,12 +21,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,13 +42,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import java.time.LocalDate
 
 private fun textoFecha(f: LocalDate): String =
@@ -62,6 +66,7 @@ fun PantallaHoy(
     onCambiar: (List<Habito>) -> Unit,
     onNuevo: () -> Unit,
     onEditar: (Habito) -> Unit,
+    onBorrar: (Habito) -> Unit,
     onEnfocar: (Habito) -> Unit
 ) {
     val haptica = LocalHapticFeedback.current
@@ -77,13 +82,20 @@ fun PantallaHoy(
         onCambiar(habitos.map { if (it.id == objetivo.id) cambio(it) else it })
     }
 
-    fun sumar(habito: Habito, cuanto: Int) {
+    /**
+     * Marca o desmarca el dia entero.
+     *
+     * Ya no hay botones de sumar y restar: el check deja el habito cumplido del
+     * todo y volver a tocarlo lo deja a cero. Para los habitos de tiempo, los
+     * minutos parciales los pone el cronometro.
+     */
+    fun alternarCumplido(habito: Habito) {
         haptica.performHapticFeedback(HapticFeedbackType.LongPress)
         val clave = diaSel.toString()
-        val nuevo = (habito.progreso(diaSel) + cuanto).coerceIn(0, habito.objetivoDiario())
         cambiarUno(habito) { h ->
             val registros = h.registros.toMutableMap()
-            if (nuevo <= 0) registros.remove(clave) else registros[clave] = nuevo
+            if (h.cumplido(diaSel)) registros.remove(clave)
+            else registros[clave] = h.objetivoDiario()
             h.copy(registros = registros)
         }
     }
@@ -105,7 +117,7 @@ fun PantallaHoy(
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 120.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
 
             item { Cabecera(diaSel = diaSel, hoy = hoy) }
@@ -131,13 +143,13 @@ fun PantallaHoy(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 6.dp),
+                        .padding(top = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = if (diaSel == hoy) "Hoy (${delDia.size})" else "Ese día (${delDia.size})",
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.ExtraBold,
                         modifier = Modifier.weight(1f)
                     )
                     BotonPildora(texto = "Nuevo", onClick = onNuevo)
@@ -149,9 +161,10 @@ fun PantallaHoy(
                     habito = habito,
                     dia = diaSel,
                     hoy = hoy,
-                    onSumar = { sumar(habito, it) },
+                    onAlternar = { alternarCumplido(habito) },
                     onDescanso = { alternarDescanso(habito) },
                     onEditar = { onEditar(habito) },
+                    onBorrar = { onBorrar(habito) },
                     onEnfocar = { onEnfocar(habito) }
                 )
             }
@@ -184,18 +197,25 @@ private fun Cabecera(diaSel: LocalDate, hoy: LocalDate) {
             Text(
                 text = "Hola, Lucas",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.ExtraBold
             )
+            Spacer(Modifier.height(2.dp))
             Text(
                 text = if (diaSel == hoy) "Hoy, ${textoFecha(diaSel)}" else textoFecha(diaSel),
                 style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
 }
 
-/** La tarjeta grande del mockup: titulo enorme, progreso y el despertador. */
+/**
+ * La tarjeta grande del mockup: titulo enorme, progreso y el despertador.
+ *
+ * El despertador va en su propia columna de la fila, no superpuesto: antes se
+ * dibujaba encima con un Box y acababa rozando el titulo y el "0 de 2".
+ */
 @Composable
 private fun TarjetaReto(completados: Int, total: Int, fraccion: Float) {
     val animada by animateFloatAsState(
@@ -210,15 +230,15 @@ private fun TarjetaReto(completados: Int, total: Int, fraccion: Float) {
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        Box {
-            DespertadorNaranja(
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Top
+        ) {
+            Column(
                 modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(top = 10.dp, end = 6.dp)
-                    .size(124.dp)
-            )
-
-            Column(modifier = Modifier.padding(18.dp)) {
+                    .weight(1f)
+                    .padding(start = 20.dp, top = 20.dp, bottom = 20.dp, end = 4.dp)
+            ) {
                 Text(
                     text = "Reto",
                     style = MaterialTheme.typography.headlineMedium,
@@ -229,44 +249,51 @@ private fun TarjetaReto(completados: Int, total: Int, fraccion: Float) {
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.ExtraBold
                 )
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(8.dp))
                 Text(
                     text = if (total == 0) "Sin hábitos para hoy"
                     else "$completados de $total completados",
                     style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                Spacer(Modifier.height(14.dp))
+                Spacer(Modifier.height(18.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     PilaAvatares(cuantos = 3, tamano = 24.dp)
-                    Spacer(Modifier.width(14.dp))
+                    Spacer(Modifier.width(12.dp))
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(50))
                             .background(MaterialTheme.colorScheme.primaryContainer)
-                            .padding(horizontal = 9.dp, vertical = 4.dp)
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
                         Text(
                             text = "${(animada * 100).toInt()}%",
                             style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.ExtraBold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
                 }
 
-                Spacer(Modifier.height(14.dp))
+                Spacer(Modifier.height(18.dp))
                 LinearProgressIndicator(
                     progress = { animada },
                     modifier = Modifier
-                        .fillMaxWidth(0.62f)
+                        .fillMaxWidth()
                         .height(7.dp)
                         .clip(RoundedCornerShape(4.dp)),
                     color = MaterialTheme.colorScheme.primary,
                     trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
                 )
             }
+
+            DespertadorNaranja(
+                modifier = Modifier
+                    .padding(top = 16.dp, end = 14.dp, start = 4.dp)
+                    .size(108.dp)
+            )
         }
     }
 }
@@ -274,9 +301,9 @@ private fun TarjetaReto(completados: Int, total: Int, fraccion: Float) {
 /**
  * La semana en capsulas verticales.
  *
- * Los dias cumplidos muestran un circulo verde con el check arriba; el dia
- * elegido es una capsula naranja entera. Es lo que mas cambia la cara de la app
- * respecto a la fila de numeros anterior.
+ * Todos los dias centran su contenido en la capsula: el elegido, los cumplidos
+ * y los pendientes. Antes los no elegidos colgaban del borde de arriba y los
+ * numeros quedaban desalineados respecto al dia activo.
  */
 @Composable
 private fun TiraSemana(
@@ -298,7 +325,7 @@ private fun TiraSemana(
                 Text(
                     text = LETRAS_DIA[dia.dayOfWeek.value - 1],
                     style = MaterialTheme.typography.labelSmall,
-                    fontWeight = if (dia == diaSel) FontWeight.Bold else FontWeight.Normal,
+                    fontWeight = if (dia == diaSel) FontWeight.ExtraBold else FontWeight.Medium,
                     textAlign = TextAlign.Center,
                     color = if (dia == diaSel) MaterialTheme.colorScheme.onSurface
                     else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -307,7 +334,7 @@ private fun TiraSemana(
             }
         }
 
-        Spacer(Modifier.height(7.dp))
+        Spacer(Modifier.height(8.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -330,55 +357,41 @@ private fun TiraSemana(
                             else MaterialTheme.colorScheme.surface
                         )
                         .clickable(enabled = !futuro) { onElegir(dia) },
-                    contentAlignment = Alignment.TopCenter
+                    contentAlignment = Alignment.Center
                 ) {
-                    if (elegido) {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
+                    when {
+                        elegido -> Text(
+                            text = dia.dayOfMonth.toString(),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.ExtraBold,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+
+                        todoHecho -> Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .background(verde.copy(alpha = 0.18f)),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = dia.dayOfMonth.toString(),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onPrimary
+                            Icon(
+                                painter = painterResource(IconoCheck),
+                                contentDescription = "Día cumplido",
+                                tint = verde,
+                                modifier = Modifier.size(16.dp)
                             )
                         }
-                    } else {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(1f)
-                                    .clip(CircleShape)
-                                    .background(
-                                        if (todoHecho) verde.copy(alpha = 0.18f)
-                                        else Color.Transparent
-                                    ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                if (todoHecho) {
-                                    Icon(
-                                        imageVector = IconoCheck,
-                                        contentDescription = null,
-                                        tint = verde,
-                                        modifier = Modifier.size(15.dp)
-                                    )
-                                } else {
-                                    Text(
-                                        text = dia.dayOfMonth.toString(),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(
-                                            alpha = if (futuro) 0.3f else 1f
-                                        )
-                                    )
-                                }
-                            }
-                        }
+
+                        else -> Text(
+                            text = dia.dayOfMonth.toString(),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onSurface.copy(
+                                alpha = if (futuro) 0.3f else 1f
+                            )
+                        )
                     }
                 }
             }
@@ -391,9 +404,10 @@ private fun TarjetaHabito(
     habito: Habito,
     dia: LocalDate,
     hoy: LocalDate,
-    onSumar: (Int) -> Unit,
+    onAlternar: () -> Unit,
     onDescanso: () -> Unit,
     onEditar: () -> Unit,
+    onBorrar: () -> Unit,
     onEnfocar: () -> Unit
 ) {
     val color = PALETA[habito.color % PALETA.size]
@@ -401,6 +415,9 @@ private fun TarjetaHabito(
     val listo = habito.cumplido(dia)
     val racha = habito.racha(hoy)
     val porCantidad = habito.meta != Meta.SI_NO
+
+    var menuAbierto by remember { mutableStateOf(false) }
+    var confirmandoBorrado by remember { mutableStateOf(false) }
 
     val escala by animateFloatAsState(
         targetValue = if (listo) 1f else 0.97f,
@@ -426,27 +443,33 @@ private fun TarjetaHabito(
 
                 Box(
                     modifier = Modifier
-                        .size(46.dp)
+                        .size(44.dp)
                         .clip(CircleShape)
                         .background(color.copy(alpha = if (descanso) 0.08f else 0.18f))
                         .clickable { onEditar() },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = habito.emoji, fontSize = 22.sp)
+                    Icon(
+                        painter = painterResource(recursoDeIcono(habito.icono)),
+                        contentDescription = null,
+                        tint = if (descanso) color.copy(alpha = 0.55f) else color,
+                        modifier = Modifier.size(22.dp)
+                    )
                 }
 
-                Spacer(Modifier.width(13.dp))
+                Spacer(Modifier.width(12.dp))
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = habito.nombre,
                         style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         color = if (descanso) MaterialTheme.colorScheme.onSurfaceVariant
                         else MaterialTheme.colorScheme.onSurface
                     )
-                    Spacer(Modifier.height(2.dp))
+                    Spacer(Modifier.height(3.dp))
                     Text(
                         text = when {
                             descanso -> "Día de descanso"
@@ -454,149 +477,208 @@ private fun TarjetaHabito(
                             else -> habito.descripcionFrecuencia()
                         },
                         style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(6.dp))
 
+                // Empezar: solo tiene sentido hoy y con el habito aun pendiente.
                 if (dia == hoy && !descanso && !listo) {
-                    Box(
-                        modifier = Modifier
-                            .size(34.dp)
-                            .clip(CircleShape)
-                            .background(color.copy(alpha = 0.16f))
-                            .clickable { onEnfocar() },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = IconoPlay,
-                            contentDescription = "Enfocarse",
-                            tint = color,
-                            modifier = Modifier.size(14.dp)
-                        )
-                    }
+                    BotonCircular(
+                        icono = IconoPlay,
+                        descripcion = "Empezar ahora",
+                        tinte = color,
+                        fondo = color.copy(alpha = 0.16f),
+                        onClick = onEnfocar
+                    )
                     Spacer(Modifier.width(6.dp))
                 }
 
-                if (!porCantidad) {
-                    Box(
-                        modifier = Modifier
-                            .scale(escala)
-                            .size(38.dp)
-                            .clip(CircleShape)
-                            .background(if (listo) color else Color.Transparent)
-                            .border(
-                                width = 2.dp,
-                                color = if (listo) color else MaterialTheme.colorScheme.outline,
-                                shape = CircleShape
-                            )
-                            .clickable(enabled = !descanso) { onSumar(if (listo) -1 else 1) },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (listo) {
-                            Icon(
-                                imageVector = IconoCheck,
-                                contentDescription = "Cumplido",
-                                tint = Color.White,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
-                    Spacer(Modifier.width(4.dp))
-                }
-
+                // El check ahora sale siempre, tambien en los habitos de tiempo o
+                // cantidad: es la forma directa de dar el dia por cumplido.
                 Box(
                     modifier = Modifier
-                        .size(30.dp)
+                        .scale(escala)
+                        .size(36.dp)
                         .clip(CircleShape)
-                        .clickable { onDescanso() },
+                        .background(if (listo) color else Color.Transparent)
+                        .border(
+                            width = 2.dp,
+                            color = if (listo) color else MaterialTheme.colorScheme.outline,
+                            shape = CircleShape
+                        )
+                        .clickable(enabled = !descanso) { onAlternar() },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = IconoLuna,
-                        contentDescription = "Día de descanso",
-                        tint = if (descanso) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f),
-                        modifier = Modifier.size(16.dp)
+                        painter = painterResource(IconoCheck),
+                        contentDescription = if (listo) "Quitar el cumplido" else "Marcar cumplido",
+                        tint = if (listo) Color.White
+                        else MaterialTheme.colorScheme.outline.copy(alpha = 0.7f),
+                        modifier = Modifier.size(18.dp)
                     )
+                }
+
+                Spacer(Modifier.width(2.dp))
+
+                Box {
+                    Box(
+                        modifier = Modifier
+                            .size(30.dp)
+                            .clip(CircleShape)
+                            .clickable { menuAbierto = true },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(IconoMenu),
+                            contentDescription = "Más opciones",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = menuAbierto,
+                        onDismissRequest = { menuAbierto = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Editar", fontWeight = FontWeight.Medium) },
+                            leadingIcon = {
+                                Icon(
+                                    painter = painterResource(IconoLapiz),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            },
+                            onClick = { menuAbierto = false; onEditar() }
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = if (descanso) "Quitar el descanso" else "Día de descanso",
+                                    fontWeight = FontWeight.Medium
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    painter = painterResource(IconoLuna),
+                                    contentDescription = null,
+                                    tint = if (descanso) MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            },
+                            onClick = { menuAbierto = false; onDescanso() }
+                        )
+                        HorizontalDivider()
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = "Eliminar",
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    painter = painterResource(IconoBasura),
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            },
+                            onClick = { menuAbierto = false; confirmandoBorrado = true }
+                        )
+                    }
                 }
             }
 
+            // Progreso de los habitos de cantidad o tiempo. Sin botones de sumar
+            // y restar: los minutos los pone el cronometro y el dia se cierra con
+            // el check.
             if (porCantidad && !descanso) {
                 Spacer(Modifier.height(14.dp))
-                ControlCantidad(habito = habito, dia = dia, color = color, onSumar = onSumar)
+                Text(
+                    text = habito.textoProgreso(dia),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.height(7.dp))
+                BarraProgreso(habito = habito, dia = dia, color = color)
             }
 
             if (!descanso) {
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(14.dp))
                 PuntosSemana(habito = habito, hoy = hoy, color = color)
             }
         }
     }
-}
 
-@Composable
-private fun ControlCantidad(
-    habito: Habito,
-    dia: LocalDate,
-    color: Color,
-    onSumar: (Int) -> Unit
-) {
-    val progreso = habito.progreso(dia)
-    val objetivo = habito.objetivoDiario()
-    val paso = if (habito.meta == Meta.TIEMPO) 5 else 1
-    val animada by animateFloatAsState(
-        targetValue = (progreso.toFloat() / objetivo).coerceIn(0f, 1f),
-        animationSpec = tween(350),
-        label = "cantidad"
-    )
-
-    Column {
-        LinearProgressIndicator(
-            progress = { animada },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(6.dp)
-                .clip(RoundedCornerShape(3.dp)),
-            color = color,
-            trackColor = color.copy(alpha = 0.15f)
+    if (confirmandoBorrado) {
+        AlertDialog(
+            onDismissRequest = { confirmandoBorrado = false },
+            title = { Text("¿Eliminar \"${habito.nombre}\"?", fontWeight = FontWeight.Bold) },
+            text = { Text("Se borrará también todo su historial. No se puede deshacer.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmandoBorrado = false
+                    onBorrar()
+                }) {
+                    Text("Eliminar", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmandoBorrado = false }) { Text("Cancelar") }
+            }
         )
-        Spacer(Modifier.height(11.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            BotonRedondo(IconoMenos, "Restar", color) { onSumar(-paso) }
-            Spacer(Modifier.width(12.dp))
-            Text(
-                text = habito.textoProgreso(dia),
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.weight(1f)
-            )
-            BotonRedondo(IconoMas, "Sumar", color) { onSumar(paso) }
-        }
     }
 }
 
 @Composable
-private fun BotonRedondo(
-    icono: androidx.compose.ui.graphics.vector.ImageVector,
+private fun BarraProgreso(habito: Habito, dia: LocalDate, color: Color) {
+    val objetivo = habito.objetivoDiario()
+    val animada by animateFloatAsState(
+        targetValue = (habito.progreso(dia).toFloat() / objetivo).coerceIn(0f, 1f),
+        animationSpec = tween(350),
+        label = "cantidad"
+    )
+    LinearProgressIndicator(
+        progress = { animada },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(6.dp)
+            .clip(RoundedCornerShape(3.dp)),
+        color = color,
+        trackColor = color.copy(alpha = 0.15f)
+    )
+}
+
+@Composable
+private fun BotonCircular(
+    icono: Int,
     descripcion: String,
-    color: Color,
+    tinte: Color,
+    fondo: Color,
     onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .size(34.dp)
             .clip(CircleShape)
-            .background(color.copy(alpha = 0.16f))
+            .background(fondo)
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = icono,
+            painter = painterResource(icono),
             contentDescription = descripcion,
-            tint = color,
-            modifier = Modifier.size(16.dp)
+            tint = tinte,
+            modifier = Modifier.size(17.dp)
         )
     }
 }
@@ -627,19 +709,20 @@ private fun BotonPildora(texto: String, onClick: () -> Unit) {
             .clip(RoundedCornerShape(50))
             .background(MaterialTheme.colorScheme.primary)
             .clickable { onClick() }
-            .padding(horizontal = 14.dp, vertical = 8.dp),
+            .padding(horizontal = 14.dp, vertical = 9.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = IconoMas,
+            painter = painterResource(IconoMas),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier.size(14.dp)
+            modifier = Modifier.size(15.dp)
         )
         Spacer(Modifier.width(6.dp))
         Text(
             text = texto,
             style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onPrimary
         )
     }
@@ -654,11 +737,11 @@ private fun EstadoVacio(hayHabitos: Boolean, onNuevo: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         DespertadorNaranja(modifier = Modifier.size(120.dp))
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(26.dp))
         Text(
             text = if (hayHabitos) "Nada programado para este día" else "Todavía no tienes hábitos",
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(8.dp))
@@ -669,7 +752,7 @@ private fun EstadoVacio(hayHabitos: Boolean, onNuevo: () -> Unit) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
-        Spacer(Modifier.height(18.dp))
+        Spacer(Modifier.height(20.dp))
         BotonPildora(texto = "Nuevo hábito", onClick = onNuevo)
     }
 }

@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.vector.ImageVector
 import org.json.JSONObject
 import java.time.LocalDate
 
@@ -19,7 +18,7 @@ import java.time.LocalDate
 data class Sesion(
     val habitoId: String,
     val nombre: String,
-    val emoji: String,
+    val icono: String,
     val colorIndice: Int,
     val duracionSeg: Int,
     val inicioMs: Long,
@@ -46,7 +45,7 @@ data class Sesion(
     fun aJson(): JSONObject = JSONObject().apply {
         put("habitoId", habitoId)
         put("nombre", nombre)
-        put("emoji", emoji)
+        put("icono", icono)
         put("colorIndice", colorIndice)
         put("duracionSeg", duracionSeg)
         put("inicioMs", inicioMs)
@@ -57,7 +56,9 @@ data class Sesion(
         fun deJson(o: JSONObject): Sesion = Sesion(
             habitoId = o.optString("habitoId"),
             nombre = o.optString("nombre", "Actividad"),
-            emoji = o.optString("emoji", "⏳"),
+            icono = claveDeIcono(
+                if (o.has("icono")) o.optString("icono") else o.optString("emoji")
+            ),
             colorIndice = o.optInt("colorIndice", 0),
             duracionSeg = o.optInt("duracionSeg", 0),
             inicioMs = o.optLong("inicioMs", 0L),
@@ -74,7 +75,7 @@ data class Sesion(
         fun para(habito: Habito, minutos: Int, estricto: Boolean): Sesion = Sesion(
             habitoId = habito.id,
             nombre = habito.nombre,
-            emoji = habito.emoji,
+            icono = habito.icono,
             colorIndice = habito.color,
             duracionSeg = minutos * 60,
             inicioMs = System.currentTimeMillis(),
@@ -84,7 +85,7 @@ data class Sesion(
         fun minutosSugeridos(habito: Habito, hoy: LocalDate, porDefecto: Int): Int {
             if (habito.meta != Meta.TIEMPO) return porDefecto
             val falta = habito.objetivoDiario() - habito.progreso(hoy)
-            return if (falta in 1..240) falta else porDefecto
+            return if (falta in 1..480) falta else porDefecto
         }
     }
 }
@@ -193,14 +194,4 @@ fun formatearReloj(segundos: Int): String {
     val seg = s % 60
     return if (h > 0) String.format("%d:%02d:%02d", h, m, seg)
     else String.format("%02d:%02d", m, seg)
-}
-
-/** Triangulo de "reproducir", al estilo del resto de iconos dibujados a mano. */
-val IconoPlay: ImageVector by lazy {
-    vector {
-        moveTo(8f, 5.5f)
-        lineTo(18.5f, 12f)
-        lineTo(8f, 18.5f)
-        close()
-    }
 }

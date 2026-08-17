@@ -65,7 +65,11 @@ class Almacen(context: Context) {
         Habito(
             id = o.optString("id", System.nanoTime().toString()),
             nombre = o.optString("nombre", "Hábito"),
-            emoji = o.optString("emoji", "✅"),
+            // Hasta la 2.2 aquí había un emoji. claveDeIcono lo traduce al icono
+            // equivalente, así que actualizar no cambia el aspecto de nada.
+            icono = claveDeIcono(
+                if (o.has("icono")) o.optString("icono") else o.optString("emoji")
+            ),
             color = o.optInt("color", 0),
             creado = o.optString("creado", LocalDate.now().toString()),
             categoria = o.optString("categoria", ""),
@@ -113,7 +117,7 @@ class Almacen(context: Context) {
         val o = JSONObject()
         o.put("id", h.id)
         o.put("nombre", h.nombre)
-        o.put("emoji", h.emoji)
+        o.put("icono", h.icono)
         o.put("color", h.color)
         o.put("creado", h.creado)
         o.put("categoria", h.categoria)

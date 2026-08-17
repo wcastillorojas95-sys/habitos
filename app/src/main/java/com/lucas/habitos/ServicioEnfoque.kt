@@ -169,7 +169,7 @@ class ServicioEnfoque : Service() {
 
         val aviso = NotificationCompat.Builder(this, CANAL_ACTIVO)
             .setSmallIcon(R.drawable.ic_notificacion)
-            .setContentTitle("${sesion.emoji}  ${sesion.nombre}")
+            .setContentTitle(sesion.nombre)
             .setContentText(
                 if (sesion.estricto) "Modo estricto activo" else "Sesión de enfoque en curso"
             )
@@ -202,7 +202,7 @@ class ServicioEnfoque : Service() {
         val aviso = NotificationCompat.Builder(this, CANAL_FIN)
             .setSmallIcon(R.drawable.ic_notificacion)
             .setContentTitle("Sesión completada")
-            .setContentText("${sesion.emoji} ${sesion.nombre} · ${sesion.duracionMin} min")
+            .setContentText("${sesion.nombre} · ${sesion.duracionMin} min")
             .setAutoCancel(true)
             .setContentIntent(abrir)
             .setPriority(NotificationCompat.PRIORITY_HIGH)

@@ -18,7 +18,8 @@ enum class Meta { SI_NO, CANTIDAD, TIEMPO }
 data class Habito(
     val id: String,
     val nombre: String,
-    val emoji: String,
+    /** Clave del catálogo de [ICONOS_HABITO], no un emoji. */
+    val icono: String,
     val color: Int,
     val creado: String,
     val categoria: String = "",
