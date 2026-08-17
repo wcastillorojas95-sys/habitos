@@ -134,9 +134,18 @@ private fun App(oscuro: Boolean, onCambiarTema: (Boolean) -> Unit) {
         ActivityResultContracts.RequestPermission()
     ) { }
 
+    // Conceder el permiso llega después de guardar el hábito, así que es aquí y
+    // no antes donde hay que crear los eventos que quedaron pendientes.
     val pedirCalendario = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
-    ) { }
+    ) { concedidos ->
+        if (concedidos.values.any { it }) {
+            val nuevos = Calendario.sincronizarTodos(contexto, almacen.cargar())
+            almacen.guardar(nuevos)
+            habitos = nuevos
+            WidgetHabitos.refrescar(contexto)
+        }
+    }
 
     // Al volver a la app releemos: el widget, la notificación o una sesión de
     // enfoque pueden haber cambiado los datos mientras estaba en segundo plano.
@@ -157,12 +166,19 @@ private fun App(oscuro: Boolean, onCambiarTema: (Boolean) -> Unit) {
 
     fun guardarHabito(habito: Habito) {
         val existe = habitos.any { it.id == habito.id }
+
+        // El evento se crea o se actualiza antes de guardar, para que el id que
+        // devuelve el calendario viaje dentro del hábito. Si se guardara primero
+        // y se sincronizara después, ese id se perdería en cada reinicio y se
+        // acumularían eventos duplicados.
+        val actualizado = habito.copy(eventoCalendario = Calendario.sincronizar(contexto, habito))
+
         aplicar(
-            if (existe) habitos.map { if (it.id == habito.id) habito else it }
-            else habitos + habito
+            if (existe) habitos.map { if (it.id == actualizado.id) actualizado else it }
+            else habitos + actualizado
         )
 
-        Recordatorios.programar(contexto, habito)
+        Recordatorios.programar(contexto, actualizado)
         if (habito.recordatorio && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             pedirNotificaciones.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
@@ -170,7 +186,7 @@ private fun App(oscuro: Boolean, onCambiarTema: (Boolean) -> Unit) {
             pedirCalendario.launch(Calendario.permisos)
         }
         // Recién creado: ofrecemos arrancar ya. Es el momento de más ganas.
-        if (!existe) recienCreado = habito
+        if (!existe) recienCreado = actualizado
     }
 
     // Si la app se abrió desde "Empezar ahora", arranca el cronómetro directo con
@@ -204,6 +220,7 @@ private fun App(oscuro: Boolean, onCambiarTema: (Boolean) -> Unit) {
 
     fun borrarHabito(habito: Habito) {
         Recordatorios.cancelar(contexto, habito.id)
+        Calendario.quitar(contexto, habito)
         aplicar(habitos.filterNot { it.id == habito.id })
     }
 

@@ -311,7 +311,10 @@ fun EditorHabito(
                 acento = acento,
                 onCambiar = { recordatorio = it }
             )
-            if (recordatorio) {
+            // La hora sirve para las dos cosas: para el aviso y para el hueco que
+            // se reserva en el calendario. Antes solo se podía tocar con el aviso
+            // encendido, así que quien solo quería el calendario no podía elegirla.
+            if (recordatorio || calendario) {
                 Spacer(Modifier.height(10.dp))
                 Button(
                     onClick = {
@@ -337,7 +340,8 @@ fun EditorHabito(
             Titulo("Calendario")
             Interruptor(
                 titulo = "Anotar en mi calendario",
-                detalle = "Los días cumplidos aparecen en el calendario del teléfono y se sincronizan con Google Calendar",
+                detalle = "Reserva el hueco a las ${horaTexto(minutos)} en tu calendario, " +
+                    "repitiéndose según la frecuencia. Aparece también en Google Calendar.",
                 activo = calendario,
                 acento = acento,
                 onCambiar = { calendario = it }

@@ -133,7 +133,6 @@ class ServicioEnfoque : Service() {
     private fun registrarProgreso(sesion: Sesion) {
         val hoy = LocalDate.now()
         val clave = hoy.toString()
-        var resultado: Habito? = null
 
         Almacen(applicationContext).actualizarUno(sesion.habitoId) { h ->
             val registros = h.registros.toMutableMap()
@@ -142,17 +141,11 @@ class ServicioEnfoque : Service() {
             } else {
                 h.objetivoDiario()
             }
-            h.copy(registros = registros).also { resultado = it }
+            h.copy(registros = registros)
         }
 
-        // La v2 ya escribe en el calendario del telefono (que Android sincroniza
-        // con Google Calendar solo). Reutilizamos eso en vez de hablar con la API.
-        resultado?.let { h ->
-            if (h.enCalendario && h.cumplido(hoy)) {
-                runCatching { Calendario.registrar(applicationContext, h, hoy) }
-            }
-        }
-
+        // El calendario ya no se toca aquí: ahora lleva el hueco reservado del
+        // hábito, no un registro de lo cumplido, así que cumplirlo no lo cambia.
         WidgetHabitos.refrescar(applicationContext)
     }
 

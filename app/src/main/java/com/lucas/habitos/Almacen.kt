@@ -43,6 +43,11 @@ class Almacen(context: Context) {
         get() = prefs.getLong(CLAVE_CALENDARIO, -1L)
         set(valor) = prefs.edit().putLong(CLAVE_CALENDARIO, valor).apply()
 
+    /** La cuenta del calendario elegido, solo para poder enseñarla en Ajustes. */
+    var nombreCalendario: String
+        get() = prefs.getString(CLAVE_CUENTA_CAL, "") ?: ""
+        set(valor) = prefs.edit().putString(CLAVE_CUENTA_CAL, valor).apply()
+
     // ---------- lectura ----------
 
     private fun leerHabito(o: JSONObject): Habito? = try {
@@ -84,6 +89,7 @@ class Almacen(context: Context) {
             recordatorio = o.optBoolean("recordatorio", false),
             recordatorioMinutos = o.optInt("recordatorioMinutos", 8 * 60),
             enCalendario = o.optBoolean("enCalendario", false),
+            eventoCalendario = o.optLong("eventoCalendario", 0L),
             registros = registros,
             descansos = leerTextos(o.optJSONArray("descansos"))
         )
@@ -132,6 +138,7 @@ class Almacen(context: Context) {
         o.put("recordatorio", h.recordatorio)
         o.put("recordatorioMinutos", h.recordatorioMinutos)
         o.put("enCalendario", h.enCalendario)
+        o.put("eventoCalendario", h.eventoCalendario)
         o.put("descansos", JSONArray(h.descansos.toList()))
 
         val reg = JSONObject()
@@ -145,5 +152,6 @@ class Almacen(context: Context) {
         const val ARCHIVO = "habitos_datos"
         const val CLAVE = "lista"
         const val CLAVE_CALENDARIO = "id_calendario"
+        const val CLAVE_CUENTA_CAL = "cuenta_calendario"
     }
 }

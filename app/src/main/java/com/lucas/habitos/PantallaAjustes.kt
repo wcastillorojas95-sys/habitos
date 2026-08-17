@@ -70,6 +70,10 @@ fun PantallaAjustes(
     // ajustes del sistema, conceder el permiso y volver, y al volver debe verlo.
     val avisosOk = Recordatorios.avisosPermitidos(contexto)
     val exactasOk = Recordatorios.alarmasExactas(contexto)
+    val calendarioOk = Calendario.tienePermiso(contexto)
+    var cuentaCalendario by remember {
+        mutableStateOf(if (calendarioOk) Calendario.nombreDelCalendario(contexto) else "")
+    }
 
     Box(
         modifier = Modifier
@@ -195,6 +199,41 @@ fun PantallaAjustes(
                 }
             }
 
+            item { Seccion("Calendario") }
+            item {
+                if (!calendarioOk) {
+                    FilaAccion(
+                        titulo = "Dar acceso al calendario",
+                        detalle = "Sin permiso, los hábitos que marques para el calendario no " +
+                            "reservan ningún hueco. Toca para concederlo en los ajustes del sistema.",
+                        onClick = {
+                            contexto.startActivity(
+                                Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                    .setData(android.net.Uri.parse("package:${contexto.packageName}"))
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            )
+                        }
+                    )
+                } else {
+                    FilaAccion(
+                        titulo = "Escribiendo en: ${cuentaCalendario.ifBlank { "calendario del teléfono" }}",
+                        detalle = if (cuentaCalendario.contains("@")) {
+                            "Es una cuenta de Google, así que lo que se reserve aparece también " +
+                                "en Google Calendar. Toca para volver a elegir calendario."
+                        } else {
+                            "Ojo: no parece una cuenta de Google, así que esto se queda solo en " +
+                                "el teléfono y no sube a Google Calendar. Toca para volver a elegir."
+                        },
+                        onClick = {
+                            Calendario.olvidarCalendario(contexto)
+                            val nuevos = Calendario.sincronizarTodos(contexto, habitos)
+                            Almacen(contexto).guardar(nuevos)
+                            cuentaCalendario = Calendario.nombreDelCalendario(contexto)
+                        }
+                    )
+                }
+            }
+
             item { Seccion("Modo estricto") }
             item {
                 FilaAccion(
@@ -230,7 +269,7 @@ fun PantallaAjustes(
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         Text(
-                            text = "Hábitos 2.5.1",
+                            text = "Hábitos 2.6",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface

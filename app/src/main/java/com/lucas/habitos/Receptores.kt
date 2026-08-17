@@ -28,15 +28,12 @@ class ReceptorRecordatorio : BroadcastReceiver() {
             }
 
             Recordatorios.ACCION_MARCAR -> {
-                val nuevos = almacen.actualizarUno(id) { h ->
+                almacen.actualizarUno(id) { h ->
                     val registros = h.registros.toMutableMap()
                     registros[hoy.toString()] = h.objetivoDiario()
                     h.copy(registros = registros)
                 }
                 NotificationManagerCompat.from(contexto).cancel(id.hashCode())
-                nuevos.firstOrNull { it.id == id }?.let { habito ->
-                    if (habito.enCalendario) Calendario.registrar(contexto, habito, hoy)
-                }
                 WidgetHabitos.refrescar(contexto)
             }
         }

@@ -38,6 +38,8 @@ data class Habito(
     val recordatorioMinutos: Int = 8 * 60,
 
     val enCalendario: Boolean = false,
+    /** Id del evento repetitivo en el calendario del teléfono. 0 = no tiene. */
+    val eventoCalendario: Long = 0L,
 
     val registros: Map<String, Int> = emptyMap(),
     val descansos: Set<String> = emptySet()

@@ -35,7 +35,7 @@ class WidgetHabitos : AppWidgetProvider() {
             val hoy = LocalDate.now()
             val almacen = Almacen(contexto)
 
-            val nuevos = almacen.actualizarUno(id) { h ->
+            almacen.actualizarUno(id) { h ->
                 val registros = h.registros.toMutableMap()
                 if (h.cumplido(hoy)) {
                     registros.remove(hoy.toString())
@@ -43,13 +43,6 @@ class WidgetHabitos : AppWidgetProvider() {
                     registros[hoy.toString()] = h.objetivoDiario()
                 }
                 h.copy(registros = registros)
-            }
-
-            nuevos.firstOrNull { it.id == id }?.let { h ->
-                if (h.enCalendario) {
-                    if (h.cumplido(hoy)) Calendario.registrar(contexto, h, hoy)
-                    else Calendario.borrar(contexto, h, hoy)
-                }
             }
 
             refrescar(contexto)
