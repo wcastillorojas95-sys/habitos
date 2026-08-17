@@ -85,53 +85,59 @@ private val TipografiaHabitos = Typography(
     )
 )
 
-/** Los seis colores que el usuario puede elegir para cada hábito. */
+/**
+ * Los seis colores que el usuario puede elegir para cada hábito.
+ *
+ * Reordenados para que el naranja de la marca sea el primero: es el que sale
+ * por defecto al crear un hábito nuevo, así que la app se ve coherente sin que
+ * nadie tenga que elegir nada.
+ */
 val PALETA = listOf(
-    Color(0xFF00A870),
-    Color(0xFF2D7FF9),
-    Color(0xFFF08C2E),
-    Color(0xFFE5484D),
-    Color(0xFF8E4EC6),
-    Color(0xFF00A2C7)
+    Color(0xFFF26A34), // naranja de marca
+    Color(0xFF37BE87), // verde
+    Color(0xFF8C7BE0), // lavanda
+    Color(0xFF3E7BD6), // azul
+    Color(0xFFE8A33C), // ámbar
+    Color(0xFFE0607F)  // rosa
 )
 
 private val Claro = lightColorScheme(
-    primary = Color(0xFF00875A),
+    primary = Color(0xFFE0561F),
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFD3F3E3),
-    onPrimaryContainer = Color(0xFF00291B),
-    secondary = Color(0xFF4A6358),
+    primaryContainer = Color(0xFFFDE4D6),
+    onPrimaryContainer = Color(0xFF4A1904),
+    secondary = Color(0xFF7A5C4E),
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFDCE9E1),
-    onSecondaryContainer = Color(0xFF0A1F16),
-    background = Color(0xFFFAFBFA),
-    onBackground = Color(0xFF121714),
-    surface = Color(0xFFFAFBFA),
-    onSurface = Color(0xFF121714),
-    surfaceVariant = Color(0xFFEDF1EE),
-    onSurfaceVariant = Color(0xFF5A635E),
-    outline = Color(0xFFC3CBC6),
-    outlineVariant = Color(0xFFDDE4E0),
+    secondaryContainer = Color(0xFFFBDFD0),
+    onSecondaryContainer = Color(0xFF2C1710),
+    background = Color(0xFFFDECE2),
+    onBackground = Color(0xFF1F1A17),
+    surface = Color(0xFFFFF7F2),
+    onSurface = Color(0xFF1F1A17),
+    surfaceVariant = Color(0xFFFBDFD0),
+    onSurfaceVariant = Color(0xFF7A6B62),
+    outline = Color(0xFFDCC3B4),
+    outlineVariant = Color(0xFFEFDACB),
     error = Color(0xFFC0392B)
 )
 
 private val Oscuro = darkColorScheme(
-    primary = Color(0xFF5BD6A0),
-    onPrimary = Color(0xFF003823),
-    primaryContainer = Color(0xFF00553A),
-    onPrimaryContainer = Color(0xFFD3F3E3),
-    secondary = Color(0xFFB2CCC0),
-    onSecondary = Color(0xFF1D352B),
-    secondaryContainer = Color(0xFF334B41),
-    onSecondaryContainer = Color(0xFFDCE9E1),
-    background = Color(0xFF0E1211),
-    onBackground = Color(0xFFE2E6E3),
-    surface = Color(0xFF0E1211),
-    onSurface = Color(0xFFE2E6E3),
-    surfaceVariant = Color(0xFF1C2321),
-    onSurfaceVariant = Color(0xFF9FA9A4),
-    outline = Color(0xFF3A433F),
-    outlineVariant = Color(0xFF2A322E),
+    primary = Color(0xFFFF9668),
+    onPrimary = Color(0xFF4A1904),
+    primaryContainer = Color(0xFF8A3410),
+    onPrimaryContainer = Color(0xFFFDE4D6),
+    secondary = Color(0xFFE4BFAB),
+    onSecondary = Color(0xFF422A1D),
+    secondaryContainer = Color(0xFF5B4032),
+    onSecondaryContainer = Color(0xFFFBDFD0),
+    background = Color(0xFF17110E),
+    onBackground = Color(0xFFF0E5DE),
+    surface = Color(0xFF17110E),
+    onSurface = Color(0xFFF0E5DE),
+    surfaceVariant = Color(0xFF2C221D),
+    onSurfaceVariant = Color(0xFFB8A79C),
+    outline = Color(0xFF4A3C34),
+    outlineVariant = Color(0xFF332822),
     error = Color(0xFFFF8A80)
 )
 
