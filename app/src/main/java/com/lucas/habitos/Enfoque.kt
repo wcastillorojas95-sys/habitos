@@ -164,6 +164,11 @@ class AlmacenEnfoque(context: Context) {
         get() = prefs.getBoolean(CLAVE_ESTRICTO, true)
         set(valor) = prefs.edit().putBoolean(CLAVE_ESTRICTO, valor).apply()
 
+    /** Eligió usar la app sin cuenta; no se le vuelve a preguntar al abrir. */
+    var invitado: Boolean
+        get() = prefs.getBoolean(CLAVE_INVITADO, false)
+        set(valor) = prefs.edit().putBoolean(CLAVE_INVITADO, valor).apply()
+
     /** Claro por defecto: el diseño está pensado sobre fondo durazno. */
     var temaOscuro: Boolean
         get() = prefs.getBoolean(CLAVE_TEMA, false)
@@ -190,6 +195,7 @@ class AlmacenEnfoque(context: Context) {
         const val CLAVE_ESTRICTO = "modo_estricto"
         const val CLAVE_TEMA = "tema_oscuro"
         const val CLAVE_PIN = "pin_estricto"
+        const val CLAVE_INVITADO = "sin_cuenta"
     }
 }
 

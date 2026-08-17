@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "176217652849",
+    "project_id": "habitos-67bb5",
+    "storage_bucket": "habitos-67bb5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:176217652849:android:1d9765909be66a96c6e5d0",
+        "android_client_info": {
+          "package_name": "com.lucas.habitos"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "176217652849-69j0fnvbc7j6otoik8d70dr47tu9i0t2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.lucas.habitos",
+            "certificate_hash": "bf023e9c2459d0738e71a81375d6f83baf13200d"
+          }
+        },
+        {
+          "client_id": "176217652849-oh0rpl1mefe4ub51hckhapmq7nq4irae.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZxBxtf4Vws_I_7QtF215CU-aRk-umDzk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "176217652849-oh0rpl1mefe4ub51hckhapmq7nq4irae.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

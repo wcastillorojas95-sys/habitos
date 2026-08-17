@@ -59,6 +59,8 @@ fun PantallaAjustes(
     val contexto = LocalContext.current
     val hoy = remember { LocalDate.now() }
     var pinAbierto by remember { mutableStateOf(false) }
+    var cerrandoSesion by remember { mutableStateOf(false) }
+    val cuenta = SesionUsuario.cuenta
     var tienePin by remember { mutableStateOf(almacenEnfoque.tienePin) }
 
     val minutos = remember(hoy) { almacenEnfoque.minutosUltimos(hoy, 7) }
@@ -88,11 +90,19 @@ fun PantallaAjustes(
                     Spacer(Modifier.width(14.dp))
                     Column {
                         Text(
-                            text = "Lucas",
+                            text = cuenta?.nombre?.ifBlank { null } ?: "Sin cuenta",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.ExtraBold,
                             color = MaterialTheme.colorScheme.onBackground
                         )
+                        cuenta?.correo?.takeIf { it.isNotBlank() }?.let { correo ->
+                            Text(
+                                text = correo,
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                         Text(
                             text = "$activos hábitos · ${if (minutos >= 60) "${minutos / 60} h" else "$minutos min"} enfocado esta semana",
                             style = MaterialTheme.typography.bodySmall,
@@ -110,6 +120,29 @@ fun PantallaAjustes(
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
+            }
+
+            item { Seccion("Cuenta") }
+            item {
+                if (cuenta == null) {
+                    FilaAccion(
+                        titulo = "Entrar con Google",
+                        detalle = "Ahora estás usando la app sin cuenta. Al entrar, la app te " +
+                            "saluda por tu nombre. Tus hábitos no se mueven de este teléfono.",
+                        onClick = {
+                            almacenEnfoque.invitado = false
+                            SesionUsuario.invitado = false
+                            SesionUsuario.error = null
+                        }
+                    )
+                } else {
+                    FilaAccion(
+                        titulo = "Cerrar sesión",
+                        detalle = "Saldrás de ${cuenta.correo.ifBlank { "tu cuenta" }}. " +
+                            "Tus hábitos y su historial se quedan intactos en el teléfono.",
+                        onClick = { cerrandoSesion = true }
+                    )
+                }
             }
 
             item { Seccion("Apariencia") }
@@ -197,7 +230,7 @@ fun PantallaAjustes(
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         Text(
-                            text = "Hábitos 2.4",
+                            text = "Hábitos 2.5",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -214,6 +247,30 @@ fun PantallaAjustes(
                 }
             }
         }
+    }
+
+    if (cerrandoSesion) {
+        AlertDialog(
+            onDismissRequest = { cerrandoSesion = false },
+            title = { Text("¿Cerrar sesión?", fontWeight = FontWeight.Bold) },
+            text = {
+                Text(
+                    "Volverás a la pantalla de entrada. Tus hábitos siguen guardados " +
+                        "en el teléfono, no se borra nada."
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    cerrandoSesion = false
+                    Autenticacion.salir(contexto)
+                    almacenEnfoque.invitado = false
+                    SesionUsuario.invitado = false
+                }) { Text("Cerrar sesión") }
+            },
+            dismissButton = {
+                TextButton(onClick = { cerrandoSesion = false }) { Text("Cancelar") }
+            }
+        )
     }
 
     if (pinAbierto) {

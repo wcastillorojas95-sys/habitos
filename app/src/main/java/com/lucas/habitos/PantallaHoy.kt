@@ -62,6 +62,7 @@ private fun textoFecha(f: LocalDate): String =
  */
 @Composable
 fun PantallaHoy(
+    nombre: String,
     habitos: List<Habito>,
     onCambiar: (List<Habito>) -> Unit,
     onNuevo: () -> Unit,
@@ -120,7 +121,7 @@ fun PantallaHoy(
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
 
-            item { Cabecera(diaSel = diaSel, hoy = hoy) }
+            item { Cabecera(nombre = nombre, diaSel = diaSel, hoy = hoy) }
 
             item {
                 TarjetaReto(
@@ -179,7 +180,7 @@ fun PantallaHoy(
 // -----------------------------------------------------------------------------
 
 @Composable
-private fun Cabecera(diaSel: LocalDate, hoy: LocalDate) {
+private fun Cabecera(nombre: String, diaSel: LocalDate, hoy: LocalDate) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -195,7 +196,7 @@ private fun Cabecera(diaSel: LocalDate, hoy: LocalDate) {
         Spacer(Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "Hola, Lucas",
+                text = if (nombre.isBlank()) "Hola" else "Hola, $nombre",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.ExtraBold
             )

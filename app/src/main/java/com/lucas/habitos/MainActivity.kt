@@ -84,6 +84,11 @@ class MainActivity : ComponentActivity() {
         leerPedidoDeEnfoque(intent)
 
         val enfoque = AlmacenEnfoque(this)
+
+        // Firebase guarda la sesión en disco, así que al abrir ya sabemos si hay
+        // alguien dentro sin preguntar a la red.
+        SesionUsuario.cuenta = runCatching { Autenticacion.actual() }.getOrNull()
+        SesionUsuario.invitado = enfoque.invitado
         // Si la app se reabre con una sesión viva, la recuperamos del disco: el
         // objeto en memoria se pierde si el sistema mató el proceso.
         EstadoEnfoque.sesion = enfoque.sesionActiva()?.takeIf { !it.terminada() }
@@ -92,10 +97,19 @@ class MainActivity : ComponentActivity() {
             // El tema lo manda el ajuste de la app, no el del sistema.
             var oscuro by remember { mutableStateOf(enfoque.temaOscuro) }
             HabitosTheme(oscuro = oscuro) {
-                App(
-                    oscuro = oscuro,
-                    onCambiarTema = { enfoque.temaOscuro = it; oscuro = it }
-                )
+                if (SesionUsuario.dentro) {
+                    App(
+                        oscuro = oscuro,
+                        onCambiarTema = { enfoque.temaOscuro = it; oscuro = it }
+                    )
+                } else {
+                    PantallaLogin(
+                        onEntrarSinCuenta = {
+                            enfoque.invitado = true
+                            SesionUsuario.invitado = true
+                        }
+                    )
+                }
             }
         }
     }
@@ -224,6 +238,7 @@ private fun App(oscuro: Boolean, onCambiarTema: (Boolean) -> Unit) {
         ) {
             AnimatedVisibility(pantalla == Pantalla.HOY, enter = fadeIn(), exit = fadeOut()) {
                 PantallaHoy(
+                    nombre = SesionUsuario.cuenta?.nombrePila().orEmpty(),
                     habitos = habitos,
                     onCambiar = { aplicar(it) },
                     onNuevo = { editando = null; abriendoEditor = true },

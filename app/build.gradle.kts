@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -12,8 +13,8 @@ android {
         applicationId = "com.lucas.habitos"
         minSdk = 26
         targetSdk = 35
-        versionCode = 7
-        versionName = "2.4"
+        versionCode = 8
+        versionName = "2.5"
     }
 
     /*
@@ -79,6 +80,12 @@ dependencies {
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.animation:animation")
     implementation("androidx.compose.material3:material3")
+
+    // Entrar con Google. firebase-auth guarda la sesión y la renueva sola;
+    // play-services-auth es quien abre el selector de cuentas del teléfono.
+    implementation(platform("com.google.firebase:firebase-bom:34.17.0"))
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.android.gms:play-services-auth:21.3.0")
 
     // Corrutinas para la cuenta atrás del servicio de enfoque. Llegan de forma
     // transitiva con lifecycle, pero se declaran a la vista para que nadie las
