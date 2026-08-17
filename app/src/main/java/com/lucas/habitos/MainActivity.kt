@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -239,13 +240,20 @@ private fun App(oscuro: Boolean, onCambiarTema: (Boolean) -> Unit) {
     }
 }
 
-/** La píldora oscura flotante con las cuatro páginas. */
+/**
+ * La píldora oscura flotante con las cuatro páginas.
+ *
+ * navigationBarsPadding la levanta por encima de la barra del sistema. Sin eso,
+ * con enableEdgeToEdge la app dibuja hasta el borde inferior de la pantalla y la
+ * píldora quedaba pisando los botones de Atrás e Inicio del teléfono.
+ */
 @Composable
 private fun BarraFlotante(actual: Pantalla, onElegir: (Pantalla) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 14.dp)
+            .navigationBarsPadding()
+            .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
         Row(
             modifier = Modifier
