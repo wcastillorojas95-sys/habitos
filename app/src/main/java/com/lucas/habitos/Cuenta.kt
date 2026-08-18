@@ -73,7 +73,7 @@ object Autenticacion {
                 else onHecho(deFirebase(usuario), null)
             }
             .addOnFailureListener { fallo ->
-                onHecho(null, fallo.localizedMessage ?: "No se pudo completar la entrada.")
+                onHecho(null, fallo.localizedMessage ?: t("No se pudo completar la entrada.", "Sign-in could not be completed."))
             }
     }
 
@@ -101,10 +101,10 @@ object Autenticacion {
      */
     fun mensajeDeFallo(e: ApiException): String = when (e.statusCode) {
         12501 -> ""                       // lo canceló el usuario: no es un error
-        7 -> "Sin conexión. Comprueba internet e inténtalo otra vez."
+        7 -> t("Sin conexión. Comprueba internet e inténtalo otra vez.", "No connection. Check the internet and try again.")
         10 -> "La firma de esta versión no está registrada en Firebase. " +
             "Hay que añadir su huella SHA-1 al proyecto."
-        12500 -> "Este teléfono no tiene los servicios de Google al día."
+        12500 -> t("Este teléfono no tiene los servicios de Google al día.", "This phone does not have Google services up to date.")
         else -> "No se pudo entrar con Google (código ${e.statusCode})."
     }
 }

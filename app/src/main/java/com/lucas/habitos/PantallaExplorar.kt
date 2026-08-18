@@ -73,46 +73,52 @@ data class Plantilla(
 /** Fondo de las ilustraciones: el mismo crudo del tema claro, en los dos temas. */
 private val BeigeIlustracion = Color(0xFFF6F1E8)
 
-val CATEGORIAS = listOf(
-    Categoria("Esencial", R.drawable.ilu_esencial, 0, listOf(
-        Plantilla("Escribir el diario", "escribir"),
-        Plantilla("Planificar el día", "nota"),
-        Plantilla("Leer", "leer", Meta.TIEMPO, 20, "min")
+/*
+ * Propiedad calculada, no constante: si fuera "val ... = listOf(...)" los
+ * nombres se congelarian en el idioma que hubiera al cargar la clase. Asi se
+ * rehace en cada lectura y el boton de idioma la repinta. Son ocho categorias
+ * con tres plantillas cada una; recrearlas no cuesta nada.
+ */
+val CATEGORIAS: List<Categoria> get() = listOf(
+    Categoria(t("Esencial", "Essentials"), R.drawable.ilu_esencial, 0, listOf(
+        Plantilla(t("Escribir el diario", "Write in the journal"), "escribir"),
+        Plantilla(t("Planificar el día", "Plan the day"), "nota"),
+        Plantilla(t("Leer", "Read"), "leer", Meta.TIEMPO, 20, "min")
     )),
-    Categoria("Salud", R.drawable.ilu_health, 1, listOf(
-        Plantilla("Beber agua", "agua", Meta.CANTIDAD, 8, "vasos"),
-        Plantilla("Comer fruta", "comida", Meta.CANTIDAD, 2, "piezas"),
-        Plantilla("Dormir 8 horas", "dormir")
+    Categoria(t("Salud", "Health"), R.drawable.ilu_health, 1, listOf(
+        Plantilla(t("Beber agua", "Drink water"), "agua", Meta.CANTIDAD, 8, "vasos"),
+        Plantilla(t("Comer fruta", "Eat fruit"), "comida", Meta.CANTIDAD, 2, "piezas"),
+        Plantilla(t("Dormir 8 horas", "Sleep 8 hours"), "dormir")
     )),
-    Categoria("Ejercicio", R.drawable.ilu_ejercicio, 2, listOf(
-        Plantilla("Entrenar", "pesas", Meta.TIEMPO, 30, "min"),
-        Plantilla("Caminar", "caminar", Meta.CANTIDAD, 8000, "pasos"),
-        Plantilla("Estirar", "meditar", Meta.TIEMPO, 10, "min")
+    Categoria(t("Ejercicio", "Exercise"), R.drawable.ilu_ejercicio, 2, listOf(
+        Plantilla(t("Entrenar", "Work out"), "pesas", Meta.TIEMPO, 30, "min"),
+        Plantilla(t("Caminar", "Walk"), "caminar", Meta.CANTIDAD, 8000, "pasos"),
+        Plantilla(t("Estirar", "Stretch"), "meditar", Meta.TIEMPO, 10, "min")
     )),
-    Categoria("Relaciones", R.drawable.ilu_relaciones, 3, listOf(
-        Plantilla("Llamar a la familia", "llamar"),
-        Plantilla("Quedar con alguien", "cafe"),
-        Plantilla("Escribir a un amigo", "chat")
+    Categoria(t("Relaciones", "Relationships"), R.drawable.ilu_relaciones, 3, listOf(
+        Plantilla(t("Llamar a la familia", "Call family"), "llamar"),
+        Plantilla(t("Quedar con alguien", "Meet someone"), "cafe"),
+        Plantilla(t("Escribir a un amigo", "Text a friend"), "chat")
     )),
-    Categoria("Casa", R.drawable.ilu_home, 4, listOf(
-        Plantilla("Ordenar 10 minutos", "limpiar", Meta.TIEMPO, 10, "min"),
-        Plantilla("Cocinar en casa", "cocina"),
-        Plantilla("Hacer la cama", "cama")
+    Categoria(t("Casa", "Home"), R.drawable.ilu_home, 4, listOf(
+        Plantilla(t("Ordenar 10 minutos", "Tidy up for 10 minutes"), "limpiar", Meta.TIEMPO, 10, "min"),
+        Plantilla(t("Cocinar en casa", "Cook at home"), "cocina"),
+        Plantilla(t("Hacer la cama", "Make the bed"), "cama")
     )),
-    Categoria("Trabajo", R.drawable.ilu_trabajo, 5, listOf(
-        Plantilla("Trabajo profundo", "objetivo", Meta.TIEMPO, 60, "min"),
-        Plantilla("Vaciar la bandeja", "bandeja"),
-        Plantilla("Estudiar", "estudiar", Meta.TIEMPO, 45, "min")
+    Categoria(t("Trabajo", "Work"), R.drawable.ilu_trabajo, 5, listOf(
+        Plantilla(t("Trabajo profundo", "Deep work"), "objetivo", Meta.TIEMPO, 60, "min"),
+        Plantilla(t("Vaciar la bandeja", "Empty the inbox"), "bandeja"),
+        Plantilla(t("Estudiar", "Study"), "estudiar", Meta.TIEMPO, 45, "min")
     )),
-    Categoria("Mente", R.drawable.ilu_mente, 2, listOf(
-        Plantilla("Meditar", "meditar", Meta.TIEMPO, 10, "min"),
-        Plantilla("Sin móvil una hora", "nomovil"),
-        Plantilla("Anotar 3 cosas buenas", "estrella")
+    Categoria(t("Mente", "Mind"), R.drawable.ilu_mente, 2, listOf(
+        Plantilla(t("Meditar", "Meditate"), "meditar", Meta.TIEMPO, 10, "min"),
+        Plantilla(t("Sin móvil una hora", "One hour without the phone"), "nomovil"),
+        Plantilla(t("Anotar 3 cosas buenas", "Note 3 good things"), "estrella")
     )),
-    Categoria("Dinero", R.drawable.ilu_dinero, 1, listOf(
-        Plantilla("Anotar gastos", "dinero"),
-        Plantilla("Día sin gastar", "nogastar"),
-        Plantilla("Revisar el presupuesto", "grafico")
+    Categoria(t("Dinero", "Money"), R.drawable.ilu_dinero, 1, listOf(
+        Plantilla(t("Anotar gastos", "Log expenses"), "dinero"),
+        Plantilla(t("Día sin gastar", "No-spend day"), "nogastar"),
+        Plantilla(t("Revisar el presupuesto", "Review the budget"), "grafico")
     ))
 )
 
@@ -164,7 +170,7 @@ fun PantallaExplorar(onCrear: (Habito) -> Unit) {
 
             item {
                 Text(
-                    text = "Explorar",
+                    text = t("Explorar", "Explore"),
                     style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.onBackground
@@ -194,8 +200,8 @@ fun PantallaExplorar(onCrear: (Habito) -> Unit) {
 
             item {
                 Text(
-                    text = if (buscando) "${resultados.size} resultados"
-                    else "Actividades de ${CATEGORIAS[elegida].nombre}",
+                    text = if (buscando) t("${resultados.size} resultados", "${resultados.size} results")
+                    else t("Actividades de ${CATEGORIAS[elegida].nombre}", "${CATEGORIAS[elegida].nombre} activities"),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.onBackground,
@@ -210,7 +216,7 @@ fun PantallaExplorar(onCrear: (Habito) -> Unit) {
             if (resultados.isEmpty()) {
                 item {
                     Text(
-                        text = "Nada con ese nombre. Puedes crear el hábito a mano desde la pestaña Hoy.",
+                        text = t("Nada con ese nombre. Puedes crear el hábito a mano desde la pestaña Hoy.", "Nothing by that name. You can create the habit by hand from the Today tab."),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(vertical = 20.dp)
@@ -242,7 +248,7 @@ private fun Buscador(valor: String, onCambiar: (String) -> Unit) {
         Box(modifier = Modifier.weight(1f)) {
             if (valor.isEmpty()) {
                 Text(
-                    text = "Buscar actividad…",
+                    text = t("Buscar actividad…", "Search activities…"),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                 )
@@ -354,9 +360,9 @@ private fun FilaActividad(categoria: Categoria, plantilla: Plantilla, onCrear: (
                 Spacer(Modifier.height(2.dp))
                 Text(
                     text = when (plantilla.meta) {
-                        Meta.SI_NO -> "Todos los días"
-                        Meta.TIEMPO -> "${plantilla.cantidad} min al día"
-                        Meta.CANTIDAD -> "${plantilla.cantidad} ${plantilla.unidad} al día"
+                        Meta.SI_NO -> t("Todos los días", "Every day")
+                        Meta.TIEMPO -> t("${plantilla.cantidad} min al día", "${plantilla.cantidad} min a day")
+                        Meta.CANTIDAD -> t("${plantilla.cantidad} ${plantilla.unidad} al día", "${plantilla.cantidad} ${plantilla.unidad} a day")
                     },
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Medium,
@@ -372,7 +378,7 @@ private fun FilaActividad(categoria: Categoria, plantilla: Plantilla, onCrear: (
             ) {
                 Icon(
                     painter = painterResource(IconoMas),
-                    contentDescription = "Añadir",
+                    contentDescription = t("Añadir", "Add"),
                     tint = color,
                     modifier = Modifier.size(15.dp)
                 )

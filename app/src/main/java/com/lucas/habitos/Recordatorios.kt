@@ -234,11 +234,11 @@ object Recordatorios {
 
     /** Aviso previo: informa, no interrumpe. */
     private fun mostrarPrevio(contexto: Context, habito: Habito, antes: Int) {
-        val cuando = if (antes >= 60) "1 hora" else "$antes minutos"
+        val cuando = if (antes >= 60) t("1 hora", "1 hour") else t("$antes minutos", "$antes minutes")
 
         val aviso: Notification = NotificationCompat.Builder(contexto, CANAL)
             .setSmallIcon(R.drawable.ic_notificacion)
-            .setContentTitle("Dentro de $cuando: ${habito.nombre}")
+            .setContentTitle(t("Dentro de $cuando: ${habito.nombre}", "In $cuando: ${habito.nombre}"))
             .setContentText("A las ${horaTexto(habito.recordatorioMinutos)}. Ve terminando lo que tengas.")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
@@ -265,7 +265,7 @@ object Recordatorios {
 
         val aviso: Notification = NotificationCompat.Builder(contexto, CANAL_ALARMA)
             .setSmallIcon(R.drawable.ic_notificacion)
-            .setContentTitle("Es la hora: ${habito.nombre}")
+            .setContentTitle(t("Es la hora: ${habito.nombre}", "Time is up: ${habito.nombre}"))
             .setContentText(detalle(habito))
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
@@ -274,19 +274,19 @@ object Recordatorios {
             // sistema no lo permite, esto se queda como aviso normal y ya está.
             .setFullScreenIntent(aPantalla, true)
             .setContentIntent(aPantalla)
-            .addAction(R.drawable.ic_play_arrow, "Empezar", empezarAhora(contexto, habito))
-            .addAction(R.drawable.ic_check, "Marcar como hecho", marcarHecho(contexto, habito))
+            .addAction(R.drawable.ic_play_arrow, t("Empezar", "Start"), empezarAhora(contexto, habito))
+            .addAction(R.drawable.ic_check, t("Marcar como hecho", "Mark as done"), marcarHecho(contexto, habito))
             .build()
 
         lanzar(contexto, habito.id.hashCode(), aviso)
     }
 
     private fun detalle(habito: Habito): String = if (habito.meta == Meta.SI_NO) {
-        "Es momento de cumplirlo"
+        t("Es momento de cumplirlo", "Time to do it")
     } else {
         val falta = habito.objetivoDiario() - habito.progreso(LocalDate.now())
         val unidad = habito.unidad.ifBlank { if (habito.meta == Meta.TIEMPO) "min" else "veces" }
-        "Te faltan $falta $unidad"
+        t("Te faltan $falta $unidad", "$falta $unidad to go")
     }
 
     private fun abrirApp(contexto: Context, habito: Habito) = PendingIntent.getActivity(

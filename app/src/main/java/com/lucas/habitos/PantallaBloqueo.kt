@@ -170,7 +170,7 @@ private fun CaraDeBloqueo(sesion: Sesion, onTerminar: () -> Unit, onTocar: () ->
 
             Spacer(Modifier.height(26.dp))
             Text(
-                text = "Estás en",
+                text = t("Estás en", "You are on"),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -205,8 +205,7 @@ private fun CaraDeBloqueo(sesion: Sesion, onTerminar: () -> Unit, onTocar: () ->
 
             Spacer(Modifier.height(30.dp))
             Text(
-                text = "El resto del teléfono está bloqueado hasta que termine. " +
-                    "Se desbloquea solo, no tienes que hacer nada.",
+                text = t("El resto del teléfono está bloqueado hasta que termine. Se desbloquea solo, no tienes que hacer nada.", "The rest of the phone is blocked until this ends. It unlocks itself, you do not have to do anything."),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant

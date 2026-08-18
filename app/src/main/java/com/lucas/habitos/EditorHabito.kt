@@ -109,13 +109,13 @@ fun EditorHabito(
             ) {
                 Icon(
                     painter = painterResource(IconoAtras),
-                    contentDescription = "Volver",
+                    contentDescription = t("Volver", "Back"),
                     modifier = Modifier.size(21.dp)
                 )
             }
             Spacer(Modifier.width(6.dp))
             Text(
-                text = if (original == null) "Nuevo hábito" else "Editar hábito",
+                text = if (original == null) t("Nuevo hábito", "New habit") else t("Editar hábito", "Edit habit"),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f)
@@ -130,7 +130,7 @@ fun EditorHabito(
                 ) {
                     Icon(
                         painter = painterResource(IconoBasuraLinea),
-                        contentDescription = "Eliminar",
+                        contentDescription = t("Eliminar", "Delete"),
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(20.dp)
                     )
@@ -154,7 +154,7 @@ fun EditorHabito(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Titulo("Ícono")
+            Titulo(t("Ícono", "Icon"))
             Rejilla(ICONOS_HABITO, 6) { entrada ->
                 val elegido = entrada.clave == icono
                 Box(
@@ -177,7 +177,7 @@ fun EditorHabito(
                 }
             }
 
-            Titulo("Color")
+            Titulo(t("Color", "Colour"))
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 PALETA.forEachIndexed { i, c ->
                     Box(
@@ -195,21 +195,21 @@ fun EditorHabito(
                 }
             }
 
-            Titulo("¿Cada cuánto?")
+            Titulo(t("¿Cada cuánto?", "How often?"))
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Fila {
-                    Chip("Todos los días", frecuencia == Frecuencia.DIARIO, acento) {
+                    Chip(t("Todos los días", "Every day"), frecuencia == Frecuencia.DIARIO, acento) {
                         frecuencia = Frecuencia.DIARIO
                     }
-                    Chip("Días fijos", frecuencia == Frecuencia.DIAS_SEMANA, acento) {
+                    Chip(t("Días fijos", "Set days"), frecuencia == Frecuencia.DIAS_SEMANA, acento) {
                         frecuencia = Frecuencia.DIAS_SEMANA
                     }
                 }
                 Fila {
-                    Chip("Veces por semana", frecuencia == Frecuencia.VECES_SEMANA, acento) {
+                    Chip(t("Veces por semana", "Times per week"), frecuencia == Frecuencia.VECES_SEMANA, acento) {
                         frecuencia = Frecuencia.VECES_SEMANA
                     }
-                    Chip("Cada N días", frecuencia == Frecuencia.CADA_N_DIAS, acento) {
+                    Chip(t("Cada N días", "Every N days"), frecuencia == Frecuencia.CADA_N_DIAS, acento) {
                         frecuencia = Frecuencia.CADA_N_DIAS
                     }
                 }
@@ -250,7 +250,7 @@ fun EditorHabito(
                 Frecuencia.VECES_SEMANA -> {
                     Spacer(Modifier.height(12.dp))
                     Contador(
-                        etiqueta = "veces por semana",
+                        etiqueta = t("veces por semana", "times per week"),
                         valor = veces,
                         acento = acento,
                         minimo = 1,
@@ -261,7 +261,7 @@ fun EditorHabito(
                 Frecuencia.CADA_N_DIAS -> {
                     Spacer(Modifier.height(12.dp))
                     Contador(
-                        etiqueta = "días entre cada vez",
+                        etiqueta = t("días entre cada vez", "days between each"),
                         valor = cadaN,
                         acento = acento,
                         minimo = 2,
@@ -272,20 +272,20 @@ fun EditorHabito(
                 Frecuencia.DIARIO -> {}
             }
 
-            Titulo("¿Cómo se mide?")
+            Titulo(t("¿Cómo se mide?", "How is it measured?"))
             Fila {
-                Chip("Hecho o no", meta == Meta.SI_NO, acento) { meta = Meta.SI_NO }
-                Chip("Cantidad", meta == Meta.CANTIDAD, acento) { meta = Meta.CANTIDAD }
-                Chip("Minutos", meta == Meta.TIEMPO, acento) { meta = Meta.TIEMPO }
+                Chip(t("Hecho o no", "Done or not"), meta == Meta.SI_NO, acento) { meta = Meta.SI_NO }
+                Chip(t("Cantidad", "Amount"), meta == Meta.CANTIDAD, acento) { meta = Meta.CANTIDAD }
+                Chip(t("Minutos", "Minutes"), meta == Meta.TIEMPO, acento) { meta = Meta.TIEMPO }
             }
 
             if (meta != Meta.SI_NO) {
                 Spacer(Modifier.height(12.dp))
                 Contador(
                     etiqueta = when {
-                        meta == Meta.TIEMPO -> "minutos al día"
-                        unidad.isBlank() -> "veces al día"
-                        else -> "$unidad al día"
+                        meta == Meta.TIEMPO -> t("minutos al día", "minutes a day")
+                        unidad.isBlank() -> t("veces al día", "times a day")
+                        else -> t("$unidad al día", "$unidad a day")
                     },
                     valor = cantidad,
                     acento = acento,
@@ -308,10 +308,10 @@ fun EditorHabito(
                 }
             }
 
-            Titulo("Recordatorio")
+            Titulo(t("Recordatorio", "Reminder"))
             Interruptor(
-                titulo = "Avisarme cada día",
-                detalle = if (recordatorio) "A las ${horaTexto(minutos)}" else "Sin aviso",
+                titulo = t("Avisarme cada día", "Remind me every day"),
+                detalle = if (recordatorio) t("A las ${horaTexto(minutos)}", "At ${horaTexto(minutos)}") else t("Sin aviso", "No reminder"),
                 activo = recordatorio,
                 acento = acento,
                 onCambiar = { recordatorio = it }
@@ -345,14 +345,14 @@ fun EditorHabito(
             if (recordatorio) {
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    text = "Avisarme antes",
+                    text = t("Avisarme antes", "Remind me earlier"),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(Modifier.height(3.dp))
                 Text(
                     text = if (previos.isEmpty()) {
-                        "Sin avisos previos: solo sonará a la hora."
+                        t("Sin avisos previos: solo sonará a la hora.", "No early reminders: it only rings on the hour.")
                     } else {
                         "Además de la hora, avisará " +
                             previos.sortedDescending().joinToString(" y ") { textoPrevio(it) } +
@@ -392,11 +392,10 @@ fun EditorHabito(
                 }
             }
 
-            Titulo("Calendario")
+            Titulo(t("Calendario", "Calendar"))
             Interruptor(
-                titulo = "Anotar en mi calendario",
-                detalle = "Reserva el hueco a las ${horaTexto(minutos)} en tu calendario, " +
-                    "repitiéndose según la frecuencia. Aparece también en Google Calendar.",
+                titulo = t("Anotar en mi calendario", "Add to my calendar"),
+                detalle = t("Reserva el hueco a las ${horaTexto(minutos)} en tu calendario, repitiéndose según la frecuencia. Aparece también en Google Calendar.", "Blocks the slot at ${horaTexto(minutos)} in your calendar, repeating with the habit's frequency. It shows up in Google Calendar too."),
                 activo = calendario,
                 acento = acento,
                 onCambiar = { calendario = it }
@@ -441,7 +440,7 @@ fun EditorHabito(
                     .height(54.dp)
             ) {
                 Text(
-                    text = if (original == null) "Crear hábito" else "Guardar cambios",
+                    text = if (original == null) t("Crear hábito", "Create habit") else t("Guardar cambios", "Save changes"),
                     style = MaterialTheme.typography.titleMedium
                 )
             }
@@ -557,7 +556,7 @@ private fun Contador(
         ) {
             Icon(
                 painter = painterResource(IconoMenos),
-                contentDescription = "Restar",
+                contentDescription = t("Restar", "Subtract"),
                 tint = acento,
                 modifier = Modifier.size(16.dp)
             )
@@ -616,7 +615,7 @@ private fun Contador(
         ) {
             Icon(
                 painter = painterResource(IconoMas),
-                contentDescription = "Sumar",
+                contentDescription = t("Sumar", "Add"),
                 tint = acento,
                 modifier = Modifier.size(16.dp)
             )

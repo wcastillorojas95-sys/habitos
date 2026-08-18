@@ -124,6 +124,18 @@ class ServicioBloqueo : AccessibilityService() {
             getSystemService(TelecomManager::class.java)?.defaultDialerPackage
         }.getOrNull()?.let { lista += it }
 
+        // Y el marcador de serie aunque no sea el predeterminado, por si el
+        // usuario tiene otro instalado y la llamada entra por el del sistema.
+        lista += "com.android.dialer"
+        lista += "com.google.android.dialer"
+        lista += "com.samsung.android.dialer"
+        lista += "com.android.incallui"
+
+        // WhatsApp. Para mucha gente es el telefono, no una red social: por ahi
+        // entran las llamadas y los recados de casa. Bloquearlo convierte una
+        // sesion de enfoque en estar ilocalizable, que no es lo que se pedia.
+        lista += APPS_DE_CONTACTO
+
         // El teclado, o no podrias escribir ni siquiera en nuestra app.
         runCatching {
             Settings.Secure.getString(contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD)
@@ -142,6 +154,18 @@ class ServicioBloqueo : AccessibilityService() {
     companion object {
         /** Cuatro horas. Ninguna sesion honesta dura tanto. */
         private const val TOPE_MS = 4L * 60L * 60L * 1000L
+
+        /**
+         * Apps de contacto que nunca se bloquean.
+         *
+         * WhatsApp incluye el cliente normal y el Business, porque hay quien
+         * tiene solo el segundo. Si algun dia hace falta anadir Telegram o
+         * Signal, es esta lista y nada mas.
+         */
+        private val APPS_DE_CONTACTO = setOf(
+            "com.whatsapp",
+            "com.whatsapp.w4b"
+        )
 
         /** Si el usuario activo el servicio en los ajustes de accesibilidad. */
         fun activo(contexto: Context): Boolean {

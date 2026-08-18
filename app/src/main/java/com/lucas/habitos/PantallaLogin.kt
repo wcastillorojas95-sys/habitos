@@ -60,7 +60,7 @@ fun PantallaLogin(onEntrarSinCuenta: () -> Unit) {
             val token = cuentaGoogle?.idToken
             if (token.isNullOrBlank()) {
                 SesionUsuario.entrando = false
-                SesionUsuario.error = "Google no devolvió el token de identidad."
+                SesionUsuario.error = t("Google no devolvió el token de identidad.", "Google did not return an identity token.")
                 return@rememberLauncherForActivityResult
             }
 
@@ -101,7 +101,7 @@ fun PantallaLogin(onEntrarSinCuenta: () -> Unit) {
         )
         Spacer(Modifier.height(10.dp))
         Text(
-            text = "Entra con tu cuenta para tener tu nombre y tu perfil en la app.",
+            text = t("Entra con tu cuenta para tener tu nombre y tu perfil en la app.", "Sign in to have your name and profile in the app."),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
@@ -111,7 +111,7 @@ fun PantallaLogin(onEntrarSinCuenta: () -> Unit) {
 
         BotonEntrar(
             icono = R.drawable.ic_google,
-            texto = "Continuar con Google",
+            texto = t("Continuar con Google", "Continue with Google"),
             cargando = SesionUsuario.entrando,
             onClick = {
                 SesionUsuario.error = null
@@ -144,7 +144,7 @@ fun PantallaLogin(onEntrarSinCuenta: () -> Unit) {
         // teléfono, nadie debería quedarse fuera de sus propios hábitos, que
         // están guardados aquí y no en ningún servidor.
         Text(
-            text = "Entrar sin cuenta",
+            text = t("Entrar sin cuenta", "Continue without an account"),
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -156,8 +156,7 @@ fun PantallaLogin(onEntrarSinCuenta: () -> Unit) {
 
         Spacer(Modifier.height(14.dp))
         Text(
-            text = "Tus hábitos se guardan en este teléfono. La cuenta sirve para " +
-                "identificarte, no sube nada a internet.",
+            text = t("Tus hábitos se guardan en este teléfono. La cuenta sirve para identificarte, no sube nada a internet.", "Your habits are stored on this phone. The account only identifies you; nothing is uploaded."),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
             textAlign = TextAlign.Center
@@ -197,7 +196,7 @@ private fun BotonEntrar(
             )
             Spacer(Modifier.width(14.dp))
             Text(
-                text = "Entrando…",
+                text = t("Entrando…", "Signing in…"),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold
             )

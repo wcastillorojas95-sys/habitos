@@ -120,7 +120,7 @@ fun PantallaAjustes(
                     Spacer(Modifier.width(14.dp))
                     Column {
                         Text(
-                            text = cuenta?.nombre?.ifBlank { null } ?: "Sin cuenta",
+                            text = cuenta?.nombre?.ifBlank { null } ?: t("Sin cuenta", "No account"),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.ExtraBold,
                             color = MaterialTheme.colorScheme.onBackground
@@ -144,7 +144,7 @@ fun PantallaAjustes(
 
             item {
                 Text(
-                    text = "Ajustes",
+                    text = t("Ajustes", "Settings"),
                     style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.onBackground,
@@ -152,13 +152,12 @@ fun PantallaAjustes(
                 )
             }
 
-            item { Seccion("Cuenta") }
+            item { Seccion(t("Cuenta", "Account")) }
             item {
                 if (cuenta == null) {
                     FilaAccion(
-                        titulo = "Entrar con Google",
-                        detalle = "Ahora estás usando la app sin cuenta. Al entrar, la app te " +
-                            "saluda por tu nombre. Tus hábitos no se mueven de este teléfono.",
+                        titulo = t("Entrar con Google", "Sign in with Google"),
+                        detalle = t("Ahora estás usando la app sin cuenta. Al entrar, la app te saluda por tu nombre. Tus hábitos no se mueven de este teléfono.", "You are using the app without an account. If you sign in, the app greets you by name. Your habits never leave this phone."),
                         onClick = {
                             almacenEnfoque.invitado = false
                             SesionUsuario.invitado = false
@@ -167,32 +166,32 @@ fun PantallaAjustes(
                     )
                 } else {
                     FilaAccion(
-                        titulo = "Cerrar sesión",
+                        titulo = t("Cerrar sesión", "Sign out"),
                         detalle = "Saldrás de ${cuenta.correo.ifBlank { "tu cuenta" }}. " +
-                            "Tus hábitos y su historial se quedan intactos en el teléfono.",
+                            t("Tus hábitos y su historial se quedan intactos en el teléfono.", "Your habits and their history stay untouched on the phone."),
                         onClick = { cerrandoSesion = true }
                     )
                 }
             }
 
-            item { Seccion("Apariencia") }
+            item { Seccion(t("Apariencia", "Appearance")) }
             item {
                 FilaInterruptor(
-                    titulo = "Modo oscuro",
-                    detalle = "Por defecto la app va en claro, que es como está pensado el diseño.",
+                    titulo = t("Modo oscuro", "Dark mode"),
+                    detalle = t("Por defecto la app va en claro, que es como está pensado el diseño.", "The app runs light by default, which is how the design was made."),
                     marcado = oscuro,
                     onCambiar = onCambiarTema
                 )
             }
 
-            item { Seccion("Avisos") }
+            item { Seccion(t("Avisos", "Reminders")) }
             item {
                 FilaAccion(
-                    titulo = if (avisosOk) "Avisos activados" else "Activar los avisos",
+                    titulo = if (avisosOk) t("Avisos activados", "Reminders on") else t("Activar los avisos", "Turn reminders on"),
                     detalle = if (avisosOk) {
-                        "Los recordatorios pueden llegarte. Toca para revisarlos o silenciar alguno."
+                        t("Los recordatorios pueden llegarte. Toca para revisarlos o silenciar alguno.", "Reminders can reach you. Tap to review them or silence one.")
                     } else {
-                        "Ahora mismo el teléfono los tiene bloqueados, así que ningún recordatorio te llegará."
+                        t("Ahora mismo el teléfono los tiene bloqueados, así que ningún recordatorio te llegará.", "Right now the phone has them blocked, so no reminder will reach you.")
                     },
                     onClick = {
                         contexto.startActivity(
@@ -209,10 +208,8 @@ fun PantallaAjustes(
             if (!pantallaCompletaOk) {
                 item {
                     FilaAccion(
-                        titulo = "Permitir alarmas a pantalla completa",
-                        detalle = "Sin esto, a la hora de una actividad verás una notificación " +
-                            "normal en vez de la alarma que ocupa la pantalla y suena aunque " +
-                            "tengas el móvil en silencio.",
+                        titulo = t("Permitir alarmas a pantalla completa", "Allow full-screen alarms"),
+                        detalle = t("Sin esto, a la hora de una actividad verás una notificación normal en vez de la alarma que ocupa la pantalla y suena aunque tengas el móvil en silencio.", "Without this, at the time of an activity you get an ordinary notification instead of the alarm that takes over the screen and rings even on silent."),
                         onClick = {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                                 contexto.startActivity(
@@ -228,9 +225,8 @@ fun PantallaAjustes(
             if (!exactasOk) {
                 item {
                     FilaAccion(
-                        titulo = "Permitir avisos a la hora exacta",
-                        detalle = "Sin esto Android agrupa las alarmas para ahorrar batería y el " +
-                            "recordatorio de las 8:00 puede llegarte a las 8:40 o no llegar.",
+                        titulo = t("Permitir avisos a la hora exacta", "Allow exact-time reminders"),
+                        detalle = t("Sin esto Android agrupa las alarmas para ahorrar batería y el recordatorio de las 8:00 puede llegarte a las 8:40 o no llegar.", "Without this Android batches alarms to save battery, and your 8:00 reminder may arrive at 8:40, or not at all."),
                         onClick = {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                                 contexto.startActivity(
@@ -244,13 +240,12 @@ fun PantallaAjustes(
                 }
             }
 
-            item { Seccion("Calendario") }
+            item { Seccion(t("Calendario", "Calendar")) }
             item {
                 if (!calendarioOk) {
                     FilaAccion(
-                        titulo = "Dar acceso al calendario",
-                        detalle = "Sin permiso, los hábitos que marques para el calendario no " +
-                            "reservan ningún hueco. Toca para concederlo en los ajustes del sistema.",
+                        titulo = t("Dar acceso al calendario", "Grant calendar access"),
+                        detalle = t("Sin permiso, los hábitos que marques para el calendario no reservan ningún hueco. Toca para concederlo en los ajustes del sistema.", "Without permission, habits marked for the calendar reserve nothing. Tap to grant it in the system settings."),
                         onClick = {
                             contexto.startActivity(
                                 Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
@@ -279,20 +274,16 @@ fun PantallaAjustes(
                 }
             }
 
-            item { Seccion("Modo estricto") }
+            item { Seccion(t("Modo estricto", "Strict mode")) }
             item {
                 FilaInformativa(
-                    titulo = "Reto para abandonar",
-                    detalle = "Para dejar una actividad antes de tiempo eliges un tema, " +
-                        "lees una cápsula de divulgación y aciertas tres preguntas sobre " +
-                        "detalles del texto. No valen las de cultura general: hay que haber " +
-                        "leído. Si fallas una, empiezas de cero con otro texto."
-                )
+                    titulo = t("Reto para abandonar", "Challenge to quit"),
+                    detalle = t("Para dejar una actividad antes de tiempo eliges un tema, lees una cápsula de divulgación y aciertas tres preguntas sobre detalles del texto. No valen las de cultura general: hay que haber leído. Si fallas una, empiezas de cero con otro texto.", "To drop an activity early you pick a subject, read a short piece and answer three questions about details in the text. General knowledge will not save you: you have to read it. Miss one and you start over with a different text."))
             }
             item {
                 FilaAccion(
-                    titulo = "Permitir No molestar",
-                    detalle = "Para que el teléfono se silencie solo mientras dura una actividad.",
+                    titulo = t("Permitir No molestar", "Allow Do Not Disturb"),
+                    detalle = t("Para que el teléfono se silencie solo mientras dura una actividad.", "So the phone silences itself while an activity lasts."),
                     onClick = {
                         contexto.startActivity(
                             Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
@@ -302,13 +293,11 @@ fun PantallaAjustes(
                 )
             }
 
-            item { Seccion("Bloquear otras apps") }
+            item { Seccion(t("Bloquear otras apps", "Block other apps")) }
             item {
                 FilaInterruptor(
-                    titulo = "Bloquear el teléfono durante la actividad",
-                    detalle = "Mientras corre una sesión, cualquier app que abras se tapa con " +
-                        "una pantalla que solo enseña el tiempo que falta. No hay botón para " +
-                        "saltársela: se desbloquea sola al terminar.",
+                    titulo = t("Bloquear el teléfono durante la actividad", "Block the phone during an activity"),
+                    detalle = t("Mientras corre una sesión, cualquier app que abras se tapa con una pantalla que solo enseña el tiempo que falta. No hay botón para saltársela: se desbloquea sola al terminar.", "While a session runs, any app you open is covered by a screen showing only the time left. There is no button to skip it: it unlocks itself when the time is up."),
                     marcado = bloquear,
                     onCambiar = {
                         bloquear = it
@@ -319,10 +308,8 @@ fun PantallaAjustes(
             if (bloquear && !accesibilidadOk) {
                 item {
                     FilaAccion(
-                        titulo = "Falta un permiso: accesibilidad",
-                        detalle = "Es la única vía que da Android para saber qué app tienes " +
-                            "delante. Toca, busca «Hábitos» en la lista y actívalo. Solo se mira " +
-                            "el nombre de la app abierta, nunca lo que hay escrito en ella.",
+                        titulo = t("Falta un permiso: accesibilidad", "Missing permission: accessibility"),
+                        detalle = t("Es la única vía que da Android para saber qué app tienes delante. Toca, busca «Hábitos» en la lista y actívalo. Solo se mira el nombre de la app abierta, nunca lo que hay escrito en ella.", "It is the only way Android offers to know which app is in front of you. Tap, find «Hábitos» in the list and turn it on. Only the name of the open app is read, never what is written in it."),
                         onClick = { ServicioBloqueo.abrirAccesibilidad(contexto) }
                     )
                 }
@@ -330,9 +317,8 @@ fun PantallaAjustes(
             if (bloquear && !superponerOk) {
                 item {
                     FilaAccion(
-                        titulo = "Falta un permiso: mostrar sobre otras apps",
-                        detalle = "Sin esto Android no deja que la pantalla de bloqueo salga " +
-                            "encima de la app que acabas de abrir.",
+                        titulo = t("Falta un permiso: mostrar sobre otras apps", "Missing permission: display over other apps"),
+                        detalle = t("Sin esto Android no deja que la pantalla de bloqueo salga encima de la app que acabas de abrir.", "Without this, Android will not let the blocking screen appear on top of the app you just opened."),
                         onClick = { ServicioBloqueo.abrirSuperposicion(contexto) }
                     )
                 }
@@ -340,34 +326,30 @@ fun PantallaAjustes(
             if (bloquear && accesibilidadOk && superponerOk) {
                 item {
                     FilaAccion(
-                        titulo = "Bloqueo listo",
-                        detalle = "Se bloquea todo menos el teléfono, el teclado y los Ajustes " +
-                            "de Android. Los Ajustes se dejan a propósito: son la salida de " +
-                            "emergencia si algún día quieres apagar esto. Toca para ir allí.",
+                        titulo = t("Bloqueo listo", "Blocking ready"),
+                        detalle = t("Se bloquea todo menos el teléfono, WhatsApp, el teclado y los Ajustes de Android. Los Ajustes se dejan a propósito: son la salida de emergencia si quieres apagar esto. Toca para ir allí.", "Everything is blocked except the phone, WhatsApp, the keyboard and Android Settings. Settings are left open on purpose: they are the emergency exit if you want to turn this off. Tap to go there."),
                         onClick = { ServicioBloqueo.abrirAccesibilidad(contexto) }
                     )
                 }
             }
 
-            item { Seccion("Copia de seguridad") }
+            item { Seccion(t("Copia de seguridad", "Backup")) }
             item {
                 FilaAccion(
-                    titulo = "Guardar una copia",
-                    detalle = "Un archivo con todos tus hábitos, su historial y tus minutos de " +
-                        "enfoque. Guárdalo en Drive o donde quieras. El PIN no se incluye.",
+                    titulo = t("Guardar una copia", "Save a backup"),
+                    detalle = t("Un archivo con todos tus hábitos, su historial y tus minutos de enfoque. Guárdalo en Drive o donde quieras. El PIN no se incluye.", "One file with all your habits, their history and your focus minutes. Keep it in Drive or wherever you like."),
                     onClick = { guardarCopia.launch(Copia.nombreSugerido()) }
                 )
             }
             item {
                 FilaAccion(
-                    titulo = "Restaurar una copia",
-                    detalle = "Recupera todo desde un archivo guardado. Sustituye lo que tengas " +
-                        "ahora, así que se te pedirá confirmación.",
+                    titulo = t("Restaurar una copia", "Restore a backup"),
+                    detalle = t("Recupera todo desde un archivo guardado. Sustituye lo que tengas ahora, así que se te pedirá confirmación.", "Brings everything back from a saved file. It replaces what you have now, so you will be asked to confirm."),
                     onClick = { confirmandoImportar = true }
                 )
             }
 
-            item { Seccion("Acerca de") }
+            item { Seccion(t("Acerca de", "About")) }
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -377,7 +359,7 @@ fun PantallaAjustes(
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         Text(
-                            text = "Hábitos 3.6",
+                            text = "Hábitos 3.7",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface

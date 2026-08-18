@@ -104,6 +104,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             // El tema lo manda el ajuste de la app, no el del sistema.
             var oscuro by remember { mutableStateOf(enfoque.temaOscuro) }
+            // El idioma guardado se lee una vez al arrancar; a partir de ahi
+            // vive en el objeto Idioma, que es estado de Compose.
+            LaunchedEffect(Unit) { Idioma.cargar(enfoque) }
             HabitosTheme(oscuro = oscuro) {
                 if (SesionUsuario.dentro) {
                     App(
@@ -397,6 +400,9 @@ private fun AppPrincipal(
             when (pagina) {
                 Pantalla.HOY -> PantallaHoy(
                     nombre = SesionUsuario.cuenta?.nombrePila().orEmpty(),
+                    oscuro = oscuro,
+                    onCambiarTema = { onCambiarTema(!oscuro) },
+                    onCambiarIdioma = { Idioma.alternar(almacenEnfoque) },
                     habitos = habitos,
                     onCambiar = onCambiar,
                     onNuevo = onNuevo,
@@ -452,10 +458,10 @@ private fun BarraFlotante(actual: Pantalla, onElegir: (Pantalla) -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            PestanaPildora(IconoCasa, "Hoy", actual == Pantalla.HOY) { onElegir(Pantalla.HOY) }
-            PestanaPildora(IconoLupa, "Explorar", actual == Pantalla.EXPLORAR) { onElegir(Pantalla.EXPLORAR) }
+            PestanaPildora(IconoCasa, t("Hoy", "Today"), actual == Pantalla.HOY) { onElegir(Pantalla.HOY) }
+            PestanaPildora(IconoLupa, t("Explorar", "Explore"), actual == Pantalla.EXPLORAR) { onElegir(Pantalla.EXPLORAR) }
             PestanaPildora(IconoGrafico, "Progreso", actual == Pantalla.PROGRESO) { onElegir(Pantalla.PROGRESO) }
-            PestanaPildora(IconoEngranaje, "Ajustes", actual == Pantalla.AJUSTES) { onElegir(Pantalla.AJUSTES) }
+            PestanaPildora(IconoEngranaje, t("Ajustes", "Settings"), actual == Pantalla.AJUSTES) { onElegir(Pantalla.AJUSTES) }
         }
     }
 }

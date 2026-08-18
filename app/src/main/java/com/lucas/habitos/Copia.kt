@@ -78,17 +78,17 @@ object Copia {
         return try {
             val texto = contexto.contentResolver.openInputStream(origen)
                 ?.bufferedReader()?.use { it.readText() }
-                ?: return Resultado(false, "No se pudo leer el archivo.", emptyList())
+                ?: return Resultado(false, t("No se pudo leer el archivo.", "The file could not be read."), emptyList())
 
             val raiz = JSONObject(texto)
             if (raiz.optString("app") != "habitos") {
-                return Resultado(false, "Ese archivo no es una copia de Hábitos.", emptyList())
+                return Resultado(false, t("Ese archivo no es una copia de Hábitos.", "That file is not a Hábitos backup."), emptyList())
             }
 
             val almacen = Almacen(contexto)
             val leidos = almacen.desdeJson(raiz.optJSONArray("habitos") ?: JSONArray())
             if (leidos.isEmpty()) {
-                return Resultado(false, "La copia no contiene ningún hábito.", emptyList())
+                return Resultado(false, t("La copia no contiene ningún hábito.", "The backup contains no habits."), emptyList())
             }
 
             // Los ids de evento son de otro teléfono y no valen aquí: se ponen a
@@ -124,7 +124,7 @@ object Copia {
                 conEventos
             )
         } catch (e: Exception) {
-            Resultado(false, "El archivo está dañado o no tiene el formato esperado.", emptyList())
+            Resultado(false, t("El archivo está dañado o no tiene el formato esperado.", "The file is damaged or not in the expected format."), emptyList())
         }
     }
 }

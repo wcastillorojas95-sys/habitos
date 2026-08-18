@@ -48,7 +48,7 @@ fun PantallaEstadisticas(habitos: List<Habito>, hoy: LocalDate) {
 
         item {
             Text(
-                text = "Progreso",
+                text = t("Progreso", "Progress"),
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -70,13 +70,13 @@ fun PantallaEstadisticas(habitos: List<Habito>, hoy: LocalDate) {
                     )
                     Spacer(Modifier.height(12.dp))
                     Text(
-                        text = "Aún no hay nada que medir",
+                        text = t("Aún no hay nada que medir", "Nothing to measure yet"),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = "Crea un hábito y en unos días verás aquí tus patrones.",
+                        text = t("Crea un hábito y en unos días verás aquí tus patrones.", "Create a habit and in a few days your patterns will show up here."),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
@@ -92,7 +92,7 @@ fun PantallaEstadisticas(habitos: List<Habito>, hoy: LocalDate) {
         item { Spacer(Modifier.height(2.dp)) }
         item {
             Text(
-                text = "HÁBITO POR HÁBITO",
+                text = t("HÁBITO POR HÁBITO", "HABIT BY HABIT"),
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.ExtraBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -158,7 +158,7 @@ private fun MapaCalor(habitos: List<Habito>, hoy: LocalDate) {
     val vacio = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.07f)
     val finSemana = Habito.inicioSemana(hoy).plusDays(6)
 
-    Tarjeta("Últimas $SEMANAS semanas") {
+    Tarjeta(t("Últimas $SEMANAS semanas", "Last $SEMANAS weeks")) {
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
 
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -243,7 +243,7 @@ private fun PorDiaSemana(habitos: List<Habito>, hoy: LocalDate) {
     val mejorDia = porcentajes.withIndex().filter { it.value >= 0 }.maxByOrNull { it.value }
     val peorDia = porcentajes.withIndex().filter { it.value >= 0 }.minByOrNull { it.value }
 
-    Tarjeta("Por día de la semana") {
+    Tarjeta(t("Por día de la semana", "By day of the week")) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -338,7 +338,7 @@ private fun FilaHabito(habito: Habito, hoy: LocalDate) {
                 )
                 Spacer(Modifier.height(3.dp))
                 Text(
-                    text = "Racha ${habito.racha(hoy)} · mejor ${habito.mejorRacha(hoy)}",
+                    text = t("Racha ${habito.racha(hoy)} · mejor ${habito.mejorRacha(hoy)}", "Streak ${habito.racha(hoy)} · best ${habito.mejorRacha(hoy)}"),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

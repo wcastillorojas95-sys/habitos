@@ -43,6 +43,11 @@ val IconoLapiz = R.drawable.ic_edit
 val IconoCerrar = R.drawable.ic_close
 val IconoReloj = R.drawable.ic_timer
 
+/** Cabecera: cambiar idioma y alternar el tema. */
+val IconoIdioma = R.drawable.ic_ui_idioma
+val IconoLuna = R.drawable.ic_ui_luna
+val IconoSol = R.drawable.ic_ui_sol
+
 // ------------------------------------------------------- iconos de hábito ---
 
 /** Una entrada del catálogo: la clave que se guarda y el dibujo que le toca. */

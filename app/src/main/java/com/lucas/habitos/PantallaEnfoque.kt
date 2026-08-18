@@ -227,7 +227,7 @@ class PantallaEnfoque : ComponentActivity() {
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "de ${sesion.duracionMin} min",
+                            text = t("de ${sesion.duracionMin} min", "of ${sesion.duracionMin} min"),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -238,10 +238,14 @@ class PantallaEnfoque : ComponentActivity() {
 
                 Text(
                     text = if (sesion.estricto) {
-                        "Modo estricto. Para dejarlo antes de tiempo tendrás que " +
-                            "leer una fábula y acertar una pregunta sobre ella."
+                        t(
+                            "Modo estricto. Para dejarlo antes de tiempo tendrás que leer " +
+                                "algo y acertar tres preguntas sobre ello.",
+                            "Strict mode. To drop it early you will have to read something " +
+                                "and answer three questions about it."
+                        )
                     } else {
-                        "Puedes salir cuando quieras, pero solo cuenta si terminas."
+                        t("Puedes salir cuando quieras, pero solo cuenta si terminas.", "You can leave whenever you like, but it only counts if you finish.")
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -308,7 +312,7 @@ class PantallaEnfoque : ComponentActivity() {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Quiero abandonar",
+                text = t("Quiero abandonar", "I want to quit"),
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Bold,
                 color = color
@@ -346,7 +350,7 @@ class PantallaEnfoque : ComponentActivity() {
                 )
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    text = if (completada) "Actividad completada" else "Sesión interrumpida",
+                    text = if (completada) t("Actividad completada", "Activity completed") else t("Sesión interrumpida", "Session interrupted"),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
@@ -355,8 +359,8 @@ class PantallaEnfoque : ComponentActivity() {
                 Text(
                     text = when {
                         completada && resultado != null ->
-                            "Se anotaron ${resultado.first.duracionMin} minutos en tu hábito."
-                        else -> "No pasa nada. El hábito sigue ahí mañana."
+                            t("Se anotaron ${resultado.first.duracionMin} minutos en tu hábito.", "${resultado.first.duracionMin} minutes were logged to your habit.")
+                        else -> t("No pasa nada. El hábito sigue ahí mañana.", "It is fine. The habit will still be there tomorrow.")
                     },
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

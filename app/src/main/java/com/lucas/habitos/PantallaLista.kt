@@ -112,19 +112,19 @@ fun PantallaLista(
             ) {
                 Icon(
                     painter = painterResource(IconoAtras),
-                    contentDescription = "Volver",
+                    contentDescription = t("Volver", "Back"),
                     modifier = Modifier.size(21.dp)
                 )
             }
             Spacer(Modifier.width(6.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Nueva lista",
+                    text = t("Nueva lista", "New list"),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Toca una para ajustarla y añadirla. Se crean todas de una vez.",
+                    text = t("Toca una para ajustarla y añadirla. Se crean todas de una vez.", "Tap one to adjust it and add it. They are all created at once."),
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -191,9 +191,9 @@ fun PantallaLista(
             ) {
                 Text(
                     text = when (elegidas.size) {
-                        0 -> "Elige al menos una"
-                        1 -> "Crear 1 hábito"
-                        else -> "Crear ${elegidas.size} hábitos"
+                        0 -> t("Elige al menos una", "Pick at least one")
+                        1 -> t("Crear 1 hábito", "Create 1 habit")
+                        else -> t("Crear ${elegidas.size} hábitos", "Create ${elegidas.size} habits")
                     },
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
@@ -252,12 +252,12 @@ private fun DialogoAjustes(
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
 
-                Rotulo("¿Cada cuánto?")
+                Rotulo(t("¿Cada cuánto?", "How often?"))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    ChipMini("Todos los días", frecuencia == Frecuencia.DIARIO, acento) {
+                    ChipMini(t("Todos los días", "Every day"), frecuencia == Frecuencia.DIARIO, acento) {
                         frecuencia = Frecuencia.DIARIO
                     }
-                    ChipMini("Días fijos", frecuencia == Frecuencia.DIAS_SEMANA, acento) {
+                    ChipMini(t("Días fijos", "Set days"), frecuencia == Frecuencia.DIAS_SEMANA, acento) {
                         frecuencia = Frecuencia.DIAS_SEMANA
                     }
                 }
@@ -296,9 +296,9 @@ private fun DialogoAjustes(
                 if (habito.meta != Meta.SI_NO) {
                     Rotulo(
                         when {
-                            habito.meta == Meta.TIEMPO -> "Minutos al día"
-                            habito.unidad.isBlank() -> "Veces al día"
-                            else -> "${habito.unidad} al día"
+                            habito.meta == Meta.TIEMPO -> t("Minutos al día", "Minutes a day")
+                            habito.unidad.isBlank() -> t("Veces al día", "Times a day")
+                            else -> t("${habito.unidad} al día", "${habito.unidad} a day")
                         }
                     )
                     ContadorMini(
@@ -311,16 +311,16 @@ private fun DialogoAjustes(
                     ) { cantidad = it }
                 }
 
-                Rotulo("Aviso y calendario")
+                Rotulo(t("Aviso y calendario", "Reminder and calendar"))
                 InterruptorMini(
-                    texto = if (recordatorio) "Avisarme a las ${horaTexto(minutos)}" else "Sin aviso",
+                    texto = if (recordatorio) t("Avisarme a las ${horaTexto(minutos)}", "Remind me at ${horaTexto(minutos)}") else t("Sin aviso", "No reminder"),
                     activo = recordatorio
                 ) { recordatorio = it }
 
                 if (recordatorio || enCalendario) {
                     Spacer(Modifier.height(6.dp))
                     Text(
-                        text = "Cambiar hora · ${horaTexto(minutos)}",
+                        text = t("Cambiar hora · ${horaTexto(minutos)}", "Change time · ${horaTexto(minutos)}"),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Bold,
                         color = acento,
@@ -339,7 +339,7 @@ private fun DialogoAjustes(
 
                 Spacer(Modifier.height(8.dp))
                 InterruptorMini(
-                    texto = "Reservar el hueco en mi calendario",
+                    texto = t("Reservar el hueco en mi calendario", "Block the slot in my calendar"),
                     activo = enCalendario
                 ) { enCalendario = it }
             }
@@ -356,7 +356,7 @@ private fun DialogoAjustes(
                         enCalendario = enCalendario
                     )
                 )
-            }) { Text(if (yaEstaba) "Guardar" else "Añadir", fontWeight = FontWeight.Bold) }
+            }) { Text(if (yaEstaba) t("Guardar", "Save") else t("Añadir", "Add"), fontWeight = FontWeight.Bold) }
         },
         dismissButton = {
             if (yaEstaba) {
@@ -523,12 +523,12 @@ private fun FilaElegible(
             Spacer(Modifier.height(2.dp))
             Text(
                 text = when {
-                    apagado -> "Ya lo tienes"
+                    apagado -> t("Ya lo tienes", "Already added")
                     habito != null -> resumen(habito)
-                    plantilla.meta == Meta.TIEMPO -> "${plantilla.cantidad} min al día"
+                    plantilla.meta == Meta.TIEMPO -> t("${plantilla.cantidad} min al día", "${plantilla.cantidad} min a day")
                     plantilla.meta == Meta.CANTIDAD ->
-                        "${plantilla.cantidad} ${plantilla.unidad} al día"
-                    else -> "Todos los días"
+                        t("${plantilla.cantidad} ${plantilla.unidad} al día", "${plantilla.cantidad} ${plantilla.unidad} a day")
+                    else -> t("Todos los días", "Every day")
                 },
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium,

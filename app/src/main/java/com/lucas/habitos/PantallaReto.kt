@@ -110,16 +110,16 @@ fun PantallaReto(
             CabeceraReto(
                 color = color,
                 titulo = when (fase) {
-                    Fase.ELEGIR -> "Elige un tema"
-                    Fase.LECTURA -> "Lee esto entero"
-                    Fase.PREGUNTAS -> "Pregunta ${indice + 1} de ${Reto.PREGUNTAS_POR_CAPSULA}"
+                    Fase.ELEGIR -> t("Elige un tema", "Pick a subject")
+                    Fase.LECTURA -> t("Lee esto entero", "Read all of it")
+                    Fase.PREGUNTAS -> t("Pregunta ${indice + 1} de ${Reto.PREGUNTAS_POR_CAPSULA}", "Question ${indice + 1} of ${Reto.PREGUNTAS_POR_CAPSULA}")
                 },
                 onCerrar = onVolver
             )
 
             if (fallada) {
                 Text(
-                    text = "Esa no era. Vuelta a empezar con otro texto.",
+                    text = t("Esa no era. Vuelta a empezar con otro texto.", "Not that one. Starting over with a different text."),
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.error,
@@ -140,8 +140,7 @@ fun PantallaReto(
                     ) {
                         Spacer(Modifier.height(6.dp))
                         Text(
-                            text = "Para dejar la actividad tienes que leer algo y acertar " +
-                                "tres preguntas sobre ello. Elige de qué quieres que vaya.",
+                            text = t("Para dejar la actividad tienes que leer algo y acertar tres preguntas sobre ello. Elige de qué quieres que vaya.", "To drop the activity you have to read something and answer three questions about it. Choose what it should be about."),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -249,8 +248,8 @@ fun PantallaReto(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = if (restante > 0) "Léelo con calma · $restante s"
-                        else "Ya lo he leído",
+                        text = if (restante > 0) t("Léelo con calma · $restante s", "Take your time · $restante s")
+                        else t("Ya lo he leído", "I have read it"),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = if (restante > 0) MaterialTheme.colorScheme.onSurfaceVariant
@@ -259,8 +258,7 @@ fun PantallaReto(
                 }
                 Spacer(Modifier.height(10.dp))
                 Text(
-                    text = "Después vienen tres preguntas sobre detalles del texto, y no " +
-                        "podrás volver a leerlo.",
+                    text = t("Después vienen tres preguntas sobre detalles del texto, y no podrás volver a leerlo.", "Then come three questions about details in the text, and you will not be able to read it again."),
                     style = MaterialTheme.typography.bodySmall,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -280,7 +278,7 @@ private fun CabeceraReto(color: Color, titulo: String, onCerrar: () -> Unit) {
     ) {
         Column(Modifier.weight(1f)) {
             Text(
-                text = "Para abandonar",
+                text = t("Para abandonar", "To quit"),
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.ExtraBold,
                 color = color
@@ -301,7 +299,7 @@ private fun CabeceraReto(color: Color, titulo: String, onCerrar: () -> Unit) {
         ) {
             Icon(
                 painter = painterResource(IconoCerrar),
-                contentDescription = "Volver a la actividad",
+                contentDescription = t("Volver a la actividad", "Back to the activity"),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(20.dp)
             )
@@ -348,7 +346,7 @@ private fun TarjetaTema(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = if (quedan > 0) "$quedan sin leer" else "ya los has leído todos",
+                    text = if (quedan > 0) t("$quedan sin leer", "$quedan unread") else t("ya los has leído todos", "you have read them all"),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

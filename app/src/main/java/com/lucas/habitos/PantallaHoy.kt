@@ -69,6 +69,9 @@ private fun textoFecha(f: LocalDate): String =
 @Composable
 fun PantallaHoy(
     nombre: String,
+    oscuro: Boolean,
+    onCambiarTema: () -> Unit,
+    onCambiarIdioma: () -> Unit,
     habitos: List<Habito>,
     onCambiar: (List<Habito>) -> Unit,
     onNuevo: () -> Unit,
@@ -146,7 +149,16 @@ fun PantallaHoy(
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
 
-            item { Cabecera(nombre = nombre, diaSel = diaSel, hoy = hoy) }
+            item {
+                Cabecera(
+                    nombre = nombre,
+                    diaSel = diaSel,
+                    hoy = hoy,
+                    oscuro = oscuro,
+                    onCambiarTema = onCambiarTema,
+                    onCambiarIdioma = onCambiarIdioma
+                )
+            }
 
             item {
                 TarjetaReto(
@@ -173,14 +185,14 @@ fun PantallaHoy(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = if (diaSel == hoy) "Hoy (${delDia.size})" else "Ese día (${delDia.size})",
+                        text = if (diaSel == hoy) t("Hoy (${delDia.size})", "Today (${delDia.size})") else t("Ese día (${delDia.size})", "That day (${delDia.size})"),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.ExtraBold,
                         modifier = Modifier.weight(1f)
                     )
-                    BotonSecundario(texto = "Lista", onClick = onNuevaLista)
+                    BotonSecundario(texto = t("Lista", "List"), onClick = onNuevaLista)
                     Spacer(Modifier.width(8.dp))
-                    BotonPildora(texto = "Nuevo", onClick = onNuevo)
+                    BotonPildora(texto = t("Nuevo", "New"), onClick = onNuevo)
                 }
             }
 
@@ -217,7 +229,14 @@ fun PantallaHoy(
 // -----------------------------------------------------------------------------
 
 @Composable
-private fun Cabecera(nombre: String, diaSel: LocalDate, hoy: LocalDate) {
+private fun Cabecera(
+    nombre: String,
+    diaSel: LocalDate,
+    hoy: LocalDate,
+    oscuro: Boolean,
+    onCambiarTema: () -> Unit,
+    onCambiarIdioma: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -233,15 +252,66 @@ private fun Cabecera(nombre: String, diaSel: LocalDate, hoy: LocalDate) {
         Spacer(Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = if (nombre.isBlank()) "Hola" else "Hola, $nombre",
+                text = if (nombre.isBlank()) t("Hola", "Hello")
+                else t("Hola, $nombre", "Hello, $nombre"),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.ExtraBold
             )
             Spacer(Modifier.height(2.dp))
             Text(
-                text = if (diaSel == hoy) "Hoy, ${textoFecha(diaSel)}" else textoFecha(diaSel),
+                text = if (diaSel == hoy) t("Hoy, ${textoFecha(diaSel)}", "Today, ${textoFecha(diaSel)}")
+                else textoFecha(diaSel),
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        // El idioma lleva su etiqueta escrita (ES / EN) ademas del icono: un
+        // globo terraqueo solo no dice a que idioma vas a cambiar.
+        BotonCabecera(
+            icono = IconoIdioma,
+            etiqueta = Idioma.siguiente,
+            descripcion = t("Cambiar idioma", "Change language"),
+            onClick = onCambiarIdioma
+        )
+        Spacer(Modifier.width(8.dp))
+        BotonCabecera(
+            icono = if (oscuro) IconoSol else IconoLuna,
+            descripcion = if (oscuro) t("Modo claro", "Light mode") else t("Modo oscuro", "Dark mode"),
+            onClick = onCambiarTema
+        )
+    }
+}
+
+/** Los botones redondos de la esquina: idioma y tema. */
+@Composable
+private fun BotonCabecera(
+    icono: Int,
+    descripcion: String,
+    etiqueta: String? = null,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable { onClick() }
+            .padding(horizontal = if (etiqueta == null) 10.dp else 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(icono),
+            contentDescription = descripcion,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(20.dp)
+        )
+        if (etiqueta != null) {
+            Spacer(Modifier.width(5.dp))
+            Text(
+                text = etiqueta,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.ExtraBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -278,19 +348,19 @@ private fun TarjetaReto(completados: Int, total: Int, fraccion: Float) {
                     .padding(start = 20.dp, top = 20.dp, bottom = 20.dp, end = 4.dp)
             ) {
                 Text(
-                    text = "Reto",
+                    text = t("Reto", "Daily"),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.ExtraBold
                 )
                 Text(
-                    text = "diario",
+                    text = t("diario", "challenge"),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.ExtraBold
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    text = if (total == 0) "Sin hábitos para hoy"
-                    else "$completados de $total completados",
+                    text = if (total == 0) t("Sin hábitos para hoy", "No habits for today")
+                    else t("$completados de $total completados", "$completados of $total done"),
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -419,7 +489,7 @@ private fun TiraSemana(
                         ) {
                             Icon(
                                 painter = painterResource(IconoCheck),
-                                contentDescription = "Día cumplido",
+                                contentDescription = t("Día cumplido", "Day done"),
                                 tint = verde,
                                 modifier = Modifier.size(16.dp)
                             )
@@ -522,7 +592,7 @@ private fun TarjetaHabito(
                     Spacer(Modifier.height(3.dp))
                     Text(
                         text = when {
-                            descanso -> "Día de descanso"
+                            descanso -> t("Día de descanso", "Rest day")
                             racha > 0 -> "🔥 $racha ${if (racha == 1) "día" else "días"} seguidos"
                             else -> habito.descripcionFrecuencia()
                         },
@@ -540,7 +610,7 @@ private fun TarjetaHabito(
                 if (dia == hoy && !descanso && !listo) {
                     BotonCircular(
                         icono = IconoPlay,
-                        descripcion = "Empezar ahora",
+                        descripcion = t("Empezar ahora", "Start now"),
                         tinte = color,
                         fondo = color.copy(alpha = 0.16f),
                         onClick = onEnfocar
@@ -566,7 +636,7 @@ private fun TarjetaHabito(
                 ) {
                     Icon(
                         painter = painterResource(IconoCheck),
-                        contentDescription = if (listo) "Quitar el cumplido" else "Marcar cumplido",
+                        contentDescription = if (listo) t("Quitar el cumplido", "Mark as not done") else t("Marcar cumplido", "Mark as done"),
                         tint = if (listo) Color.White
                         else MaterialTheme.colorScheme.outline.copy(alpha = 0.7f),
                         modifier = Modifier.size(18.dp)
@@ -585,7 +655,7 @@ private fun TarjetaHabito(
                     ) {
                         Icon(
                             painter = painterResource(IconoMenu),
-                            contentDescription = "Más opciones",
+                            contentDescription = t("Más opciones", "More options"),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(18.dp)
                         )
@@ -609,7 +679,7 @@ private fun TarjetaHabito(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    text = if (descanso) "Quitar el descanso" else "Día de descanso",
+                                    text = if (descanso) t("Quitar el descanso", "Remove rest day") else t("Día de descanso", "Rest day"),
                                     fontWeight = FontWeight.Medium
                                 )
                             },
@@ -628,7 +698,7 @@ private fun TarjetaHabito(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    text = "Eliminar",
+                                    text = t("Eliminar", "Delete"),
                                     fontWeight = FontWeight.Medium,
                                     color = MaterialTheme.colorScheme.error
                                 )
@@ -838,24 +908,24 @@ private fun EstadoVacio(hayHabitos: Boolean, onNuevo: () -> Unit, onNuevaLista: 
         DespertadorNaranja(modifier = Modifier.size(120.dp))
         Spacer(Modifier.height(26.dp))
         Text(
-            text = if (hayHabitos) "Nada programado para este día" else "Todavía no tienes hábitos",
+            text = if (hayHabitos) t("Nada programado para este día", "Nothing scheduled for this day") else t("Todavía no tienes hábitos", "You have no habits yet"),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            text = if (hayHabitos) "Disfruta el descanso, o crea uno nuevo."
-            else "Empieza con uno solo. Es más fácil sostener uno que cinco.",
+            text = if (hayHabitos) t("Disfruta el descanso, o crea uno nuevo.", "Enjoy the break, or create a new one.")
+            else t("Empieza con uno solo. Es más fácil sostener uno que cinco.", "Start with just one. Keeping one going is easier than five."),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(20.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            BotonSecundario(texto = "Elegir de una lista", onClick = onNuevaLista)
+            BotonSecundario(texto = t("Elegir de una lista", "Pick from a list"), onClick = onNuevaLista)
             Spacer(Modifier.width(8.dp))
-            BotonPildora(texto = "Nuevo hábito", onClick = onNuevo)
+            BotonPildora(texto = t("Nuevo hábito", "New habit"), onClick = onNuevo)
         }
     }
 }

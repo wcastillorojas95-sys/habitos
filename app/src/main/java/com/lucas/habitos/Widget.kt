@@ -75,7 +75,7 @@ class WidgetHabitos : AppWidgetProvider() {
             vistas.setTextViewText(R.id.widget_titulo, "Hoy")
             vistas.setTextViewText(
                 R.id.widget_resumen,
-                if (habitos.isEmpty()) "Sin hábitos para hoy" else "$hechos de ${habitos.size}"
+                if (habitos.isEmpty()) t("Sin hábitos para hoy", "No habits for today") else "$hechos de ${habitos.size}"
             )
 
             // Abrir la app al tocar la cabecera

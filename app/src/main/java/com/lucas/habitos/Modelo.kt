@@ -79,11 +79,13 @@ data class Habito(
     }
 
     fun descripcionFrecuencia(): String = when (frecuencia) {
-        Frecuencia.DIARIO -> "Todos los días"
-        Frecuencia.VECES_SEMANA -> "$vecesPorSemana veces por semana"
-        Frecuencia.CADA_N_DIAS -> if (cadaNDias == 2) "Día por medio" else "Cada $cadaNDias días"
+        Frecuencia.DIARIO -> t("Todos los días", "Every day")
+        Frecuencia.VECES_SEMANA -> t("$vecesPorSemana veces por semana", "$vecesPorSemana times per week")
+        Frecuencia.CADA_N_DIAS ->
+            if (cadaNDias == 2) t("Día por medio", "Every other day")
+            else t("Cada $cadaNDias días", "Every $cadaNDias days")
         Frecuencia.DIAS_SEMANA -> {
-            if (diasSemana.size == 7) "Todos los días"
+            if (diasSemana.size == 7) t("Todos los días", "Every day")
             else diasSemana.sorted().joinToString(" ") { LETRAS_DIA[it - 1] }
         }
     }
@@ -178,19 +180,38 @@ data class Habito(
     }
 }
 
-val LETRAS_DIA = listOf("L", "M", "X", "J", "V", "S", "D")
+/*
+ * Los nombres de dias y meses son propiedades calculadas, no constantes.
+ *
+ * Con "val X = listOf(...)" la lista se crea una vez al cargar la clase y se
+ * quedaria en el idioma que hubiera entonces. Con "get()" se recalcula en cada
+ * lectura, y como leer Idioma.ingles dentro de una composicion la suscribe al
+ * cambio, tocar el boton repinta las fechas al instante. Y lo mejor: ningun
+ * sitio que las use tiene que cambiar una linea.
+ */
+val LETRAS_DIA: List<String>
+    get() = if (Idioma.ingles) listOf("M", "T", "W", "T", "F", "S", "S")
+    else listOf("L", "M", "X", "J", "V", "S", "D")
 
-val NOMBRES_DIA = listOf(
-    "lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"
-)
+val NOMBRES_DIA: List<String>
+    get() = if (Idioma.ingles) listOf(
+        "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+    ) else listOf(
+        "lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"
+    )
 
-val MESES = listOf(
-    "enero", "febrero", "marzo", "abril", "mayo", "junio",
-    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
-)
+val MESES: List<String>
+    get() = if (Idioma.ingles) listOf(
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ) else listOf(
+        "enero", "febrero", "marzo", "abril", "mayo", "junio",
+        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+    )
 
 fun fechaLarga(f: LocalDate): String =
-    "${NOMBRES_DIA[f.dayOfWeek.value - 1]} ${f.dayOfMonth} de ${MESES[f.monthValue - 1]}"
+    if (Idioma.ingles) "${NOMBRES_DIA[f.dayOfWeek.value - 1]}, ${f.dayOfMonth} ${MESES[f.monthValue - 1]}"
+    else "${NOMBRES_DIA[f.dayOfWeek.value - 1]} ${f.dayOfMonth} de ${MESES[f.monthValue - 1]}"
 
 fun horaTexto(minutos: Int): String {
     val h = (minutos / 60).coerceIn(0, 23)

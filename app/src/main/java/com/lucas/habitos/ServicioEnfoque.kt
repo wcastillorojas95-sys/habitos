@@ -164,7 +164,7 @@ class ServicioEnfoque : Service() {
             .setSmallIcon(R.drawable.ic_notificacion)
             .setContentTitle(sesion.nombre)
             .setContentText(
-                if (sesion.estricto) "Modo estricto activo" else "Sesión de enfoque en curso"
+                if (sesion.estricto) t("Modo estricto activo", "Strict mode on") else t("Sesión de enfoque en curso", "Focus session running")
             )
             .setUsesChronometer(true)
             .setChronometerCountDown(true)
@@ -194,7 +194,7 @@ class ServicioEnfoque : Service() {
         )
         val aviso = NotificationCompat.Builder(this, CANAL_FIN)
             .setSmallIcon(R.drawable.ic_notificacion)
-            .setContentTitle("Sesión completada")
+            .setContentTitle(t("Sesión completada", "Session completed"))
             .setContentText("${sesion.nombre} · ${sesion.duracionMin} min")
             .setAutoCancel(true)
             .setContentIntent(abrir)

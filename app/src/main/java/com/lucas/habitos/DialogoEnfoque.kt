@@ -82,7 +82,7 @@ fun DialogoEnfoque(
 
                 if (habito.meta == Meta.TIEMPO) {
                     Text(
-                        text = "Hoy llevas ${habito.progreso(hoy)} de ${habito.objetivoDiario()} min.",
+                        text = t("Hoy llevas ${habito.progreso(hoy)} de ${habito.objetivoDiario()} min.", "Today you have ${habito.progreso(hoy)} of ${habito.objetivoDiario()} min."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -90,7 +90,7 @@ fun DialogoEnfoque(
                 }
 
                 Text(
-                    text = "¿Cuánto tiempo?",
+                    text = t("¿Cuánto tiempo?", "How long?"),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -140,15 +140,13 @@ fun DialogoEnfoque(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
                         Text(
-                            text = "Modo estricto",
+                            text = t("Modo estricto", "Strict mode"),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(Modifier.height(2.dp))
                         Text(
-                            text = "Fija la app en pantalla y bloquea Inicio y Recientes. " +
-                                "Para salir antes hay que mantener pulsados Atrás y " +
-                                "Recientes a la vez.",
+                            text = t("Fija la app en pantalla y bloquea Inicio y Recientes. Para salir antes hay que mantener pulsados Atrás y Recientes a la vez.", "Pins the app to the screen and blocks Home and Recents. To leave early you must hold Back and Recents together."),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

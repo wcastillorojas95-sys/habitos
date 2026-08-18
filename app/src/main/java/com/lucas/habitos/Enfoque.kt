@@ -213,6 +213,11 @@ class AlmacenEnfoque(context: Context) {
         get() = prefs.getBoolean(CLAVE_TEMA, false)
         set(valor) = prefs.edit().putBoolean(CLAVE_TEMA, valor).apply()
 
+    /** Interfaz en inglés. Lo cambia el botón de la cabecera. */
+    var enIngles: Boolean
+        get() = prefs.getBoolean(CLAVE_IDIOMA, false)
+        set(valor) = prefs.edit().putBoolean(CLAVE_IDIOMA, valor).apply()
+
     private companion object {
         const val ARCHIVO = "habitos_enfoque"
         const val CLAVE_SESION = "sesion_activa"
@@ -222,6 +227,7 @@ class AlmacenEnfoque(context: Context) {
         const val CLAVE_BLOQUEO = "bloquear_apps"
         const val CLAVE_VISTAS = "capsulas_vistas"
         const val CLAVE_TEMA = "tema_oscuro"
+        const val CLAVE_IDIOMA = "en_ingles"
         const val CLAVE_INVITADO = "sin_cuenta"
     }
 }

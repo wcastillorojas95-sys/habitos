@@ -223,7 +223,7 @@ private fun CaraDeAlarma(
 
             Spacer(Modifier.height(26.dp))
             Text(
-                text = "Es la hora",
+                text = t("Es la hora", "Time is up"),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -246,14 +246,14 @@ private fun CaraDeAlarma(
             Spacer(Modifier.height(44.dp))
 
             BotonAlarma(
-                texto = "Empezar ahora",
+                texto = t("Empezar ahora", "Start now"),
                 fondo = color,
                 textoColor = Color.White,
                 onClick = onEmpezar
             )
             Spacer(Modifier.height(12.dp))
             BotonAlarma(
-                texto = "Ahora no · recuérdamelo en ${Recordatorios.MINUTOS_POSPONER} min",
+                texto = t("Ahora no · recuérdamelo en ${Recordatorios.MINUTOS_POSPONER} min", "Not now · remind me in ${Recordatorios.MINUTOS_POSPONER} min"),
                 fondo = Color.Transparent,
                 textoColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 borde = true,
@@ -262,7 +262,7 @@ private fun CaraDeAlarma(
 
             Spacer(Modifier.height(26.dp))
             Text(
-                text = "Empieza sola en ${restante}s",
+                text = t("Empieza sola en ${restante}s", "Starts on its own in ${restante}s"),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
             )
