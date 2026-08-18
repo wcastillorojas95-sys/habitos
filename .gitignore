@@ -11,3 +11,6 @@ local.properties
 
 # Carpeta de descartes: copias de seguridad temporales, no va al repo
 _to_delete/
+
+# Carpeta puente: aqui van los archivos que este entorno no puede borrar
+_borrar/

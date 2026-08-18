@@ -74,6 +74,9 @@ fun PantallaAjustes(
     val avisosOk = Recordatorios.avisosPermitidos(contexto)
     val exactasOk = Recordatorios.alarmasExactas(contexto)
     val pantallaCompletaOk = Recordatorios.pantallaCompletaPermitida(contexto)
+    var bloquear by remember { mutableStateOf(almacenEnfoque.bloquearApps) }
+    val accesibilidadOk = ServicioBloqueo.activo(contexto)
+    val superponerOk = ServicioBloqueo.puedeSuperponer(contexto)
     var avisoCopia by remember { mutableStateOf<String?>(null) }
     var confirmandoImportar by remember { mutableStateOf(false) }
 
@@ -303,6 +306,53 @@ fun PantallaAjustes(
                 )
             }
 
+            item { Seccion("Bloquear otras apps") }
+            item {
+                FilaInterruptor(
+                    titulo = "Bloquear el teléfono durante la actividad",
+                    detalle = "Mientras corre una sesión, cualquier app que abras se tapa con " +
+                        "una pantalla que solo enseña el tiempo que falta. No hay botón para " +
+                        "saltársela: se desbloquea sola al terminar.",
+                    marcado = bloquear,
+                    onCambiar = {
+                        bloquear = it
+                        almacenEnfoque.bloquearApps = it
+                    }
+                )
+            }
+            if (bloquear && !accesibilidadOk) {
+                item {
+                    FilaAccion(
+                        titulo = "Falta un permiso: accesibilidad",
+                        detalle = "Es la única vía que da Android para saber qué app tienes " +
+                            "delante. Toca, busca «Hábitos» en la lista y actívalo. Solo se mira " +
+                            "el nombre de la app abierta, nunca lo que hay escrito en ella.",
+                        onClick = { ServicioBloqueo.abrirAccesibilidad(contexto) }
+                    )
+                }
+            }
+            if (bloquear && !superponerOk) {
+                item {
+                    FilaAccion(
+                        titulo = "Falta un permiso: mostrar sobre otras apps",
+                        detalle = "Sin esto Android no deja que la pantalla de bloqueo salga " +
+                            "encima de la app que acabas de abrir.",
+                        onClick = { ServicioBloqueo.abrirSuperposicion(contexto) }
+                    )
+                }
+            }
+            if (bloquear && accesibilidadOk && superponerOk) {
+                item {
+                    FilaAccion(
+                        titulo = "Bloqueo listo",
+                        detalle = "Se bloquea todo menos el teléfono, el teclado y los Ajustes " +
+                            "de Android. Los Ajustes se dejan a propósito: son la salida de " +
+                            "emergencia si algún día quieres apagar esto. Toca para ir allí.",
+                        onClick = { ServicioBloqueo.abrirAccesibilidad(contexto) }
+                    )
+                }
+            }
+
             item { Seccion("Copia de seguridad") }
             item {
                 FilaAccion(
@@ -331,7 +381,7 @@ fun PantallaAjustes(
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         Text(
-                            text = "Hábitos 3.1",
+                            text = "Hábitos 3.2",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface

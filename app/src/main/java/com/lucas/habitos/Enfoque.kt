@@ -178,6 +178,17 @@ class AlmacenEnfoque(context: Context) {
         get() = prefs.getBoolean(CLAVE_ESTRICTO, true)
         set(valor) = prefs.edit().putBoolean(CLAVE_ESTRICTO, valor).apply()
 
+    /**
+     * Bloquear el resto de apps mientras dura una sesion.
+     *
+     * Nace apagado y tiene que encenderse a mano, porque no basta con este
+     * interruptor: hacen falta dos permisos del sistema que solo el usuario
+     * puede conceder. Ver [ServicioBloqueo].
+     */
+    var bloquearApps: Boolean
+        get() = prefs.getBoolean(CLAVE_BLOQUEO, false)
+        set(valor) = prefs.edit().putBoolean(CLAVE_BLOQUEO, valor).apply()
+
     /** Eligió usar la app sin cuenta; no se le vuelve a preguntar al abrir. */
     var invitado: Boolean
         get() = prefs.getBoolean(CLAVE_INVITADO, false)
@@ -207,6 +218,7 @@ class AlmacenEnfoque(context: Context) {
         const val CLAVE_MINUTOS = "min_"
         const val CLAVE_DURACION = "duracion_min"
         const val CLAVE_ESTRICTO = "modo_estricto"
+        const val CLAVE_BLOQUEO = "bloquear_apps"
         const val CLAVE_TEMA = "tema_oscuro"
         const val CLAVE_PIN = "pin_estricto"
         const val CLAVE_INVITADO = "sin_cuenta"

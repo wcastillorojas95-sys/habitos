@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Configuracion del servicio que bloquea otras apps durante una sesion.
+
+    canRetrieveWindowContent="false" es lo importante: pedimos saber QUE app
+    esta delante, no que hay escrito dentro. Es el minimo que permite hacer el
+    trabajo.
+-->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault"
+    android:canRetrieveWindowContent="false"
+    android:description="@string/bloqueo_descripcion"
+    android:notificationTimeout="100"
+    android:summary="@string/bloqueo_resumen" />

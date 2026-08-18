@@ -2,4 +2,6 @@
 <resources>
     <string name="app_name">Hábitos</string>
     <string name="widget_descripcion">Marca tus hábitos del día sin abrir la app</string>
+    <string name="bloqueo_resumen">Bloquea el resto de apps mientras dura una actividad</string>
+    <string name="bloqueo_descripcion">Hábitos necesita este permiso solo para saber qué aplicación está en pantalla. Mientras dura una sesión de enfoque que tú has iniciado, tapa cualquier otra app con una pantalla de bloqueo hasta que termine el tiempo. No lee el contenido de ninguna aplicación, no guarda por dónde navegas y no envía nada a internet.</string>
 </resources>

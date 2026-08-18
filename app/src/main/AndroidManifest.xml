@@ -25,6 +25,17 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!--
+        Bloquear otras apps durante una sesión.
+
+        Desde Android 10 una app no puede abrir una pantalla desde segundo plano
+        salvo que tenga concedido "mostrar sobre otras aplicaciones". Es lo que
+        permite que la pantalla de bloqueo aparezca encima de Instagram en vez de
+        quedarse esperando a que abras Hábitos. Se concede a mano; sin ella la
+        función se queda apagada en vez de fallar a medias.
+    -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
     <!-- Sesiones de enfoque: la cuenta atrás vive en un servicio en primer plano
          para que Android no la mate al cambiar de app o apagar la pantalla. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -35,6 +46,17 @@
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+
+    <!--
+        Desde Android 11 una app no ve qué otras apps hay instaladas salvo que
+        declare qué busca. Solo necesitamos resolver los ajustes del sistema,
+        para no bloquearlos nunca: son la salida de emergencia del bloqueo.
+    -->
+    <queries>
+        <intent>
+            <action android:name="android.settings.SETTINGS" />
+        </intent>
+    </queries>
 
     <application
         android:allowBackup="true"
@@ -86,17 +108,6 @@
         </receiver>
 
         <!--
-            Pantalla de la sesión de enfoque.
-
-            - showWhenLocked/turnScreenOn: aparece sobre la pantalla de bloqueo,
-              igual que hace un despertador.
-            - singleTask: una sola instancia, para que volver desde la
-              notificación no apile pantallas encima.
-            - lockTaskMode="if_whitelisted": si algún día el teléfono se
-              aprovisiona como device owner, esta actividad ya queda autorizada
-              para el bloqueo total sin tocar nada más.
-        -->
-        <!--
             La alarma de una actividad.
 
             excludeFromRecents: no tiene sentido que quede en la lista de apps
@@ -110,6 +121,25 @@
             android:showWhenLocked="true"
             android:taskAffinity=""
             android:turnScreenOn="true"
+            android:theme="@style/Theme.Habitos" />
+
+        <!--
+            La pantalla que tapa el resto de apps durante una sesión.
+
+            taskAffinity vacío y excludeFromRecents: vive en su propia tarea y no
+            aparece en recientes, así que no se puede volver a ella —ni salir de
+            ella— por la lista de apps abiertas.
+
+            singleTask: una sola instancia. El servicio la lanza cada vez que
+            detecta una app bloqueada; sin esto se apilarían decenas de copias.
+        -->
+        <activity
+            android:name=".PantallaBloqueo"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:noHistory="false"
+            android:taskAffinity=""
             android:theme="@style/Theme.Habitos" />
 
         <activity
@@ -132,6 +162,27 @@
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Cuenta atrás de una sesión de enfoque iniciada por el usuario, que debe seguir corriendo con la pantalla apagada." />
+        </service>
+
+        <!--
+            Servicio de accesibilidad que detecta qué app está en primer plano.
+
+            exported="true" y el permiso BIND_ACCESSIBILITY_SERVICE los exige
+            Android: es el sistema quien se conecta a él, y el permiso garantiza
+            que nadie más pueda hacerlo. El usuario tiene que activarlo a mano en
+            Ajustes de Android; hasta entonces no se ejecuta nunca.
+        -->
+        <service
+            android:name=".ServicioBloqueo"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/servicio_bloqueo" />
         </service>
 
     </application>
