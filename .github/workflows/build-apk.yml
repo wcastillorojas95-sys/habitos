@@ -48,15 +48,29 @@ jobs:
           name: Habitos-APK
           path: salida/Habitos.apk
 
+      # La descarga directa NO se borra nunca y se vuelve a crear.
+      #
+      # Antes esto hacia "gh release delete --cleanup-tag" y despues "create".
+      # El problema es que entre las dos ordenes el enlace no existe, y si la
+      # segunda falla -- borrar una etiqueta y volver a crearla con el mismo
+      # nombre tarda un rato impredecible en propagarse -- te quedas sin
+      # descarga y con la etiqueta huerfana, sin release detras.
+      #
+      # Ahora: se mueve la etiqueta al commit recien compilado, se crea la
+      # release solo si no existe, y el APK se sustituye con --clobber. El
+      # enlace apunta siempre al mismo sitio y nunca deja de funcionar.
       - name: Publicar descarga directa
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release delete apk --yes --cleanup-tag || true
-          sleep 3
-          gh release create apk salida/Habitos.apk \
+          git tag -f apk
+          git push -f origin refs/tags/apk
+
+          gh release view apk > /dev/null 2>&1 || gh release create apk \
             --title "Habitos - ultima version" \
             --notes "APK listo para instalar. Abre esta pagina desde tu Android y toca Habitos.apk."
+
+          gh release upload apk salida/Habitos.apk --clobber
 
       - name: Enlace de descarga
         env:
