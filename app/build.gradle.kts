@@ -13,8 +13,8 @@ android {
         applicationId = "com.lucas.habitos"
         minSdk = 26
         targetSdk = 35
-        versionCode = 13
-        versionName = "2.9"
+        versionCode = 14
+        versionName = "2.9.1"
     }
 
     /*

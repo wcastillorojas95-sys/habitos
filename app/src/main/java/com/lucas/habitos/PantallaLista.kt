@@ -124,7 +124,7 @@ fun PantallaLista(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Marca las que quieras y se crean todas de una vez",
+                    text = "Toca una para ajustarla y añadirla. Se crean todas de una vez.",
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -157,16 +157,12 @@ fun PantallaLista(
                         habito = elegidas[marca],
                         color = PALETA[categoria.color % PALETA.size],
                         yaLoTiene = plantilla.nombre.trim().lowercase() in existentes,
-                        // Tocar la fila abre los ajustes; tocar la casilla marca y
-                        // desmarca sin más. Quien solo quiere añadirla no debería
-                        // tener que pasar por un diálogo.
-                        onAbrirAjustes = {
+                        // Toda la fila hace lo mismo, casilla incluida: abrir las
+                        // opciones. Que marcar y configurar fueran dos gestos
+                        // distintos según dónde tocabas era justo lo confuso.
+                        onClick = {
                             ajustando = marca to (elegidas[marca]
                                 ?: plantillaComoHabito(categoria, plantilla))
-                        },
-                        onAlternar = {
-                            elegidas = if (marca in elegidas) elegidas - marca
-                            else elegidas + (marca to plantillaComoHabito(categoria, plantilla))
                         }
                     )
                 }
@@ -474,8 +470,7 @@ private fun FilaElegible(
     habito: Habito?,
     color: Color,
     yaLoTiene: Boolean,
-    onAbrirAjustes: () -> Unit,
-    onAlternar: () -> Unit
+    onClick: () -> Unit
 ) {
     val apagado = yaLoTiene
     val marcada = habito != null
@@ -487,7 +482,7 @@ private fun FilaElegible(
                 if (marcada) color.copy(alpha = 0.14f)
                 else MaterialTheme.colorScheme.surface
             )
-            .clickable(enabled = !apagado) { onAbrirAjustes() }
+            .clickable(enabled = !apagado) { onClick() }
             .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -546,8 +541,7 @@ private fun FilaElegible(
                     color = if (marcada) color
                     else MaterialTheme.colorScheme.outline.copy(alpha = if (apagado) 0.3f else 0.7f),
                     shape = RoundedCornerShape(9.dp)
-                )
-                .clickable(enabled = !apagado) { onAlternar() },
+                ),
             contentAlignment = Alignment.Center
         ) {
             if (marcada) {
