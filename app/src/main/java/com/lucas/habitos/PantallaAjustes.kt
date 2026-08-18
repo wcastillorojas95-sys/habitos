@@ -283,10 +283,10 @@ fun PantallaAjustes(
             item {
                 FilaInformativa(
                     titulo = "Reto para abandonar",
-                    detalle = "Para dejar una actividad antes de tiempo hay que leer una " +
-                        "fábula corta y acertar una pregunta sobre lo que dice. La pregunta " +
-                        "es de detalle, no de moraleja, así que no se acierta sin leer. Si " +
-                        "fallas, sale otra fábula distinta."
+                    detalle = "Para dejar una actividad antes de tiempo eliges un tema, " +
+                        "lees una cápsula de divulgación y aciertas tres preguntas sobre " +
+                        "detalles del texto. No valen las de cultura general: hay que haber " +
+                        "leído. Si fallas una, empiezas de cero con otro texto."
                 )
             }
             item {
@@ -377,7 +377,7 @@ fun PantallaAjustes(
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         Text(
-                            text = "Hábitos 3.4",
+                            text = "Hábitos 3.5",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface

@@ -189,6 +189,20 @@ class AlmacenEnfoque(context: Context) {
         get() = prefs.getBoolean(CLAVE_BLOQUEO, false)
         set(valor) = prefs.edit().putBoolean(CLAVE_BLOQUEO, valor).apply()
 
+    /**
+     * Ids de las capsulas del reto que ya se han leido.
+     *
+     * Solo sirve para no repetir. Se queda pequeño incluso con cientos de
+     * capsulas, asi que un conjunto de cadenas en preferencias basta.
+     */
+    var capsulasVistas: Set<String>
+        get() = prefs.getStringSet(CLAVE_VISTAS, emptySet()) ?: emptySet()
+        set(valor) = prefs.edit().putStringSet(CLAVE_VISTAS, valor).apply()
+
+    fun anotarVista(id: String) {
+        capsulasVistas = capsulasVistas + id
+    }
+
     /** Eligió usar la app sin cuenta; no se le vuelve a preguntar al abrir. */
     var invitado: Boolean
         get() = prefs.getBoolean(CLAVE_INVITADO, false)
@@ -206,6 +220,7 @@ class AlmacenEnfoque(context: Context) {
         const val CLAVE_DURACION = "duracion_min"
         const val CLAVE_ESTRICTO = "modo_estricto"
         const val CLAVE_BLOQUEO = "bloquear_apps"
+        const val CLAVE_VISTAS = "capsulas_vistas"
         const val CLAVE_TEMA = "tema_oscuro"
         const val CLAVE_INVITADO = "sin_cuenta"
     }

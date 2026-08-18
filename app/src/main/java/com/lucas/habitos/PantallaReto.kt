@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,50 +45,57 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
+private enum class Fase { ELEGIR, LECTURA, PREGUNTAS }
+
 /**
  * El reto para abandonar una actividad antes de tiempo.
  *
- * Dos pasos: leer una fabula corta y despues contestar una pregunta sobre lo
- * que acabas de leer. La pregunta es de detalle, no de moraleja, asi que no se
- * acierta sin haber leido.
+ * Tres pasos: eliges categoria, lees una capsula de divulgacion y contestas tres
+ * preguntas seguidas sobre detalles del texto. Fallar una manda a una capsula
+ * nueva desde el principio, con su tiempo de lectura otra vez.
  *
- * El boton de continuar nace bloqueado con una cuenta atras proporcional a la
- * longitud del texto. Sin eso, cualquiera daria a continuar al instante y
- * jugaria a adivinar entre cuatro opciones: un reto que se supera con suerte no
- * es un reto, es un dado.
+ * No se puede volver al texto durante las preguntas. Con la vuelta atras esto
+ * seria una busqueda —localizar el dato y copiarlo— en vez de una lectura, y lo
+ * que queremos es que hayas atendido, no que sepas usar Ctrl+F con los ojos.
  *
- * Salir del reto —volver a la actividad— es un solo toque. La friccion tiene
- * que estar en rendirse, no en seguir.
+ * Salir del reto y seguir con la actividad es un solo toque, siempre. La
+ * friccion tiene que estar en rendirse, no en volver.
  */
 @Composable
 fun PantallaReto(
     color: Color,
+    almacenEnfoque: AlmacenEnfoque,
     onSuperado: () -> Unit,
     onVolver: () -> Unit
 ) {
-    var fabula by remember { mutableStateOf(Reto.siguiente(null)) }
-    var leyendo by remember { mutableStateOf(true) }
-    var restante by remember { mutableIntStateOf(Reto.segundosDeLectura(fabula)) }
-    var fallo by remember { mutableStateOf(false) }
-    var intentos by remember { mutableIntStateOf(0) }
+    val categorias = remember { Reto.categoriasAlAzar(3) }
+    val vistas = remember { almacenEnfoque.capsulasVistas }
 
-    // Las opciones se barajan una vez por fabula. Si se barajaran en cada
-    // recomposicion, bailarian bajo el dedo del usuario.
-    val orden = remember(fabula.titulo, intentos) { fabula.opciones.indices.shuffled() }
+    var fase by remember { mutableStateOf(Fase.ELEGIR) }
+    var categoria by remember { mutableStateOf(categorias.first()) }
+    var capsula by remember { mutableStateOf<Capsula?>(null) }
+    var indice by remember { mutableIntStateOf(0) }
+    var restante by remember { mutableIntStateOf(0) }
+    var fallada by remember { mutableStateOf(false) }
+    var ronda by remember { mutableIntStateOf(0) }
 
-    LaunchedEffect(fabula.titulo, intentos) {
-        restante = Reto.segundosDeLectura(fabula)
+    val actual = capsula
+
+    LaunchedEffect(ronda, fase) {
+        if (fase != Fase.LECTURA || actual == null) return@LaunchedEffect
+        restante = Reto.segundosDeLectura(actual)
         while (restante > 0) {
             delay(1000)
             restante--
         }
     }
 
-    fun otraFabula() {
-        fabula = Reto.siguiente(fabula.titulo)
-        intentos++
-        leyendo = true
-        fallo = true
+    fun empezarCon(cat: Categoria, anterior: String?) {
+        categoria = cat
+        capsula = Reto.siguiente(cat, vistas, anterior)
+        indice = 0
+        ronda++
+        fase = Fase.LECTURA
     }
 
     Box(
@@ -99,114 +107,150 @@ fun PantallaReto(
     ) {
         Column(Modifier.fillMaxSize().padding(horizontal = 22.dp)) {
 
-            // ---------------------------------------------------- cabecera ---
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        text = "Para abandonar",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = color
-                    )
-                    Text(
-                        text = if (leyendo) "Lee esto entero" else "Ahora contesta",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .clickable { onVolver() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(IconoCerrar),
-                        contentDescription = "Volver a la actividad",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
+            Cabecera(
+                color = color,
+                titulo = when (fase) {
+                    Fase.ELEGIR -> "Elige un tema"
+                    Fase.LECTURA -> "Lee esto entero"
+                    Fase.PREGUNTAS -> "Pregunta ${indice + 1} de ${Reto.PREGUNTAS_POR_CAPSULA}"
+                },
+                onCerrar = onVolver
+            )
 
-            if (fallo) {
-                Spacer(Modifier.height(4.dp))
+            if (fallada) {
                 Text(
-                    text = "No era esa. Ahí va otra fábula distinta.",
+                    text = "Esa no era. Vuelta a empezar con otro texto.",
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.error
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(bottom = 6.dp)
                 )
             }
 
-            Spacer(Modifier.height(12.dp))
-
             AnimatedContent(
-                targetState = leyendo,
+                targetState = fase,
                 transitionSpec = { fadeIn() togetherWith fadeOut() },
-                label = "reto",
+                label = "fase",
                 modifier = Modifier.weight(1f)
-            ) { enLectura ->
-                if (enLectura) {
-                    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+            ) { paso ->
+                when (paso) {
+
+                    Fase.ELEGIR -> Column(
+                        Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+                    ) {
+                        Spacer(Modifier.height(6.dp))
                         Text(
-                            text = fabula.titulo,
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Spacer(Modifier.height(14.dp))
-                        Text(
-                            text = fabula.texto,
+                            text = "Para dejar la actividad tienes que leer algo y acertar " +
+                                "tres preguntas sobre ello. Elige de qué quieres que vaya.",
                             style = MaterialTheme.typography.bodyLarge,
-                            lineHeight = 27.sp,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(Modifier.height(24.dp))
-                    }
-                } else {
-                    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-                        Text(
-                            text = fabula.pregunta,
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Spacer(Modifier.height(16.dp))
-                        orden.forEach { indice ->
-                            Opcion(
-                                texto = fabula.opciones[indice],
+                        Spacer(Modifier.height(20.dp))
+                        categorias.forEach { cat ->
+                            TarjetaCategoria(
+                                categoria = cat,
+                                quedan = Reto.frescasEn(cat, vistas),
                                 color = color,
-                                onClick = {
-                                    if (indice == fabula.correcta) onSuperado() else otraFabula()
-                                }
+                                onClick = { fallada = false; empezarCon(cat, null) }
                             )
-                            Spacer(Modifier.height(10.dp))
+                            Spacer(Modifier.height(12.dp))
                         }
-                        Spacer(Modifier.height(16.dp))
+                        Spacer(Modifier.height(20.dp))
+                    }
+
+                    Fase.LECTURA -> {
+                        if (actual == null) Box(Modifier.fillMaxSize())
+                        else Column(
+                            Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+                        ) {
+                            Text(
+                                text = actual.gancho,
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Spacer(Modifier.height(14.dp))
+                            Text(
+                                text = actual.texto,
+                                style = MaterialTheme.typography.bodyLarge,
+                                lineHeight = 27.sp,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(Modifier.height(16.dp))
+                            Text(
+                                text = actual.fuente,
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.height(24.dp))
+                        }
+                    }
+
+                    Fase.PREGUNTAS -> {
+                        if (actual == null) Box(Modifier.fillMaxSize())
+                        else {
+                            val pregunta = actual.preguntas[indice]
+                            // La correcta es siempre la 0 en los datos; aquí se
+                            // barajan las posiciones, una vez por pregunta.
+                            val orden = remember(actual.id, indice, ronda) {
+                                pregunta.opciones.indices.shuffled()
+                            }
+                            Column(
+                                Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+                            ) {
+                                Text(
+                                    text = pregunta.enunciado,
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                                Spacer(Modifier.height(18.dp))
+                                orden.forEach { i ->
+                                    Opcion(
+                                        texto = pregunta.opciones[i],
+                                        color = color,
+                                        onClick = {
+                                            if (i == 0) {
+                                                if (indice + 1 >= actual.preguntas.size) {
+                                                    onSuperado()
+                                                } else {
+                                                    indice++
+                                                }
+                                            } else {
+                                                fallada = true
+                                                empezarCon(categoria, actual.id)
+                                            }
+                                        }
+                                    )
+                                    Spacer(Modifier.height(10.dp))
+                                }
+                                Spacer(Modifier.height(20.dp))
+                            }
+                        }
                     }
                 }
             }
 
-            // ------------------------------------------------------ el pie ---
-            if (leyendo) {
+            if (fase == Fase.LECTURA && actual != null) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
                         .clip(RoundedCornerShape(18.dp))
-                        .background(if (restante > 0) MaterialTheme.colorScheme.surfaceVariant else color)
-                        .clickable(enabled = restante <= 0) { leyendo = false },
+                        .background(
+                            if (restante > 0) MaterialTheme.colorScheme.surfaceVariant else color
+                        )
+                        .clickable(enabled = restante <= 0) {
+                            almacenEnfoque.anotarVista(actual.id)
+                            fallada = false
+                            fase = Fase.PREGUNTAS
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = if (restante > 0) "Léela con calma · $restante s"
-                        else "Ya la he leído",
+                        text = if (restante > 0) "Léelo con calma · $restante s"
+                        else "Ya lo he leído",
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = if (restante > 0) MaterialTheme.colorScheme.onSurfaceVariant
@@ -215,30 +259,100 @@ fun PantallaReto(
                 }
                 Spacer(Modifier.height(10.dp))
                 Text(
-                    text = "Después te preguntaré por un detalle del texto.",
+                    text = "Después vienen tres preguntas sobre detalles del texto, y no " +
+                        "podrás volver a leerlo.",
                     style = MaterialTheme.typography.bodySmall,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth()
                 )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp)
-                        .clip(RoundedCornerShape(18.dp))
-                        .clickable { leyendo = true },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Volver a leerla",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
             }
             Spacer(Modifier.height(14.dp))
+        }
+    }
+}
+
+@Composable
+private fun Cabecera(color: Color, titulo: String, onCerrar: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(
+                text = "Para abandonar",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.ExtraBold,
+                color = color
+            )
+            Text(
+                text = titulo,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .clickable { onCerrar() },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(IconoCerrar),
+                contentDescription = "Volver a la actividad",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun TarjetaCategoria(
+    categoria: Categoria,
+    quedan: Int,
+    color: Color,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable { onClick() }
+            .padding(16.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(50.dp)
+                    .clip(CircleShape)
+                    .background(color.copy(alpha = 0.16f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(categoria.icono),
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+            Spacer(Modifier.width(14.dp))
+            Column {
+                Text(
+                    text = categoria.etiqueta,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = if (quedan > 0) "$quedan sin leer" else "ya los has leído todos",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }
@@ -261,7 +375,7 @@ private fun Opcion(texto: String, color: Color, onClick: () -> Unit) {
                     .clip(CircleShape)
                     .background(color.copy(alpha = 0.45f))
             )
-            Spacer(Modifier.size(14.dp))
+            Spacer(Modifier.width(14.dp))
             Text(
                 text = texto,
                 style = MaterialTheme.typography.bodyLarge,

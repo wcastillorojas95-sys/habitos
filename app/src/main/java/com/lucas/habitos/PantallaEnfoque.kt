@@ -103,6 +103,7 @@ class PantallaEnfoque : ComponentActivity() {
                     if (enReto) {
                         PantallaReto(
                             color = PALETA[sesion.colorIndice % PALETA.size],
+                            almacenEnfoque = almacenEnfoque,
                             onSuperado = {
                                 enReto = false
                                 soltarFijado()
