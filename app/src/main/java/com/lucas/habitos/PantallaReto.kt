@@ -90,7 +90,7 @@ fun PantallaReto(
         }
     }
 
-    fun empezarCon(cat: Categoria, anterior: String?) {
+    fun empezarCon(cat: TemaReto, anterior: String?) {
         categoria = cat
         capsula = Reto.siguiente(cat, vistas, anterior)
         indice = 0
@@ -107,7 +107,7 @@ fun PantallaReto(
     ) {
         Column(Modifier.fillMaxSize().padding(horizontal = 22.dp)) {
 
-            Cabecera(
+            CabeceraReto(
                 color = color,
                 titulo = when (fase) {
                     Fase.ELEGIR -> "Elige un tema"
@@ -147,7 +147,7 @@ fun PantallaReto(
                         )
                         Spacer(Modifier.height(20.dp))
                         categorias.forEach { cat ->
-                            TarjetaCategoria(
+                            TarjetaTema(
                                 categoria = cat,
                                 quedan = Reto.frescasEn(cat, vistas),
                                 color = color,
@@ -273,7 +273,7 @@ fun PantallaReto(
 }
 
 @Composable
-private fun Cabecera(color: Color, titulo: String, onCerrar: () -> Unit) {
+private fun CabeceraReto(color: Color, titulo: String, onCerrar: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -310,8 +310,8 @@ private fun Cabecera(color: Color, titulo: String, onCerrar: () -> Unit) {
 }
 
 @Composable
-private fun TarjetaCategoria(
-    categoria: Categoria,
+private fun TarjetaTema(
+    categoria: TemaReto,
     quedan: Int,
     color: Color,
     onClick: () -> Unit

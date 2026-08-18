@@ -18,12 +18,15 @@ import kotlin.random.Random
  * Van sobre un dato de dentro. Saber que solo queda en pie la Gran Piramide no
  * te dice cuanto medía el Coloso de Rodas.
  *
+ * El enum se llama TemaReto y no Categoria porque ese nombre ya lo ocupa la
+ * data class de las categorias de Explorar, en este mismo paquete.
+ *
  * Sobre los datos: cada capsula lleva su fuente y las cifras que son respuesta
  * estan verificadas. Donde las fuentes discrepan, el dato no se usa como
  * pregunta. Una app que te hace leer para salir no puede enseñarte algo falso.
  */
 
-enum class Categoria(val etiqueta: String, val icono: Int) {
+enum class TemaReto(val etiqueta: String, val icono: Int) {
     CUERPO("Cuerpo humano", R.drawable.ic_h_corazon),
     ESPACIO("Astronomía", R.drawable.ic_h_sol),
     HISTORIA("Historia", R.drawable.ic_h_leer),
@@ -37,7 +40,7 @@ data class Pregunta(val enunciado: String, val opciones: List<String>)
 
 data class Capsula(
     val id: String,
-    val categoria: Categoria,
+    val categoria: TemaReto,
     val gancho: String,
     val texto: String,
     val fuente: String,
@@ -50,7 +53,7 @@ val CAPSULAS: List<Capsula> = listOf(
 
     Capsula(
         id = "huesos",
-        categoria = Categoria.CUERPO,
+        categoria = TemaReto.CUERPO,
         gancho = "¿Sabes cuántos huesos tiene el cuerpo humano?",
         texto = "Doscientos seis, en un adulto. Pero un recién nacido tiene bastantes " +
             "más, y no es que perdamos ninguno por el camino: es que muchos empiezan " +
@@ -74,7 +77,7 @@ val CAPSULAS: List<Capsula> = listOf(
 
     Capsula(
         id = "cosquillas",
-        categoria = Categoria.CUERPO,
+        categoria = TemaReto.CUERPO,
         gancho = "¿Sabes por qué no puedes hacerte cosquillas a ti mismo?",
         texto = "Porque tu cerebro te ve venir. El cerebelo predice las consecuencias " +
             "sensoriales de tus propios movimientos y resta esa predicción de lo que " +
@@ -98,7 +101,7 @@ val CAPSULAS: List<Capsula> = listOf(
 
     Capsula(
         id = "corazon",
-        categoria = Categoria.CUERPO,
+        categoria = TemaReto.CUERPO,
         gancho = "¿Sabes cuánta sangre mueve tu corazón mientras estás sentado?",
         texto = "Unos cinco litros por minuto en reposo, más o menos todo el volumen de " +
             "sangre que tienes. Es decir: cada minuto, sin que hagas nada, tu sangre " +
@@ -123,7 +126,7 @@ val CAPSULAS: List<Capsula> = listOf(
 
     Capsula(
         id = "luzsol",
-        categoria = Categoria.ESPACIO,
+        categoria = TemaReto.ESPACIO,
         gancho = "¿Sabes cuánto tarda en llegarte la luz del Sol?",
         texto = "Ocho minutos y veinte segundos, contando desde que sale de la " +
             "superficie solar. Lo interesante es lo que pasó antes: esa energía se " +
@@ -149,7 +152,7 @@ val CAPSULAS: List<Capsula> = listOf(
 
     Capsula(
         id = "voyager",
-        categoria = Categoria.ESPACIO,
+        categoria = TemaReto.ESPACIO,
         gancho = "¿Sabes cuál de las dos Voyager se lanzó primero?",
         texto = "La Voyager 2, dieciséis días antes que la Voyager 1, en el verano de " +
             "1977. Los números no van por orden de lanzamiento sino por orden de " +
@@ -176,7 +179,7 @@ val CAPSULAS: List<Capsula> = listOf(
 
     Capsula(
         id = "nubes",
-        categoria = Categoria.ESPACIO,
+        categoria = TemaReto.ESPACIO,
         gancho = "¿Sabes cuánto pesa una nube?",
         texto = "Un cúmulo de los normales, de esos blancos y algodonosos de un día " +
             "despejado, ocupa alrededor de un kilómetro cúbico y contiene medio gramo " +
@@ -206,7 +209,7 @@ val CAPSULAS: List<Capsula> = listOf(
 
     Capsula(
         id = "zanzibar",
-        categoria = Categoria.HISTORIA,
+        categoria = TemaReto.HISTORIA,
         gancho = "¿Sabes cuánto duró la guerra más corta de la historia?",
         texto = "Treinta y ocho minutos, el 27 de agosto de 1896, entre el Reino Unido " +
             "y el sultanato de Zanzíbar. Había muerto el sultán, afín a los británicos, " +
@@ -232,7 +235,7 @@ val CAPSULAS: List<Capsula> = listOf(
 
     Capsula(
         id = "tambora",
-        categoria = Categoria.HISTORIA,
+        categoria = TemaReto.HISTORIA,
         gancho = "¿Sabes qué año se quedó sin verano?",
         texto = "1816. El año anterior había entrado en erupción el Tambora, en " +
             "Indonesia, con la explosión volcánica más violenta de la que hay registro. " +
@@ -258,7 +261,7 @@ val CAPSULAS: List<Capsula> = listOf(
 
     Capsula(
         id = "petrov",
-        categoria = Categoria.HISTORIA,
+        categoria = TemaReto.HISTORIA,
         gancho = "¿Sabes quién decidió no informar de un ataque nuclear?",
         texto = "Stanislav Petrov era el oficial de guardia en un búnker soviético la " +
             "madrugada del 26 de septiembre de 1983, cuando el sistema de alerta " +
@@ -289,7 +292,7 @@ val CAPSULAS: List<Capsula> = listOf(
 
     Capsula(
         id = "estatuas",
-        categoria = Categoria.ARTE,
+        categoria = TemaReto.ARTE,
         gancho = "¿Sabes de qué color eran las estatuas griegas?",
         texto = "De todos menos blanco. El mármol desnudo que asociamos a la Antigüedad " +
             "es un accidente: la pintura se fue con los siglos y nosotros confundimos la " +
@@ -317,7 +320,7 @@ val CAPSULAS: List<Capsula> = listOf(
 
     Capsula(
         id = "ultramar",
-        categoria = Categoria.ARTE,
+        categoria = TemaReto.ARTE,
         gancho = "¿Sabes cuál fue el color más caro de la historia?",
         texto = "El azul ultramar, que se obtenía moliendo lapislázuli. La piedra venía " +
             "de unas minas de Afganistán y había que traerla a Europa por rutas " +
@@ -344,7 +347,7 @@ val CAPSULAS: List<Capsula> = listOf(
 
     Capsula(
         id = "maravillas",
-        categoria = Categoria.ARTE,
+        categoria = TemaReto.ARTE,
         gancho = "De las siete maravillas del mundo antiguo, ¿cuál sigue en pie?",
         texto = "Solo una, la Gran Pirámide de Guiza, que además es con diferencia la " +
             "más antigua de la lista: cuando se construyeron las otras seis, ella " +
@@ -376,7 +379,7 @@ val CAPSULAS: List<Capsula> = listOf(
 
     Capsula(
         id = "pulpo",
-        categoria = Categoria.ANIMALES,
+        categoria = TemaReto.ANIMALES,
         gancho = "¿Sabes cuántos corazones tiene un pulpo?",
         texto = "Tres. Dos bombean sangre a las branquias y el tercero la reparte por el " +
             "resto del cuerpo; ese tercero se para cuando el pulpo nada, lo que explica " +
@@ -402,7 +405,7 @@ val CAPSULAS: List<Capsula> = listOf(
 
     Capsula(
         id = "tardigrados",
-        categoria = Categoria.ANIMALES,
+        categoria = TemaReto.ANIMALES,
         gancho = "¿Sabes qué animal sobrevivió al vacío del espacio?",
         texto = "El tardígrado, un bicho de menos de un milímetro que vive en el musgo " +
             "húmedo y camina despacio con ocho patas rechonchas. Cuando las condiciones " +
@@ -429,7 +432,7 @@ val CAPSULAS: List<Capsula> = listOf(
 
     Capsula(
         id = "abejas",
-        categoria = Categoria.ANIMALES,
+        categoria = TemaReto.ANIMALES,
         gancho = "¿Sabes cómo le explica una abeja a otra dónde están las flores?",
         texto = "Bailando. La abeja exploradora vuelve al panal y traza sobre la " +
             "superficie vertical un recorrido en forma de ocho, con un tramo recto en " +
@@ -456,7 +459,7 @@ val CAPSULAS: List<Capsula> = listOf(
 
     Capsula(
         id = "alfabeto",
-        categoria = Categoria.LENGUAJE,
+        categoria = TemaReto.LENGUAJE,
         gancho = "¿Sabes qué significaban las primeras letras del alfabeto?",
         texto = "Buey y casa. Las letras nacieron como dibujos de cosas: la primera del " +
             "alfabeto semítico era «alef», que significaba buey, y si le das la vuelta a " +
@@ -482,7 +485,7 @@ val CAPSULAS: List<Capsula> = listOf(
 
     Capsula(
         id = "linealb",
-        categoria = Categoria.LENGUAJE,
+        categoria = TemaReto.LENGUAJE,
         gancho = "¿Sabes quién descifró una escritura que llevaba medio siglo resistiéndose?",
         texto = "Un arquitecto aficionado. Las tablillas de arcilla con signos " +
             "desconocidos aparecieron en Creta a principios del siglo XX, y durante " +
@@ -508,7 +511,7 @@ val CAPSULAS: List<Capsula> = listOf(
 
     Capsula(
         id = "rosetta",
-        categoria = Categoria.LENGUAJE,
+        categoria = TemaReto.LENGUAJE,
         gancho = "¿Sabes cómo se consiguió leer los jeroglíficos egipcios?",
         texto = "Gracias a una piedra encontrada por casualidad en 1799 por soldados de " +
             "la expedición de Napoleón, mientras levantaban una fortificación cerca de " +
@@ -540,8 +543,8 @@ object Reto {
     const val PREGUNTAS_POR_CAPSULA = 3
 
     /** Las categorias que se le ofrecen al usuario para elegir. */
-    fun categoriasAlAzar(cuantas: Int = 3): List<Categoria> =
-        Categoria.entries.shuffled().take(cuantas)
+    fun categoriasAlAzar(cuantas: Int = 3): List<TemaReto> =
+        TemaReto.entries.shuffled().take(cuantas)
 
     /**
      * Una capsula de esa categoria que el usuario no haya leido todavia.
@@ -551,7 +554,7 @@ object Reto {
      * categoria se vuelve a empezar con ella, pero nunca repitiendo la de justo
      * antes.
      */
-    fun siguiente(categoria: Categoria, vistas: Set<String>, evitar: String?): Capsula {
+    fun siguiente(categoria: TemaReto, vistas: Set<String>, evitar: String?): Capsula {
         val todas = CAPSULAS.filter { it.categoria == categoria }
         val frescas = todas.filter { it.id !in vistas && it.id != evitar }
         val pozo = frescas.ifEmpty { todas.filter { it.id != evitar }.ifEmpty { todas } }
@@ -559,7 +562,7 @@ object Reto {
     }
 
     /** Cuantas capsulas quedan por leer en una categoria, para enseñarlo al elegir. */
-    fun frescasEn(categoria: Categoria, vistas: Set<String>): Int =
+    fun frescasEn(categoria: TemaReto, vistas: Set<String>): Int =
         CAPSULAS.count { it.categoria == categoria && it.id !in vistas }
 
     /**
