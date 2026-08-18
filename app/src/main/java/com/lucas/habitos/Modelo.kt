@@ -36,6 +36,8 @@ data class Habito(
 
     val recordatorio: Boolean = false,
     val recordatorioMinutos: Int = 8 * 60,
+    /** Minutos de antelación de los avisos previos: {30, 10} = media hora y 10 min antes. */
+    val avisosPrevios: Set<Int> = emptySet(),
 
     val enCalendario: Boolean = false,
     /** Id del evento repetitivo en el calendario del teléfono. 0 = no tiene. */

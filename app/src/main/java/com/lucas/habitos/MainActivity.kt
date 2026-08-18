@@ -447,7 +447,7 @@ private fun BarraFlotante(actual: Pantalla, onElegir: (Pantalla) -> Unit) {
                 .fillMaxWidth()
                 .height(62.dp)
                 .clip(RoundedCornerShape(50))
-                .background(Color(0xFF151312))
+                .background(MaterialTheme.colorScheme.inverseSurface)
                 .padding(horizontal = 7.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
@@ -471,7 +471,10 @@ private fun PestanaPildora(
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(50))
-            .background(if (activa) MaterialTheme.colorScheme.primary else Color.White)
+            .background(
+                if (activa) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.inverseOnSurface
+            )
             .clickable { onClick() }
             .padding(horizontal = if (activa) 15.dp else 11.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -479,7 +482,8 @@ private fun PestanaPildora(
         Icon(
             painter = painterResource(icono),
             contentDescription = texto,
-            tint = if (activa) Color.White else Color(0xFF151312),
+            tint = if (activa) MaterialTheme.colorScheme.onPrimary
+            else MaterialTheme.colorScheme.inverseSurface,
             modifier = Modifier.size(19.dp)
         )
         // La etiqueta se despliega en vez de aparecer de golpe: es lo que hace
@@ -495,7 +499,7 @@ private fun PestanaPildora(
                     text = texto,
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     maxLines = 1
                 )
             }

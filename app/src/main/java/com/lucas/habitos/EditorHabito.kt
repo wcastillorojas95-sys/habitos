@@ -75,6 +75,7 @@ fun EditorHabito(
     var unidad by remember { mutableStateOf(original?.unidad ?: "") }
     var recordatorio by remember { mutableStateOf(original?.recordatorio ?: false) }
     var minutos by remember { mutableStateOf(original?.recordatorioMinutos ?: 8 * 60) }
+    var previos by remember { mutableStateOf(original?.avisosPrevios ?: emptySet()) }
     var calendario by remember { mutableStateOf(original?.enCalendario ?: false) }
     var confirmandoBorrado by remember { mutableStateOf(false) }
 
@@ -341,6 +342,56 @@ fun EditorHabito(
                 }
             }
 
+            if (recordatorio) {
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = "Avisarme antes",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(3.dp))
+                Text(
+                    text = if (previos.isEmpty()) {
+                        "Sin avisos previos: solo sonará a la hora."
+                    } else {
+                        "Además de la hora, avisará " +
+                            previos.sortedDescending().joinToString(" y ") { textoPrevio(it) } +
+                            " antes."
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.height(10.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                    Recordatorios.OPCIONES_PREVIO.forEach { antes ->
+                        val activo = antes in previos
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(42.dp)
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(
+                                    if (activo) acento.copy(alpha = 0.20f)
+                                    else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                )
+                                .clickable {
+                                    previos = if (activo) previos - antes else previos + antes
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = textoPrevio(antes),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = if (activo) FontWeight.Bold else FontWeight.Medium,
+                                color = if (activo) acento
+                                else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+
             Titulo("Calendario")
             Interruptor(
                 titulo = "Anotar en mi calendario",
@@ -374,6 +425,7 @@ fun EditorHabito(
                         unidad = if (meta == Meta.TIEMPO) "min" else unidad.trim(),
                         recordatorio = recordatorio,
                         recordatorioMinutos = minutos,
+                        avisosPrevios = if (recordatorio) previos else emptySet(),
                         enCalendario = calendario
                     )
                     onGuardar(h)
@@ -606,3 +658,7 @@ private fun Interruptor(
         Switch(checked = activo, onCheckedChange = onCambiar)
     }
 }
+
+/** "10 min", "1 h": lo justo para caber en un botón estrecho. */
+private fun textoPrevio(minutos: Int): String =
+    if (minutos >= 60) "${minutos / 60} h" else "$minutos min"

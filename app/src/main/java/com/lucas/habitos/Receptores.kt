@@ -18,13 +18,18 @@ class ReceptorRecordatorio : BroadcastReceiver() {
 
             Recordatorios.ACCION_AVISAR -> {
                 val habito = almacen.cargar().firstOrNull { it.id == id } ?: return
+                val antes = intento.getIntExtra(Recordatorios.EXTRA_ANTES, 0)
+
                 val pendiente = habito.aplicaEn(hoy) &&
                         !habito.cumplido(hoy) &&
                         !habito.esDescanso(hoy) &&
                         !habito.archivado
-                if (pendiente) Recordatorios.mostrar(contexto, habito)
-                // Vuelve a programar el aviso de mañana.
-                Recordatorios.programar(contexto, habito)
+                if (pendiente) Recordatorios.mostrar(contexto, habito, antes)
+
+                // Reprogramar solo desde el aviso de la hora en punto: hacerlo
+                // también en cada previo recolocaría toda la serie varias veces
+                // el mismo día sin necesidad.
+                if (antes == 0) Recordatorios.programar(contexto, habito)
             }
 
             Recordatorios.ACCION_MARCAR -> {

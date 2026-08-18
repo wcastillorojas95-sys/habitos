@@ -115,59 +115,83 @@ private val TipografiaHabitos = Typography(
 /**
  * Los seis colores que el usuario puede elegir para cada hábito.
  *
- * Reordenados para que el naranja de la marca sea el primero: es el que sale
- * por defecto al crear un hábito nuevo, así que la app se ve coherente sin que
- * nadie tenga que elegir nada.
+ * Subidos de saturación respecto a la versión anterior: los tonos apagados se
+ * defendían bien sobre el fondo crema, pero sobre el fondo casi negro del modo
+ * oscuro se apelmazaban unos con otros. Estos aguantan los dos fondos.
  */
 val PALETA = listOf(
-    Color(0xFFF26A34), // naranja de marca
-    Color(0xFF37BE87), // verde
-    Color(0xFF8C7BE0), // lavanda
-    Color(0xFF3E7BD6), // azul
-    Color(0xFFE8A33C), // ámbar
-    Color(0xFFE0607F)  // rosa
+    Color(0xFFF2542D), // naranja de marca
+    Color(0xFF23C08B), // verde
+    Color(0xFF8B7BF0), // lavanda
+    Color(0xFF3B7BE8), // azul
+    Color(0xFFFFB020), // ámbar
+    Color(0xFFF4635E)  // coral
 )
 
+/** El verde de "día cumplido", el mismo en los dos temas. */
+val VerdeCumplido = Color(0xFF23C08B)
+
+/**
+ * Modo claro: papel cálido de fondo, tarjetas blancas puras encima.
+ *
+ * El contraste entre el crema del fondo y el blanco de las tarjetas es lo que
+ * hace que las tarjetas floten sin necesidad de sombras.
+ */
 private val Claro = lightColorScheme(
-    primary = Color(0xFFE0561F),
+    primary = Color(0xFFF2542D),
     onPrimary = Color(0xFFFFFFFF),
-    primaryContainer = Color(0xFFFFE1D0),
-    onPrimaryContainer = Color(0xFF3D1400),
-    secondary = Color(0xFF7A5C4E),
+    primaryContainer = Color(0xFFFFE0D3),
+    onPrimaryContainer = Color(0xFF4A1505),
+    secondary = Color(0xFF3B7BE8),
     onSecondary = Color(0xFFFFFFFF),
-    secondaryContainer = Color(0xFFFBDFD0),
-    onSecondaryContainer = Color(0xFF2C1710),
-    background = Color(0xFFFDECE2),
-    onBackground = Color(0xFF241C17),
-    surface = Color(0xFFFFF8F4),
-    onSurface = Color(0xFF241C17),
-    surfaceVariant = Color(0xFFF6DFD2),
-    onSurfaceVariant = Color(0xFF6B5951),
-    outline = Color(0xFFC9AE9F),
-    outlineVariant = Color(0xFFEBD5C7),
-    error = Color(0xFFB3261E),
+    secondaryContainer = Color(0xFFD9E6FF),
+    onSecondaryContainer = Color(0xFF0B2A5E),
+    background = Color(0xFFF6F1E8),
+    onBackground = Color(0xFF17150F),
+    surface = Color(0xFFFFFFFF),
+    onSurface = Color(0xFF17150F),
+    surfaceVariant = Color(0xFFEDE6D9),
+    onSurfaceVariant = Color(0xFF6E6656),
+    outline = Color(0xFFCFC5B4),
+    outlineVariant = Color(0xFFE6DED0),
+    // La píldora de navegación y cualquier cosa que deba ir "al revés".
+    inverseSurface = Color(0xFF17150F),
+    inverseOnSurface = Color(0xFFFFFFFF),
+    error = Color(0xFFD93A34),
     onError = Color(0xFFFFFFFF)
 )
 
+/**
+ * Modo oscuro: gris neutro, no marrón.
+ *
+ * El anterior tiraba a marrón en todos sus niveles y el resultado era opaco:
+ * fondo, tarjeta y borde quedaban tan cerca en luminosidad que no se distinguían.
+ * Ahora los tres escalones están separados y son neutros, así el color de cada
+ * hábito es lo único que tiñe la pantalla.
+ */
 private val Oscuro = darkColorScheme(
-    primary = Color(0xFFFFB08C),
-    onPrimary = Color(0xFF3D1400),
-    primaryContainer = Color(0xFF7A2E0C),
-    onPrimaryContainer = Color(0xFFFFE1D0),
-    secondary = Color(0xFFE7BFAA),
-    onSecondary = Color(0xFF422A1D),
-    secondaryContainer = Color(0xFF5B4032),
-    onSecondaryContainer = Color(0xFFFBDFD0),
-    background = Color(0xFF15100D),
-    onBackground = Color(0xFFF5EAE3),
-    surface = Color(0xFF221A15),
-    onSurface = Color(0xFFF5EAE3),
-    surfaceVariant = Color(0xFF302520),
-    onSurfaceVariant = Color(0xFFC9B6AB),
-    outline = Color(0xFF5C4A41),
-    outlineVariant = Color(0xFF3A2D27),
-    error = Color(0xFFFFB4AB),
-    onError = Color(0xFF690005)
+    primary = Color(0xFFFF7A4D),
+    onPrimary = Color(0xFF3A1200),
+    primaryContainer = Color(0xFF5A230D),
+    onPrimaryContainer = Color(0xFFFFD9C7),
+    secondary = Color(0xFF7FB0FF),
+    onSecondary = Color(0xFF0B2A5E),
+    secondaryContainer = Color(0xFF1E3A6B),
+    onSecondaryContainer = Color(0xFFD9E6FF),
+    background = Color(0xFF0E0E11),
+    onBackground = Color(0xFFF4F2ED),
+    surface = Color(0xFF1A1A1F),
+    onSurface = Color(0xFFF4F2ED),
+    surfaceVariant = Color(0xFF272730),
+    onSurfaceVariant = Color(0xFFAAA69E),
+    outline = Color(0xFF44444E),
+    outlineVariant = Color(0xFF2E2E36),
+    // En oscuro la píldora tiene que ser MÁS clara que el fondo, no más oscura:
+    // negra sobre casi negro desaparecía.
+    inverseSurface = Color(0xFF2A2A33),
+    inverseOnSurface = Color(0xFFF4F2ED),
+    error = Color(0xFFFF6B62),
+    onError = Color(0xFF3A0704)
 )
 
 /**

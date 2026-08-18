@@ -95,7 +95,8 @@ class Almacen(context: Context) {
             categoria = o.optString("categoria", ""),
             archivado = o.optBoolean("archivado", false),
             frecuencia = leerEnum(o.optString("frecuencia"), Frecuencia.DIARIO),
-            diasSemana = leerEnteros(o.optJSONArray("diasSemana"), setOf(1, 2, 3, 4, 5, 6, 7)),
+            diasSemana = leerEnteros(o.optJSONArray("diasSemana"), setOf(1, 2, 3, 4, 5, 6, 7))
+                .ifEmpty { setOf(1, 2, 3, 4, 5, 6, 7) },
             vecesPorSemana = o.optInt("vecesPorSemana", 3),
             cadaNDias = o.optInt("cadaNDias", 2),
             meta = leerMeta(o.optString("meta")),
@@ -103,6 +104,7 @@ class Almacen(context: Context) {
             unidad = o.optString("unidad", ""),
             recordatorio = o.optBoolean("recordatorio", false),
             recordatorioMinutos = o.optInt("recordatorioMinutos", 8 * 60),
+            avisosPrevios = leerEnteros(o.optJSONArray("avisosPrevios"), emptySet()),
             enCalendario = o.optBoolean("enCalendario", false),
             eventoCalendario = o.optLong("eventoCalendario", 0L),
             registros = registros,
@@ -122,7 +124,9 @@ class Almacen(context: Context) {
         if (arr == null) return porDefecto
         val s = mutableSetOf<Int>()
         for (i in 0 until arr.length()) s.add(arr.optInt(i))
-        return if (s.isEmpty()) porDefecto else s
+        // Una lista vacía es una respuesta válida —"ningún aviso previo"— así que
+        // solo se cae al valor por defecto cuando la clave no existe.
+        return s
     }
 
     private fun leerTextos(arr: JSONArray?): Set<String> {
@@ -152,6 +156,7 @@ class Almacen(context: Context) {
         o.put("unidad", h.unidad)
         o.put("recordatorio", h.recordatorio)
         o.put("recordatorioMinutos", h.recordatorioMinutos)
+        o.put("avisosPrevios", JSONArray(h.avisosPrevios.toList()))
         o.put("enCalendario", h.enCalendario)
         o.put("eventoCalendario", h.eventoCalendario)
         o.put("descansos", JSONArray(h.descansos.toList()))

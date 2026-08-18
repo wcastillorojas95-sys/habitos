@@ -352,7 +352,7 @@ private fun TiraSemana(
 ) {
     val lunes = Habito.inicioSemana(diaSel)
     val semana = (0L..6L).map { lunes.plusDays(it) }
-    val verde = Color(0xFF37BE87)
+    val verde = VerdeCumplido
 
     Column {
         Row(

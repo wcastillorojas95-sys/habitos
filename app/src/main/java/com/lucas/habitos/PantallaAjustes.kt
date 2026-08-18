@@ -73,6 +73,7 @@ fun PantallaAjustes(
     // ajustes del sistema, conceder el permiso y volver, y al volver debe verlo.
     val avisosOk = Recordatorios.avisosPermitidos(contexto)
     val exactasOk = Recordatorios.alarmasExactas(contexto)
+    val pantallaCompletaOk = Recordatorios.pantallaCompletaPermitida(contexto)
     var avisoCopia by remember { mutableStateOf<String?>(null) }
     var confirmandoImportar by remember { mutableStateOf(false) }
 
@@ -204,6 +205,25 @@ fun PantallaAjustes(
                     }
                 )
             }
+            if (!pantallaCompletaOk) {
+                item {
+                    FilaAccion(
+                        titulo = "Permitir alarmas a pantalla completa",
+                        detalle = "Sin esto, a la hora de una actividad verás una notificación " +
+                            "normal en vez de la alarma que ocupa la pantalla y suena aunque " +
+                            "tengas el móvil en silencio.",
+                        onClick = {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                                contexto.startActivity(
+                                    Intent(android.provider.Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT)
+                                        .setData(android.net.Uri.parse("package:${contexto.packageName}"))
+                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                )
+                            }
+                        }
+                    )
+                }
+            }
             if (!exactasOk) {
                 item {
                     FilaAccion(
@@ -311,7 +331,7 @@ fun PantallaAjustes(
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         Text(
-                            text = "Hábitos 3.0",
+                            text = "Hábitos 3.1",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface

@@ -17,6 +17,11 @@
     -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+
+    <!-- La alarma de la hora en punto toma la pantalla entera, como un
+         despertador. Desde Android 14 hay que pedirlo; si no se concede, el
+         aviso se degrada a notificación normal en vez de fallar. -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
@@ -91,6 +96,22 @@
               aprovisiona como device owner, esta actividad ya queda autorizada
               para el bloqueo total sin tocar nada más.
         -->
+        <!--
+            La alarma de una actividad.
+
+            excludeFromRecents: no tiene sentido que quede en la lista de apps
+            recientes; ya cumplió su función cuando la atendiste.
+        -->
+        <activity
+            android:name=".PantallaAlarma"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:showWhenLocked="true"
+            android:taskAffinity=""
+            android:turnScreenOn="true"
+            android:theme="@style/Theme.Habitos" />
+
         <activity
             android:name=".PantallaEnfoque"
             android:exported="false"
