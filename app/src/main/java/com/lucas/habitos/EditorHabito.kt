@@ -281,7 +281,11 @@ fun EditorHabito(
             if (meta != Meta.SI_NO) {
                 Spacer(Modifier.height(12.dp))
                 Contador(
-                    etiqueta = if (meta == Meta.TIEMPO) "minutos al día" else "por día",
+                    etiqueta = when {
+                        meta == Meta.TIEMPO -> "minutos al día"
+                        unidad.isBlank() -> "veces al día"
+                        else -> "$unidad al día"
+                    },
                     valor = cantidad,
                     acento = acento,
                     minimo = 1,
@@ -294,7 +298,7 @@ fun EditorHabito(
                     OutlinedTextField(
                         value = unidad,
                         onValueChange = { if (it.length <= 12) unidad = it },
-                        label = { Text("Unidad (vasos, km, páginas…)") },
+                        label = { Text("Unidad: vasos, km, páginas… (opcional)") },
                         singleLine = true,
                         shape = RoundedCornerShape(16.dp),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),

@@ -16,75 +16,98 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-/** MK Saans, la tipografía de Lucas. Cinco pesos empaquetados en la app. */
-val Saans = FontFamily(
-    Font(R.font.mksaans_light, FontWeight.Light),
-    Font(R.font.mksaans_regular, FontWeight.Normal),
-    Font(R.font.mksaans_medium, FontWeight.Medium),
-    Font(R.font.mksaans_semibold, FontWeight.SemiBold),
-    Font(R.font.mksaans_bold, FontWeight.Bold)
+/**
+ * Dos tipografías, cada una en lo suyo.
+ *
+ * Bricolage Grotesque tiene mucho carácter en los tamaños grandes —las letras se
+ * estrechan y aprietan al crecer— pero eso mismo la hace cansada en un párrafo.
+ * DM Sans es lo contrario: neutra, de formas abiertas, hecha para leerse pequeña.
+ * Mezclarlas da personalidad arriba y legibilidad abajo, que es lo que se busca.
+ *
+ * Ambas son de Google Fonts con licencia SIL Open Font, así que se pueden
+ * empaquetar y distribuir sin pedir permiso a nadie.
+ */
+val Titulos = FontFamily(
+    Font(R.font.bricolage_regular, FontWeight.Normal),
+    Font(R.font.bricolage_medium, FontWeight.Medium),
+    Font(R.font.bricolage_semibold, FontWeight.SemiBold),
+    Font(R.font.bricolage_bold, FontWeight.Bold),
+    Font(R.font.bricolage_extrabold, FontWeight.ExtraBold)
+)
+
+val Cuerpo = FontFamily(
+    Font(R.font.dmsans_regular, FontWeight.Normal),
+    Font(R.font.dmsans_medium, FontWeight.Medium),
+    Font(R.font.dmsans_semibold, FontWeight.SemiBold),
+    Font(R.font.dmsans_bold, FontWeight.Bold),
+    Font(R.font.dmsans_extrabold, FontWeight.ExtraBold)
 )
 
 /**
- * Escala tipográfica propia. Las cifras grandes van en Light con espaciado
- * negativo (se ven más limpias); los textos pequeños en Medium con espaciado
- * positivo (se leen mejor a tamaño chico).
+ * Escala tipográfica propia.
+ *
+ * De display a title manda Bricolage, con espaciado negativo: al apretarla un
+ * poco se nota que es ella y no una grotesca cualquiera. De body a label manda
+ * DM Sans con espaciado ligeramente positivo, que a doce puntos se agradece.
+ *
+ * Los pesos base subieron respecto a la versión anterior porque Bricolage pinta
+ * más fina que MK Saans al mismo peso; con Light se veía desvaída.
  */
 private val TipografiaHabitos = Typography(
     displayLarge = TextStyle(
-        fontFamily = Saans, fontWeight = FontWeight.Light,
-        fontSize = 52.sp, lineHeight = 56.sp, letterSpacing = (-1.5).sp
+        fontFamily = Titulos, fontWeight = FontWeight.Bold,
+        fontSize = 50.sp, lineHeight = 54.sp, letterSpacing = (-1.6).sp
     ),
     displayMedium = TextStyle(
-        fontFamily = Saans, fontWeight = FontWeight.Light,
-        fontSize = 40.sp, lineHeight = 44.sp, letterSpacing = (-1).sp
+        fontFamily = Titulos, fontWeight = FontWeight.Bold,
+        fontSize = 38.sp, lineHeight = 42.sp, letterSpacing = (-1.2).sp
     ),
     headlineLarge = TextStyle(
-        fontFamily = Saans, fontWeight = FontWeight.SemiBold,
-        fontSize = 28.sp, lineHeight = 34.sp, letterSpacing = (-0.6).sp
+        fontFamily = Titulos, fontWeight = FontWeight.Bold,
+        fontSize = 28.sp, lineHeight = 34.sp, letterSpacing = (-0.8).sp
     ),
     headlineMedium = TextStyle(
-        fontFamily = Saans, fontWeight = FontWeight.SemiBold,
-        fontSize = 23.sp, lineHeight = 30.sp, letterSpacing = (-0.4).sp
+        fontFamily = Titulos, fontWeight = FontWeight.Bold,
+        fontSize = 24.sp, lineHeight = 30.sp, letterSpacing = (-0.6).sp
     ),
     headlineSmall = TextStyle(
-        fontFamily = Saans, fontWeight = FontWeight.Medium,
-        fontSize = 20.sp, lineHeight = 26.sp, letterSpacing = (-0.2).sp
+        fontFamily = Titulos, fontWeight = FontWeight.SemiBold,
+        fontSize = 20.sp, lineHeight = 26.sp, letterSpacing = (-0.4).sp
     ),
     titleLarge = TextStyle(
-        fontFamily = Saans, fontWeight = FontWeight.SemiBold,
-        fontSize = 19.sp, lineHeight = 25.sp, letterSpacing = (-0.3).sp
+        fontFamily = Titulos, fontWeight = FontWeight.SemiBold,
+        fontSize = 19.sp, lineHeight = 25.sp, letterSpacing = (-0.4).sp
     ),
     titleMedium = TextStyle(
-        fontFamily = Saans, fontWeight = FontWeight.Medium,
-        fontSize = 16.sp, lineHeight = 22.sp, letterSpacing = (-0.1).sp
+        fontFamily = Titulos, fontWeight = FontWeight.SemiBold,
+        fontSize = 16.5.sp, lineHeight = 22.sp, letterSpacing = (-0.2).sp
     ),
     titleSmall = TextStyle(
-        fontFamily = Saans, fontWeight = FontWeight.Medium,
-        fontSize = 14.sp, lineHeight = 19.sp
+        fontFamily = Titulos, fontWeight = FontWeight.SemiBold,
+        fontSize = 14.5.sp, lineHeight = 19.sp, letterSpacing = (-0.1).sp
     ),
     bodyLarge = TextStyle(
-        fontFamily = Saans, fontWeight = FontWeight.Normal,
+        fontFamily = Cuerpo, fontWeight = FontWeight.Normal,
         fontSize = 15.sp, lineHeight = 22.sp
     ),
     bodyMedium = TextStyle(
-        fontFamily = Saans, fontWeight = FontWeight.Normal,
-        fontSize = 13.5.sp, lineHeight = 19.sp
+        fontFamily = Cuerpo, fontWeight = FontWeight.Normal,
+        fontSize = 14.sp, lineHeight = 19.sp
     ),
     bodySmall = TextStyle(
-        fontFamily = Saans, fontWeight = FontWeight.Normal,
-        fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 0.1.sp
+        fontFamily = Cuerpo, fontWeight = FontWeight.Normal,
+        fontSize = 12.5.sp, lineHeight = 16.sp, letterSpacing = 0.1.sp
     ),
     labelLarge = TextStyle(
-        fontFamily = Saans, fontWeight = FontWeight.Medium,
+        fontFamily = Cuerpo, fontWeight = FontWeight.Medium,
         fontSize = 13.sp, lineHeight = 17.sp, letterSpacing = 0.2.sp
     ),
     labelMedium = TextStyle(
-        fontFamily = Saans, fontWeight = FontWeight.Medium,
+        fontFamily = Cuerpo, fontWeight = FontWeight.Medium,
         fontSize = 11.5.sp, lineHeight = 15.sp, letterSpacing = 0.4.sp
     ),
     labelSmall = TextStyle(
-        fontFamily = Saans, fontWeight = FontWeight.Medium,
+        fontFamily = Cuerpo, fontWeight = FontWeight.SemiBold,
         fontSize = 10.5.sp, lineHeight = 14.sp, letterSpacing = 0.6.sp
     )
 )

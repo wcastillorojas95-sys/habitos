@@ -311,16 +311,17 @@ fun PantallaAjustes(
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         Text(
-                            text = "Hábitos 2.9.1",
+                            text = "Hábitos 3.0",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(Modifier.height(6.dp))
                         Text(
-                            text = "Tipografía MK Saans. Ilustraciones de illlustrations.co " +
-                                "(Vijay Verma, licencia MIT). Iconos: Material Icons de Google " +
-                                "(Apache 2.0). Avatares dibujados para esta app.",
+                            text = "Tipografías Bricolage Grotesque y DM Sans (SIL Open Font " +
+                                "License). Ilustraciones de illlustrations.co (Vijay Verma, " +
+                                "licencia MIT). Iconos: Material Icons de Google (Apache 2.0). " +
+                                "Avatares dibujados para esta app.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

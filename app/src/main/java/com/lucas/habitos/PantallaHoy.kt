@@ -108,6 +108,24 @@ fun PantallaHoy(
         }
     }
 
+    /**
+     * Deja el progreso en un número exacto.
+     *
+     * Lo usan las marcas de "veces al día": tocar la cuarta pone 4, y volver a
+     * tocar la última la deshace. Es contar sin botones de sumar y restar, que
+     * era lo que resultaba confuso.
+     */
+    fun fijarProgreso(habito: Habito, cuanto: Int) {
+        haptica.performHapticFeedback(HapticFeedbackType.LongPress)
+        val clave = diaSel.toString()
+        cambiarUno(habito) { h ->
+            val registros = h.registros.toMutableMap()
+            val valor = cuanto.coerceIn(0, h.objetivoDiario())
+            if (valor <= 0) registros.remove(clave) else registros[clave] = valor
+            h.copy(registros = registros)
+        }
+    }
+
     fun alternarDescanso(habito: Habito) {
         val clave = diaSel.toString()
         cambiarUno(habito) { h ->
@@ -175,6 +193,7 @@ fun PantallaHoy(
                     dia = diaSel,
                     hoy = hoy,
                     onAlternar = { alternarCumplido(habito) },
+                    onFijar = { fijarProgreso(habito, it) },
                     onDescanso = { alternarDescanso(habito) },
                     onEditar = { onEditar(habito) },
                     onBorrar = { onBorrar(habito) },
@@ -429,6 +448,7 @@ private fun TarjetaHabito(
     dia: LocalDate,
     hoy: LocalDate,
     onAlternar: () -> Unit,
+    onFijar: (Int) -> Unit,
     onDescanso: () -> Unit,
     onEditar: () -> Unit,
     onBorrar: () -> Unit,
@@ -638,8 +658,15 @@ private fun TarjetaHabito(
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(Modifier.height(7.dp))
-                BarraProgreso(habito = habito, dia = dia, color = color)
+                Spacer(Modifier.height(8.dp))
+                // Hasta doce veces caben como marcas tocables, que es como se
+                // cuentan de verdad ocho vasos de agua. Por encima de ahí no hay
+                // sitio ni tiene sentido ir de uno en uno: barra y listo.
+                if (habito.meta == Meta.CANTIDAD && habito.objetivoDiario() in 2..12) {
+                    MarcasVeces(habito = habito, dia = dia, color = color, onFijar = onFijar)
+                } else {
+                    BarraProgreso(habito = habito, dia = dia, color = color)
+                }
             }
 
             if (!descanso) {
@@ -666,6 +693,48 @@ private fun TarjetaHabito(
                 TextButton(onClick = { confirmandoBorrado = false }) { Text("Cancelar") }
             }
         )
+    }
+}
+
+/**
+ * Una marca por vez. Las hechas van rellenas; tocar una las deja todas hasta
+ * ahí, y tocar la última hecha la deshace.
+ */
+@Composable
+private fun MarcasVeces(habito: Habito, dia: LocalDate, color: Color, onFijar: (Int) -> Unit) {
+    val hechas = habito.progreso(dia)
+    val total = habito.objetivoDiario()
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(7.dp)
+    ) {
+        for (i in 1..total) {
+            val llena = i <= hechas
+            val relleno by animateColorAsState(
+                targetValue = if (llena) color else color.copy(alpha = 0.12f),
+                animationSpec = tween(220),
+                label = "marca"
+            )
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(30.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(relleno)
+                    .clickable { onFijar(if (i == hechas) i - 1 else i) },
+                contentAlignment = Alignment.Center
+            ) {
+                if (llena) {
+                    Icon(
+                        painter = painterResource(IconoCheck),
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(13.dp)
+                    )
+                }
+            }
+        }
     }
 }
 

@@ -294,10 +294,17 @@ private fun DialogoAjustes(
                 }
 
                 if (habito.meta != Meta.SI_NO) {
-                    Rotulo(if (habito.meta == Meta.TIEMPO) "Minutos al día" else "Cantidad al día")
+                    Rotulo(
+                        when {
+                            habito.meta == Meta.TIEMPO -> "Minutos al día"
+                            habito.unidad.isBlank() -> "Veces al día"
+                            else -> "${habito.unidad} al día"
+                        }
+                    )
                     ContadorMini(
                         valor = cantidad,
-                        sufijo = if (habito.meta == Meta.TIEMPO) "min" else habito.unidad,
+                        sufijo = if (habito.meta == Meta.TIEMPO) "min"
+                        else habito.unidad.ifBlank { "veces" },
                         acento = acento,
                         paso = if (habito.meta == Meta.TIEMPO) 5 else 1,
                         maximo = if (habito.meta == Meta.TIEMPO) 480 else 1000
