@@ -61,10 +61,8 @@ fun PantallaAjustes(
 ) {
     val contexto = LocalContext.current
     val hoy = remember { LocalDate.now() }
-    var pinAbierto by remember { mutableStateOf(false) }
     var cerrandoSesion by remember { mutableStateOf(false) }
     val cuenta = SesionUsuario.cuenta
-    var tienePin by remember { mutableStateOf(almacenEnfoque.tienePin) }
 
     val minutos = remember(hoy) { almacenEnfoque.minutosUltimos(hoy, 7) }
     val activos = habitos.count { !it.archivado }
@@ -283,14 +281,12 @@ fun PantallaAjustes(
 
             item { Seccion("Modo estricto") }
             item {
-                FilaAccion(
-                    titulo = if (tienePin) "Cambiar el PIN" else "Poner un PIN",
-                    detalle = if (tienePin) {
-                        "Ahora hace falta el PIN para rendirse antes de tiempo."
-                    } else {
-                        "Sin PIN basta con mantener pulsado 3 segundos para abandonar una sesión."
-                    },
-                    onClick = { pinAbierto = true }
+                FilaInformativa(
+                    titulo = "Reto para abandonar",
+                    detalle = "Para dejar una actividad antes de tiempo hay que leer una " +
+                        "fábula corta y acertar una pregunta sobre lo que dice. La pregunta " +
+                        "es de detalle, no de moraleja, así que no se acierta sin leer. Si " +
+                        "fallas, sale otra fábula distinta."
                 )
             }
             item {
@@ -381,7 +377,7 @@ fun PantallaAjustes(
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         Text(
-                            text = "Hábitos 3.3",
+                            text = "Hábitos 3.4",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -460,56 +456,32 @@ fun PantallaAjustes(
         )
     }
 
-    if (pinAbierto) {
-        DialogoPin(
-            almacenEnfoque = almacenEnfoque,
-            onCerrar = { pinAbierto = false; tienePin = almacenEnfoque.tienePin }
-        )
-    }
 }
 
+/** Como [FilaAccion] pero sin destino: solo explica algo. */
 @Composable
-private fun DialogoPin(almacenEnfoque: AlmacenEnfoque, onCerrar: () -> Unit) {
-    var valor by remember { mutableStateOf("") }
-
-    AlertDialog(
-        onDismissRequest = onCerrar,
-        title = { Text("PIN del modo estricto") },
-        text = {
-            Column {
-                Text(
-                    text = "Cuatro a seis cifras. Te lo pedirá para abandonar una sesión " +
-                        "antes de tiempo. Déjalo vacío y guarda para quitarlo.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(Modifier.height(14.dp))
-                OutlinedTextField(
-                    value = valor,
-                    onValueChange = { valor = it.filter { c -> c.isDigit() }.take(6) },
-                    label = { Text("PIN") },
-                    singleLine = true,
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(Modifier.height(10.dp))
-                Text(
-                    text = "No es una contraseña de seguridad: se guarda sin cifrar y solo " +
-                        "sirve para ponértelo difícil a ti mismo. No lo reutilices.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = { almacenEnfoque.pin = valor; onCerrar() },
-                enabled = valor.isEmpty() || valor.length >= 4
-            ) { Text(if (valor.isEmpty()) "Quitar PIN" else "Guardar") }
-        },
-        dismissButton = { TextButton(onClick = onCerrar) { Text("Cancelar") } }
-    )
+private fun FilaInformativa(titulo: String, detalle: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Text(
+                text = titulo,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(Modifier.height(3.dp))
+            Text(
+                text = detalle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
 }
 
 @Composable

@@ -85,6 +85,7 @@ class PantallaAlarma : ComponentActivity() {
                     habito = habito,
                     onEmpezar = {
                         callar()
+                        Recordatorios.cancelarArranque(this, habito.id)
                         val minutos = Sesion.minutosSugeridos(
                             habito, LocalDate.now(), enfoque.duracionPreferidaMin
                         )
@@ -99,8 +100,7 @@ class PantallaAlarma : ComponentActivity() {
                         callar()
                         Recordatorios.posponer(this, habito.id)
                         finish()
-                    },
-                    onRendirse = { callar(); finish() }
+                    }
                 )
             }
         }
@@ -176,20 +176,23 @@ class PantallaAlarma : ComponentActivity() {
 private fun CaraDeAlarma(
     habito: Habito,
     onEmpezar: () -> Unit,
-    onPosponer: () -> Unit,
-    onRendirse: () -> Unit
+    onPosponer: () -> Unit
 ) {
     val color = PALETA[habito.color % PALETA.size]
 
-    // Cuenta atrás para rendirse sola. Se enseña al usuario para que no parezca
-    // que la alarma se ha cerrado por su cuenta sin motivo.
-    var restante by remember { mutableIntStateOf(120) }
+    // Cuenta atrás para arrancar sola.
+    //
+    // Antes la alarma se rendía a los dos minutos y te dejaba en paz, que era
+    // justo lo que fallaba: bastaba con no hacer nada. Ahora no hacer nada es
+    // la respuesta que empieza la actividad. Salir sigue siendo posible, pero
+    // hay que decidirlo: aplazar diez minutos.
+    var restante by remember { mutableIntStateOf(Recordatorios.SEGUNDOS_ARRANQUE) }
     LaunchedEffect(Unit) {
         while (restante > 0) {
             delay(1000)
             restante--
         }
-        onRendirse()
+        onEmpezar()
     }
 
     Box(
@@ -259,7 +262,7 @@ private fun CaraDeAlarma(
 
             Spacer(Modifier.height(26.dp))
             Text(
-                text = "Se callará sola en ${restante / 60}:${"%02d".format(restante % 60)}",
+                text = "Empieza sola en ${restante}s",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
             )

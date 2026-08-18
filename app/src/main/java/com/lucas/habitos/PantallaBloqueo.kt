@@ -12,6 +12,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -73,7 +74,14 @@ class PantallaBloqueo : ComponentActivity() {
 
         setContent {
             HabitosTheme(oscuro = enfoque.temaOscuro) {
-                CaraDeBloqueo(sesion = sesion, onTerminar = { finish() })
+                CaraDeBloqueo(
+                    sesion = sesion,
+                    onTerminar = { finish() },
+                    // Tocar la pantalla lleva a la actividad, que es donde vive
+                    // el reto. El bloqueo no es la pared: la pared es el reto.
+                    // Sin esta salida esto sería un callejón sin puerta.
+                    onTocar = { abrirEnfoque(); finish() }
+                )
             }
         }
     }
@@ -104,7 +112,7 @@ class PantallaBloqueo : ComponentActivity() {
 }
 
 @Composable
-private fun CaraDeBloqueo(sesion: Sesion, onTerminar: () -> Unit) {
+private fun CaraDeBloqueo(sesion: Sesion, onTerminar: () -> Unit, onTocar: () -> Unit) {
     val color = PALETA[sesion.colorIndice % PALETA.size]
 
     var restante by remember { mutableIntStateOf(sesion.restanteSeg()) }
@@ -136,6 +144,7 @@ private fun CaraDeBloqueo(sesion: Sesion, onTerminar: () -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .clickable { onTocar() }
             .padding(32.dp),
         contentAlignment = Alignment.Center
     ) {

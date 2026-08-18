@@ -13,6 +13,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -97,29 +98,32 @@ class PantallaEnfoque : ComponentActivity() {
                 if (sesion == null) {
                     PantallaFin(onCerrar = { salir() })
                 } else {
-                    var pidiendoPin by remember { mutableStateOf(false) }
+                    var enReto by remember { mutableStateOf(false) }
 
-                    CuentaAtras(
-                        sesion = sesion,
-                        onRendirse = {
-                            // Con PIN puesto, la pulsación larga solo abre la
-                            // pregunta; sin PIN abandona directamente.
-                            if (almacenEnfoque.tienePin) pidiendoPin = true
-                            else {
+                    if (enReto) {
+                        PantallaReto(
+                            color = PALETA[sesion.colorIndice % PALETA.size],
+                            onSuperado = {
+                                enReto = false
                                 soltarFijado()
                                 ServicioEnfoque.abandonar(this)
-                            }
-                        }
-                    )
-
-                    if (pidiendoPin) {
-                        DialogoDesbloqueo(
-                            correcto = almacenEnfoque.pin,
-                            onCancelar = { pidiendoPin = false },
-                            onAcertado = {
-                                pidiendoPin = false
-                                soltarFijado()
-                                ServicioEnfoque.abandonar(this)
+                            },
+                            onVolver = { enReto = false }
+                        )
+                    } else {
+                        CuentaAtras(
+                            sesion = sesion,
+                            onRendirse = {
+                                // El reto es la contrapartida del modo estricto.
+                                // Si la sesión no era estricta, el usuario nunca
+                                // pidió que le costara salir: pedírselo ahora
+                                // sería cambiarle las reglas a mitad de partida.
+                                if (sesion.estricto) {
+                                    enReto = true
+                                } else {
+                                    soltarFijado()
+                                    ServicioEnfoque.abandonar(this)
+                                }
                             }
                         )
                     }
@@ -233,8 +237,8 @@ class PantallaEnfoque : ComponentActivity() {
 
                 Text(
                     text = if (sesion.estricto) {
-                        "Modo estricto. Para salir antes de tiempo mantén pulsados " +
-                            "Atrás y Recientes a la vez."
+                        "Modo estricto. Para dejarlo antes de tiempo tendrás que " +
+                            "leer una fábula y acertar una pregunta sobre ella."
                     } else {
                         "Puedes salir cuando quieras, pero solo cuenta si terminas."
                     },
@@ -284,115 +288,31 @@ class PantallaEnfoque : ComponentActivity() {
     }
 
     /**
-     * Rendirse cuesta tres segundos de pulsacion sostenida.
+     * Abre el reto.
      *
-     * La friccion es deliberada: un toque accidental no debe tirar la sesion, y
-     * el par de segundos de duda suele bastar para no abandonar.
+     * Antes esto exigia tres segundos de pulsacion sostenida. Ya no hace falta:
+     * la friccion se ha mudado al reto, que es mucho mas dificil de superar en
+     * automatico que aguantar el dedo. Aqui basta un toque, y de hecho conviene,
+     * porque un boton que cuesta abrir invita a pelearse con el en vez de leer.
      */
     @Composable
     private fun BotonRendirse(color: Color, onConfirmar: () -> Unit) {
-        var presionando by remember { mutableStateOf(false) }
-        var carga by remember { mutableFloatStateOf(0f) }
-
-        LaunchedEffect(presionando) {
-            if (!presionando) {
-                carga = 0f
-                return@LaunchedEffect
-            }
-            val pasos = 30
-            repeat(pasos) {
-                delay(100)
-                carga = (it + 1f) / pasos
-            }
-            onConfirmar()
-        }
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp)
                 .clip(RoundedCornerShape(26.dp))
                 .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.07f))
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onPress = {
-                            presionando = true
-                            tryAwaitRelease()
-                            presionando = false
-                        }
-                    )
-                },
+                .clickable { onConfirmar() },
             contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(carga)
-                    .height(52.dp)
-                    .background(color.copy(alpha = 0.28f))
-            )
             Text(
-                text = if (presionando) "Sigue pulsando para rendirte…"
-                else "Mantén pulsado para rendirte",
+                text = "Quiero abandonar",
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                fontWeight = FontWeight.Bold,
+                color = color
             )
         }
-    }
-
-    /**
-     * Pide el PIN para abandonar una sesion estricta.
-     *
-     * No protege nada: la comparacion es en claro y el PIN se guarda sin cifrar.
-     * Su unico trabajo es que rendirse cueste mas que un gesto reflejo.
-     */
-    @Composable
-    private fun DialogoDesbloqueo(
-        correcto: String,
-        onCancelar: () -> Unit,
-        onAcertado: () -> Unit
-    ) {
-        var valor by remember { mutableStateOf("") }
-        var fallo by remember { mutableStateOf(false) }
-
-        AlertDialog(
-            onDismissRequest = onCancelar,
-            title = { Text("Escribe tu PIN") },
-            text = {
-                Column {
-                    Text(
-                        text = "Lo pusiste para no rendirte a la primera. Todavía estás a tiempo de seguir.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(Modifier.height(14.dp))
-                    OutlinedTextField(
-                        value = valor,
-                        onValueChange = { valor = it.filter { c -> c.isDigit() }.take(6); fallo = false },
-                        label = { Text("PIN") },
-                        singleLine = true,
-                        isError = fallo,
-                        visualTransformation = PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    if (fallo) {
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            text = "No es ese.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = { if (valor == correcto) onAcertado() else fallo = true },
-                    enabled = valor.isNotEmpty()
-                ) { Text("Abandonar") }
-            },
-            dismissButton = { TextButton(onClick = onCancelar) { Text("Seguir") } }
-        )
     }
 
     @Composable

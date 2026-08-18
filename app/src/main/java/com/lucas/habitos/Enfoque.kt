@@ -199,19 +199,6 @@ class AlmacenEnfoque(context: Context) {
         get() = prefs.getBoolean(CLAVE_TEMA, false)
         set(valor) = prefs.edit().putBoolean(CLAVE_TEMA, valor).apply()
 
-    /**
-     * PIN para abandonar una sesión estricta. Cadena vacía = sin PIN.
-     *
-     * No es seguridad: se guarda en claro porque no protege datos, solo añade
-     * una fricción deliberada contra tu yo de dentro de diez minutos. Llamarlo
-     * "contraseña" sería engañoso, y guardarlo cifrado, teatro.
-     */
-    var pin: String
-        get() = prefs.getString(CLAVE_PIN, "") ?: ""
-        set(valor) = prefs.edit().putString(CLAVE_PIN, valor.filter { it.isDigit() }.take(6)).apply()
-
-    val tienePin: Boolean get() = pin.isNotEmpty()
-
     private companion object {
         const val ARCHIVO = "habitos_enfoque"
         const val CLAVE_SESION = "sesion_activa"
@@ -220,7 +207,6 @@ class AlmacenEnfoque(context: Context) {
         const val CLAVE_ESTRICTO = "modo_estricto"
         const val CLAVE_BLOQUEO = "bloquear_apps"
         const val CLAVE_TEMA = "tema_oscuro"
-        const val CLAVE_PIN = "pin_estricto"
         const val CLAVE_INVITADO = "sin_cuenta"
     }
 }

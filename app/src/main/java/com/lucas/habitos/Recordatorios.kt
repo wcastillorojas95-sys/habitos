@@ -33,6 +33,7 @@ object Recordatorios {
 
     const val ACCION_AVISAR = "com.lucas.habitos.AVISAR"
     const val ACCION_MARCAR = "com.lucas.habitos.MARCAR"
+    const val ACCION_ARRANCAR = "com.lucas.habitos.ARRANCAR"
     const val EXTRA_ID = "habito_id"
     const val EXTRA_ANTES = "minutos_antes"
 
@@ -44,6 +45,18 @@ object Recordatorios {
 
     /** Lo que se pospone la alarma al pulsar "Ahora no". */
     const val MINUTOS_POSPONER = 10
+
+    /**
+     * Lo que espera la alarma antes de arrancar la actividad ella sola.
+     *
+     * La cuenta atras que ve el usuario en la pantalla de alarma es de 30 s. La
+     * alarma de respaldo va a 40 para que, en el caso normal, gane la pantalla y
+     * no arranquen las dos a la vez. El respaldo existe porque si el sistema
+     * degrado el aviso a notificacion normal —sin permiso de pantalla completa—
+     * no hay ninguna cuenta atras corriendo en ningun sitio.
+     */
+    const val SEGUNDOS_ARRANQUE = 30
+    private const val SEGUNDOS_RESPALDO = 40L
 
     fun crearCanal(contexto: Context) {
         val gestor = contexto.getSystemService(NotificationManager::class.java) ?: return
@@ -110,10 +123,42 @@ object Recordatorios {
     /** Vuelve a sonar dentro de un rato. Lo usa el botón "Ahora no" de la alarma. */
     fun posponer(contexto: Context, id: String) {
         val alarmas = contexto.getSystemService(AlarmManager::class.java) ?: return
+        // Primero desactivar el arranque automático: aplazar y que la actividad
+        // empezara sola cuarenta segundos después sería una encerrona.
+        alarmas.cancel(intentoArranque(contexto, id))
         ponerAlarma(
             alarmas,
             System.currentTimeMillis() + MINUTOS_POSPONER * 60_000L,
             intentoAviso(contexto, id, 0)
+        )
+    }
+
+    /** Programa el arranque solo de la actividad, como respaldo de la alarma. */
+    fun programarArranque(contexto: Context, id: String) {
+        val alarmas = contexto.getSystemService(AlarmManager::class.java) ?: return
+        ponerAlarma(
+            alarmas,
+            System.currentTimeMillis() + SEGUNDOS_RESPALDO * 1000L,
+            intentoArranque(contexto, id)
+        )
+    }
+
+    fun cancelarArranque(contexto: Context, id: String) {
+        contexto.getSystemService(AlarmManager::class.java)
+            ?.cancel(intentoArranque(contexto, id))
+    }
+
+    private fun intentoArranque(contexto: Context, id: String): PendingIntent {
+        val intento = Intent(contexto, ReceptorRecordatorio::class.java).apply {
+            action = ACCION_ARRANCAR
+            data = Uri.parse("habitos://arrancar/$id")
+            putExtra(EXTRA_ID, id)
+        }
+        return PendingIntent.getBroadcast(
+            contexto,
+            "arrancar|$id".hashCode(),
+            intento,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
     }
 
@@ -134,6 +179,7 @@ object Recordatorios {
         (listOf(0) + OPCIONES_PREVIO).forEach { antes ->
             alarmas.cancel(intentoAviso(contexto, id, antes))
         }
+        alarmas.cancel(intentoArranque(contexto, id))
     }
 
     private fun intentoAviso(contexto: Context, id: String, antes: Int): PendingIntent {
