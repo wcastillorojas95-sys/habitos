@@ -9,7 +9,15 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -237,76 +245,69 @@ private fun App(oscuro: Boolean, onCambiarTema: (Boolean) -> Unit) {
         aplicar(habitos.filterNot { it.id == habito.id })
     }
 
-    if (abriendoLista) {
-        PantallaLista(
-            yaCreados = habitos,
-            onCancelar = { abriendoLista = false },
-            onCrear = { nuevos ->
-                crearVarios(nuevos)
-                abriendoLista = false
-            }
-        )
-        return
+    // El editor y la lista se abren encima de la app. Con AnimatedContent entran
+    // desde la derecha y se van por donde vinieron, que es lo que el gesto de
+    // "atrás" hace esperar. Antes aparecían de golpe, sin nada que las ligara a
+    // lo que estabas mirando.
+    val encima = when {
+        abriendoLista -> Encima.LISTA
+        abriendoEditor -> Encima.EDITOR
+        else -> Encima.NINGUNA
     }
 
-    if (abriendoEditor) {
-        EditorHabito(
-            original = editando,
-            onCancelar = { abriendoEditor = false; editando = null },
-            onGuardar = { h ->
-                guardarHabito(h)
-                abriendoEditor = false
-                editando = null
-            },
-            onBorrar = { h ->
-                borrarHabito(h)
-                abriendoEditor = false
-                editando = null
-            }
-        )
-        return
-    }
+    AnimatedContent(
+        targetState = encima,
+        transitionSpec = {
+            if (targetState == Encima.NINGUNA) {
+                (fadeIn(tween(200)) + slideInHorizontally(tween(260)) { -it / 8 })
+                    .togetherWith(fadeOut(tween(180)) + slideOutHorizontally(tween(260)) { it })
+            } else {
+                (fadeIn(tween(200)) + slideInHorizontally(tween(260)) { it })
+                    .togetherWith(fadeOut(tween(180)) + slideOutHorizontally(tween(260)) { -it / 8 })
+            }.using(SizeTransform(clip = false))
+        },
+        label = "pantalla"
+    ) { destino ->
+        when (destino) {
+            Encima.LISTA -> PantallaLista(
+                yaCreados = habitos,
+                onCancelar = { abriendoLista = false },
+                onCrear = { nuevos ->
+                    crearVarios(nuevos)
+                    abriendoLista = false
+                }
+            )
 
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        bottomBar = {
-            BarraFlotante(actual = pantalla, onElegir = { pantalla = it })
-        }
-    ) { relleno ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(relleno)
-        ) {
-            AnimatedVisibility(pantalla == Pantalla.HOY, enter = fadeIn(), exit = fadeOut()) {
-                PantallaHoy(
-                    nombre = SesionUsuario.cuenta?.nombrePila().orEmpty(),
-                    habitos = habitos,
-                    onCambiar = { aplicar(it) },
-                    onNuevo = { editando = null; abriendoEditor = true },
-                    onNuevaLista = { abriendoLista = true },
-                    onEditar = { editando = it; abriendoEditor = true },
-                    onBorrar = { borrarHabito(it) },
-                    onEnfocar = { aEnfocar = it }
-                )
-            }
-            AnimatedVisibility(pantalla == Pantalla.EXPLORAR, enter = fadeIn(), exit = fadeOut()) {
-                PantallaExplorar(onCrear = { editando = it; abriendoEditor = true })
-            }
-            AnimatedVisibility(pantalla == Pantalla.PROGRESO, enter = fadeIn(), exit = fadeOut()) {
-                PantallaEstadisticas(habitos = habitos, hoy = LocalDate.now())
-            }
-            AnimatedVisibility(pantalla == Pantalla.AJUSTES, enter = fadeIn(), exit = fadeOut()) {
-                PantallaAjustes(
-                    almacenEnfoque = almacenEnfoque,
-                    oscuro = oscuro,
-                    onCambiarTema = onCambiarTema,
-                    habitos = habitos,
-                    // Copia.importar ya guardó y reprogramó todo; aquí solo hay que
-                    // refrescar lo que la interfaz tiene en memoria.
-                    onDatosRestaurados = { habitos = it }
-                )
-            }
+            Encima.EDITOR -> EditorHabito(
+                original = editando,
+                onCancelar = { abriendoEditor = false; editando = null },
+                onGuardar = { h ->
+                    guardarHabito(h)
+                    abriendoEditor = false
+                    editando = null
+                },
+                onBorrar = { h ->
+                    borrarHabito(h)
+                    abriendoEditor = false
+                    editando = null
+                }
+            )
+
+            Encima.NINGUNA -> AppPrincipal(
+                habitos = habitos,
+                pantalla = pantalla,
+                oscuro = oscuro,
+                almacenEnfoque = almacenEnfoque,
+                onElegirPantalla = { pantalla = it },
+                onCambiar = { aplicar(it) },
+                onNuevo = { editando = null; abriendoEditor = true },
+                onNuevaLista = { abriendoLista = true },
+                onEditar = { editando = it; abriendoEditor = true },
+                onBorrar = { borrarHabito(it) },
+                onEnfocar = { aEnfocar = it },
+                onCambiarTema = onCambiarTema,
+                onDatosRestaurados = { habitos = it }
+            )
         }
     }
 
@@ -346,6 +347,83 @@ private fun App(oscuro: Boolean, onCambiarTema: (Boolean) -> Unit) {
                 contexto.actividad()?.abrirEnfoque()
             }
         )
+    }
+}
+
+/** Qué pantalla está abierta encima de la app. */
+private enum class Encima { NINGUNA, EDITOR, LISTA }
+
+/**
+ * La app en sí: barra flotante abajo y la página elegida arriba.
+ *
+ * Las cuatro páginas ya no son cuatro AnimatedVisibility superpuestas —que
+ * durante la transición coexistían y se veía— sino un AnimatedContent que
+ * desliza en la dirección del movimiento: hacia la izquierda si vas a una
+ * pestaña posterior, hacia la derecha si vuelves.
+ */
+@Composable
+private fun AppPrincipal(
+    habitos: List<Habito>,
+    pantalla: Pantalla,
+    oscuro: Boolean,
+    almacenEnfoque: AlmacenEnfoque,
+    onElegirPantalla: (Pantalla) -> Unit,
+    onCambiar: (List<Habito>) -> Unit,
+    onNuevo: () -> Unit,
+    onNuevaLista: () -> Unit,
+    onEditar: (Habito) -> Unit,
+    onBorrar: (Habito) -> Unit,
+    onEnfocar: (Habito) -> Unit,
+    onCambiarTema: (Boolean) -> Unit,
+    onDatosRestaurados: (List<Habito>) -> Unit
+) {
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        bottomBar = { BarraFlotante(actual = pantalla, onElegir = onElegirPantalla) }
+    ) { relleno ->
+        AnimatedContent(
+            targetState = pantalla,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(relleno),
+            transitionSpec = {
+                val haciaDelante = targetState.ordinal > initialState.ordinal
+                val desplazamiento = if (haciaDelante) 1 else -1
+                (fadeIn(tween(180)) + slideInHorizontally(tween(240)) { it / 12 * desplazamiento })
+                    .togetherWith(fadeOut(tween(140)))
+            },
+            label = "pagina"
+        ) { pagina ->
+            when (pagina) {
+                Pantalla.HOY -> PantallaHoy(
+                    nombre = SesionUsuario.cuenta?.nombrePila().orEmpty(),
+                    habitos = habitos,
+                    onCambiar = onCambiar,
+                    onNuevo = onNuevo,
+                    onNuevaLista = onNuevaLista,
+                    onEditar = onEditar,
+                    onBorrar = onBorrar,
+                    onEnfocar = onEnfocar
+                )
+
+                Pantalla.EXPLORAR -> PantallaExplorar(onCrear = onEditar)
+
+                Pantalla.PROGRESO -> PantallaEstadisticas(
+                    habitos = habitos,
+                    hoy = LocalDate.now()
+                )
+
+                Pantalla.AJUSTES -> PantallaAjustes(
+                    almacenEnfoque = almacenEnfoque,
+                    oscuro = oscuro,
+                    onCambiarTema = onCambiarTema,
+                    habitos = habitos,
+                    // Copia.importar ya guardó y reprogramó todo; aquí solo hay
+                    // que refrescar lo que la interfaz tiene en memoria.
+                    onDatosRestaurados = onDatosRestaurados
+                )
+            }
+        }
     }
 }
 
@@ -404,14 +482,23 @@ private fun PestanaPildora(
             tint = if (activa) Color.White else Color(0xFF151312),
             modifier = Modifier.size(19.dp)
         )
-        if (activa) {
-            Spacer(Modifier.width(7.dp))
-            Text(
-                text = texto,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.White
-            )
+        // La etiqueta se despliega en vez de aparecer de golpe: es lo que hace
+        // que la píldora parezca que crece y no que parpadea.
+        AnimatedVisibility(
+            visible = activa,
+            enter = fadeIn(tween(160)) + expandHorizontally(tween(220)),
+            exit = fadeOut(tween(120)) + shrinkHorizontally(tween(200))
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Spacer(Modifier.width(7.dp))
+                Text(
+                    text = texto,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White,
+                    maxLines = 1
+                )
+            }
         }
     }
 }

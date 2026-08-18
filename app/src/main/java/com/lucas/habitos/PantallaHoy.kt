@@ -1,7 +1,9 @@
 package com.lucas.habitos
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -60,6 +62,10 @@ private fun textoFecha(f: LocalDate): String =
  * Estructura: cabecera con avatar, tarjeta grande de reto diario, tira de la
  * semana en capsulas verticales, y la lista de habitos en tarjetas redondeadas.
  */
+// animateItem() es estable desde Compose 1.7, pero la anotación no molesta si
+// no hace falta y evita que la compilación se caiga si alguna vez se baja de
+// versión: sobrar una anotación es un aviso, faltarla es un error.
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PantallaHoy(
     nombre: String,
@@ -162,6 +168,9 @@ fun PantallaHoy(
 
             items(delDia, key = { it.id }) { habito ->
                 TarjetaHabito(
+                    // Al cambiar de día, o al crear y borrar hábitos, las tarjetas
+                    // entran, salen y se recolocan solas en vez de dar un salto.
+                    modifier = Modifier.animateItem(),
                     habito = habito,
                     dia = diaSel,
                     hoy = hoy,
@@ -357,15 +366,19 @@ private fun TiraSemana(
                     delDia.all { it.cumplido(dia) || it.esDescanso(dia) }
                 val elegido = dia == diaSel
 
+                val fondoDia by animateColorAsState(
+                    targetValue = if (elegido) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.surface,
+                    animationSpec = tween(260),
+                    label = "diaSemana"
+                )
+
                 Box(
                     modifier = Modifier
                         .weight(1f)
                         .height(66.dp)
                         .clip(RoundedCornerShape(50))
-                        .background(
-                            if (elegido) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.surface
-                        )
+                        .background(fondoDia)
                         .clickable(enabled = !futuro) { onElegir(dia) },
                     contentAlignment = Alignment.Center
                 ) {
@@ -411,6 +424,7 @@ private fun TiraSemana(
 
 @Composable
 private fun TarjetaHabito(
+    modifier: Modifier = Modifier,
     habito: Habito,
     dia: LocalDate,
     hoy: LocalDate,
@@ -435,16 +449,22 @@ private fun TarjetaHabito(
         label = "escala"
     )
 
+    // El fondo cambia con transición: marcar un hábito tiñe la tarjeta poco a
+    // poco en vez de saltar de un color a otro.
+    val fondo by animateColorAsState(
+        targetValue = when {
+            descanso -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            listo -> color.copy(alpha = 0.12f)
+            else -> MaterialTheme.colorScheme.surface
+        },
+        animationSpec = tween(320),
+        label = "fondoTarjeta"
+    )
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = when {
-                descanso -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                listo -> color.copy(alpha = 0.12f)
-                else -> MaterialTheme.colorScheme.surface
-            }
-        ),
+        colors = CardDefaults.cardColors(containerColor = fondo),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
