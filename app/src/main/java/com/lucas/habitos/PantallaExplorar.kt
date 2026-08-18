@@ -323,7 +323,7 @@ private fun FilaActividad(categoria: Categoria, plantilla: Plantilla, onCrear: (
         ) {
             Box(
                 modifier = Modifier
-                    .size(44.dp)
+                    .size(50.dp)
                     .clip(CircleShape)
                     .background(color.copy(alpha = 0.18f)),
                 contentAlignment = Alignment.Center
@@ -332,7 +332,7 @@ private fun FilaActividad(categoria: Categoria, plantilla: Plantilla, onCrear: (
                     painter = painterResource(recursoDeIcono(plantilla.icono)),
                     contentDescription = null,
                     tint = color,
-                    modifier = Modifier.size(21.dp)
+                    modifier = Modifier.size(28.dp)
                 )
             }
             Spacer(Modifier.width(13.dp))

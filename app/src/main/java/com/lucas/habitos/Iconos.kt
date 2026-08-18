@@ -3,11 +3,18 @@ package com.lucas.habitos
 /**
  * Los iconos de la app.
  *
- * Son los Material Icons oficiales de Google (estilo redondeado, Apache 2.0)
- * convertidos a vector drawables. Se guardan como recursos y no como ImageVector
- * escrito a mano por dos razones: el trazo es el de Google, con su grosor y sus
- * esquinas coherentes, y el widget de la pantalla de inicio solo sabe pintar
- * recursos, no vectores de Compose.
+ * Dos familias, y es a proposito:
+ *
+ *  - La interfaz (atras, play, papelera, pestanas) usa Material Icons de Google
+ *    (Apache 2.0). Es el lenguaje que un usuario de Android ya tiene aprendido;
+ *    reinventarlo solo consigue que dude donde no deberia.
+ *  - Los iconos de habito usan Solar, estilo Broken (480 Design, CC BY 4.0):
+ *    trazo fino con cortes deliberados. Tienen mucho mas caracter que un icono
+ *    de sistema, que es justo lo que se le pide a la parte que el usuario elige.
+ *
+ * Se guardan como recursos y no como ImageVector escrito a mano porque el
+ * widget de la pantalla de inicio solo sabe pintar recursos, no vectores de
+ * Compose.
  *
  * Cada valor es un id de recurso (Int). En Compose se usan con
  * `painterResource(...)`; en el widget con `setImageViewResource(...)`.
@@ -48,47 +55,47 @@ data class IconoHabito(val clave: String, val recurso: Int)
  * fila de la rejilla y se han agrupado por tema (cuerpo, casa, mente, dinero).
  */
 val ICONOS_HABITO = listOf(
-    IconoHabito("agua", R.drawable.ic_water_drop),
-    IconoHabito("correr", R.drawable.ic_directions_run),
-    IconoHabito("leer", R.drawable.ic_menu_book),
-    IconoHabito("meditar", R.drawable.ic_self_improvement),
-    IconoHabito("pesas", R.drawable.ic_fitness_center),
-    IconoHabito("comida", R.drawable.ic_restaurant),
+    IconoHabito("agua", R.drawable.ic_h_agua),
+    IconoHabito("correr", R.drawable.ic_h_correr),
+    IconoHabito("leer", R.drawable.ic_h_leer),
+    IconoHabito("meditar", R.drawable.ic_h_meditar),
+    IconoHabito("pesas", R.drawable.ic_h_pesas),
+    IconoHabito("comida", R.drawable.ic_h_comida),
 
-    IconoHabito("dormir", R.drawable.ic_bedtime),
-    IconoHabito("musica", R.drawable.ic_music_note),
-    IconoHabito("escribir", R.drawable.ic_draw),
-    IconoHabito("limpiar", R.drawable.ic_cleaning_services),
-    IconoHabito("medicina", R.drawable.ic_medication),
-    IconoHabito("planta", R.drawable.ic_spa),
+    IconoHabito("dormir", R.drawable.ic_h_dormir),
+    IconoHabito("musica", R.drawable.ic_h_musica),
+    IconoHabito("escribir", R.drawable.ic_h_escribir),
+    IconoHabito("limpiar", R.drawable.ic_h_limpiar),
+    IconoHabito("medicina", R.drawable.ic_h_medicina),
+    IconoHabito("planta", R.drawable.ic_h_planta),
 
-    IconoHabito("nofumar", R.drawable.ic_smoke_free),
-    IconoHabito("sol", R.drawable.ic_light_mode),
-    IconoHabito("mente", R.drawable.ic_psychology),
-    IconoHabito("objetivo", R.drawable.ic_track_changes),
-    IconoHabito("nomovil", R.drawable.ic_mobile_off),
-    IconoHabito("ducha", R.drawable.ic_shower),
+    IconoHabito("nofumar", R.drawable.ic_h_nofumar),
+    IconoHabito("sol", R.drawable.ic_h_sol),
+    IconoHabito("mente", R.drawable.ic_h_mente),
+    IconoHabito("objetivo", R.drawable.ic_h_objetivo),
+    IconoHabito("nomovil", R.drawable.ic_h_nomovil),
+    IconoHabito("ducha", R.drawable.ic_h_ducha),
 
-    IconoHabito("nota", R.drawable.ic_event_note),
-    IconoHabito("caminar", R.drawable.ic_directions_walk),
-    IconoHabito("llamar", R.drawable.ic_call),
-    IconoHabito("cafe", R.drawable.ic_local_cafe),
-    IconoHabito("chat", R.drawable.ic_chat_bubble),
-    IconoHabito("cocina", R.drawable.ic_soup_kitchen),
+    IconoHabito("nota", R.drawable.ic_h_nota),
+    IconoHabito("caminar", R.drawable.ic_h_caminar),
+    IconoHabito("llamar", R.drawable.ic_h_llamar),
+    IconoHabito("cafe", R.drawable.ic_h_cafe),
+    IconoHabito("chat", R.drawable.ic_h_chat),
+    IconoHabito("cocina", R.drawable.ic_h_cocina),
 
-    IconoHabito("cama", R.drawable.ic_bed),
-    IconoHabito("casa", R.drawable.ic_home),
-    IconoHabito("trabajo", R.drawable.ic_work),
-    IconoHabito("bandeja", R.drawable.ic_inbox),
-    IconoHabito("estudiar", R.drawable.ic_school),
-    IconoHabito("tiempo", R.drawable.ic_timer),
+    IconoHabito("cama", R.drawable.ic_h_cama),
+    IconoHabito("casa", R.drawable.ic_h_casa),
+    IconoHabito("trabajo", R.drawable.ic_h_trabajo),
+    IconoHabito("bandeja", R.drawable.ic_h_bandeja),
+    IconoHabito("estudiar", R.drawable.ic_h_estudiar),
+    IconoHabito("tiempo", R.drawable.ic_h_tiempo),
 
-    IconoHabito("dinero", R.drawable.ic_savings),
-    IconoHabito("nogastar", R.drawable.ic_money_off),
-    IconoHabito("grafico", R.drawable.ic_bar_chart),
-    IconoHabito("estrella", R.drawable.ic_star),
-    IconoHabito("naturaleza", R.drawable.ic_park),
-    IconoHabito("corazon", R.drawable.ic_favorite)
+    IconoHabito("dinero", R.drawable.ic_h_dinero),
+    IconoHabito("nogastar", R.drawable.ic_h_nogastar),
+    IconoHabito("grafico", R.drawable.ic_h_grafico),
+    IconoHabito("estrella", R.drawable.ic_h_estrella),
+    IconoHabito("naturaleza", R.drawable.ic_h_naturaleza),
+    IconoHabito("corazon", R.drawable.ic_h_corazon)
 )
 
 private val PorClave = ICONOS_HABITO.associateBy { it.clave }
@@ -97,7 +104,7 @@ private val PorClave = ICONOS_HABITO.associateBy { it.clave }
 const val ICONO_POR_DEFECTO = "objetivo"
 
 fun recursoDeIcono(clave: String): Int =
-    PorClave[clave]?.recurso ?: R.drawable.ic_track_changes
+    PorClave[clave]?.recurso ?: R.drawable.ic_h_objetivo
 
 /**
  * Emojis de las versiones 1 y 2 traducidos al icono equivalente.

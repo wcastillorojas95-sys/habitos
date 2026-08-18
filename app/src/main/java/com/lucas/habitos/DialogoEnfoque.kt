@@ -73,7 +73,7 @@ fun DialogoEnfoque(
                 painter = painterResource(recursoDeIcono(habito.icono)),
                 contentDescription = null,
                 tint = color,
-                modifier = Modifier.size(26.dp)
+                modifier = Modifier.size(32.dp)
             )
         },
         title = { Text(habito.nombre, fontWeight = FontWeight.Bold) },

@@ -319,7 +319,7 @@ private fun App(oscuro: Boolean, onCambiarTema: (Boolean) -> Unit) {
                     painter = painterResource(recursoDeIcono(nuevo.icono)),
                     contentDescription = null,
                     tint = PALETA[nuevo.color % PALETA.size],
-                    modifier = Modifier.size(26.dp)
+                    modifier = Modifier.size(32.dp)
                 )
             },
             title = { Text(nuevo.nombre, fontWeight = FontWeight.Bold) },

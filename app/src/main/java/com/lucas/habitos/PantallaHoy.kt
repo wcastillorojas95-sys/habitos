@@ -493,7 +493,7 @@ private fun TarjetaHabito(
 
                 Box(
                     modifier = Modifier
-                        .size(44.dp)
+                        .size(52.dp)
                         .clip(CircleShape)
                         .background(color.copy(alpha = if (descanso) 0.08f else 0.18f))
                         .clickable { onEditar() },
@@ -503,7 +503,7 @@ private fun TarjetaHabito(
                         painter = painterResource(recursoDeIcono(habito.icono)),
                         contentDescription = null,
                         tint = if (descanso) color.copy(alpha = 0.55f) else color,
-                        modifier = Modifier.size(22.dp)
+                        modifier = Modifier.size(30.dp)
                     )
                 }
 

@@ -313,7 +313,7 @@ private fun FilaHabito(habito: Habito, hoy: LocalDate) {
         ) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(46.dp)
                     .clip(CircleShape)
                     .background(color.copy(alpha = 0.18f)),
                 contentAlignment = Alignment.Center
@@ -322,7 +322,7 @@ private fun FilaHabito(habito: Habito, hoy: LocalDate) {
                     painter = painterResource(recursoDeIcono(habito.icono)),
                     contentDescription = null,
                     tint = color,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(26.dp)
                 )
             }
 

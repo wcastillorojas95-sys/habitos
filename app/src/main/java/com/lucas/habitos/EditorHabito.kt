@@ -159,7 +159,7 @@ fun EditorHabito(
                 val elegido = entrada.clave == icono
                 Box(
                     modifier = Modifier
-                        .size(46.dp)
+                        .size(50.dp)
                         .clip(RoundedCornerShape(14.dp))
                         .background(
                             if (elegido) acento.copy(alpha = 0.18f)
@@ -172,7 +172,7 @@ fun EditorHabito(
                         painter = painterResource(entrada.recurso),
                         contentDescription = entrada.clave,
                         tint = if (elegido) acento else MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(22.dp)
+                        modifier = Modifier.size(28.dp)
                     )
                 }
             }

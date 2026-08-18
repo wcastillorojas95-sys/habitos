@@ -245,7 +245,7 @@ private fun DialogoAjustes(
                 painter = painterResource(recursoDeIcono(habito.icono)),
                 contentDescription = null,
                 tint = acento,
-                modifier = Modifier.size(26.dp)
+                modifier = Modifier.size(30.dp)
             )
         },
         title = { Text(habito.nombre, fontWeight = FontWeight.Bold) },
@@ -495,7 +495,7 @@ private fun FilaElegible(
     ) {
         Box(
             modifier = Modifier
-                .size(42.dp)
+                .size(50.dp)
                 .clip(CircleShape)
                 .background(color.copy(alpha = if (apagado) 0.08f else 0.18f)),
             contentAlignment = Alignment.Center
@@ -504,7 +504,7 @@ private fun FilaElegible(
                 painter = painterResource(recursoDeIcono(plantilla.icono)),
                 contentDescription = null,
                 tint = if (apagado) color.copy(alpha = 0.5f) else color,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(28.dp)
             )
         }
 
