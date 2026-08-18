@@ -277,7 +277,7 @@ private fun Cabecera(
         )
         Spacer(Modifier.width(8.dp))
         BotonCabecera(
-            icono = if (oscuro) IconoSol else IconoLuna,
+            icono = if (oscuro) IconoModoClaro else IconoModoOscuro,
             descripcion = if (oscuro) t("Modo claro", "Light mode") else t("Modo oscuro", "Dark mode"),
             onClick = onCambiarTema
         )

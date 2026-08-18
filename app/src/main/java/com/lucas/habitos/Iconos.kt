@@ -43,10 +43,16 @@ val IconoLapiz = R.drawable.ic_edit
 val IconoCerrar = R.drawable.ic_close
 val IconoReloj = R.drawable.ic_timer
 
-/** Cabecera: cambiar idioma y alternar el tema. */
+/**
+ * Cabecera: cambiar idioma y alternar el tema.
+ *
+ * Ojo con IconoLuna, que ya existe mas arriba y es otra cosa: la luna del "dia
+ * de descanso" de un habito. Estos dos se llaman por lo que hacen, no por lo
+ * que dibujan, y asi no vuelven a chocar.
+ */
 val IconoIdioma = R.drawable.ic_ui_idioma
-val IconoLuna = R.drawable.ic_ui_luna
-val IconoSol = R.drawable.ic_ui_sol
+val IconoModoOscuro = R.drawable.ic_ui_luna
+val IconoModoClaro = R.drawable.ic_ui_sol
 
 // ------------------------------------------------------- iconos de hábito ---
 
