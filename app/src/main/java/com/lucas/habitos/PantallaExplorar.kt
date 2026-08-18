@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -69,8 +70,11 @@ data class Plantilla(
     val unidad: String = ""
 )
 
+/** Fondo de las ilustraciones: el mismo crudo del tema claro, en los dos temas. */
+private val BeigeIlustracion = Color(0xFFF6F1E8)
+
 val CATEGORIAS = listOf(
-    Categoria("Esencial", R.drawable.ilu_essential, 0, listOf(
+    Categoria("Esencial", R.drawable.ilu_esencial, 0, listOf(
         Plantilla("Escribir el diario", "escribir"),
         Plantilla("Planificar el día", "nota"),
         Plantilla("Leer", "leer", Meta.TIEMPO, 20, "min")
@@ -80,12 +84,12 @@ val CATEGORIAS = listOf(
         Plantilla("Comer fruta", "comida", Meta.CANTIDAD, 2, "piezas"),
         Plantilla("Dormir 8 horas", "dormir")
     )),
-    Categoria("Ejercicio", R.drawable.ilu_exercise, 2, listOf(
+    Categoria("Ejercicio", R.drawable.ilu_ejercicio, 2, listOf(
         Plantilla("Entrenar", "pesas", Meta.TIEMPO, 30, "min"),
         Plantilla("Caminar", "caminar", Meta.CANTIDAD, 8000, "pasos"),
         Plantilla("Estirar", "meditar", Meta.TIEMPO, 10, "min")
     )),
-    Categoria("Relaciones", R.drawable.ilu_relationship, 3, listOf(
+    Categoria("Relaciones", R.drawable.ilu_relaciones, 3, listOf(
         Plantilla("Llamar a la familia", "llamar"),
         Plantilla("Quedar con alguien", "cafe"),
         Plantilla("Escribir a un amigo", "chat")
@@ -95,17 +99,17 @@ val CATEGORIAS = listOf(
         Plantilla("Cocinar en casa", "cocina"),
         Plantilla("Hacer la cama", "cama")
     )),
-    Categoria("Trabajo", R.drawable.ilu_work, 5, listOf(
+    Categoria("Trabajo", R.drawable.ilu_trabajo, 5, listOf(
         Plantilla("Trabajo profundo", "objetivo", Meta.TIEMPO, 60, "min"),
         Plantilla("Vaciar la bandeja", "bandeja"),
         Plantilla("Estudiar", "estudiar", Meta.TIEMPO, 45, "min")
     )),
-    Categoria("Mente", R.drawable.ilu_mindfulness, 2, listOf(
+    Categoria("Mente", R.drawable.ilu_mente, 2, listOf(
         Plantilla("Meditar", "meditar", Meta.TIEMPO, 10, "min"),
         Plantilla("Sin móvil una hora", "nomovil"),
         Plantilla("Anotar 3 cosas buenas", "estrella")
     )),
-    Categoria("Dinero", R.drawable.ilu_finance, 1, listOf(
+    Categoria("Dinero", R.drawable.ilu_dinero, 1, listOf(
         Plantilla("Anotar gastos", "dinero"),
         Plantilla("Día sin gastar", "nogastar"),
         Plantilla("Revisar el presupuesto", "grafico")
@@ -277,18 +281,20 @@ private fun TarjetaCategoria(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(58.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(
-                        if (activa) Color.White.copy(alpha = 0.9f)
-                        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                    )
-                    .padding(6.dp),
+                    .height(96.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    // El fondo va claro SIEMPRE, también en modo oscuro. Las
+                    // ilustraciones son de línea negra sobre transparente: sobre
+                    // un fondo oscuro desaparecerían. Fijar aquí el color es más
+                    // honesto que pedir una segunda versión de cada dibujo.
+                    .background(if (activa) Color.White else BeigeIlustracion)
+                    .padding(8.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
                     painter = painterResource(categoria.ilustracion),
                     contentDescription = categoria.nombre,
+                    contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize()
                 )
             }

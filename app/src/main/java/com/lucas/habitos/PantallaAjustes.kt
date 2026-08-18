@@ -377,7 +377,7 @@ fun PantallaAjustes(
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         Text(
-                            text = "Hábitos 3.5",
+                            text = "Hábitos 3.6",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
