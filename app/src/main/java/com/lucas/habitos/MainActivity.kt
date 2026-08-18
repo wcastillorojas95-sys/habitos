@@ -127,6 +127,7 @@ private fun App(oscuro: Boolean, onCambiarTema: (Boolean) -> Unit) {
     var pantalla by remember { mutableStateOf(Pantalla.HOY) }
     var editando by remember { mutableStateOf<Habito?>(null) }
     var abriendoEditor by remember { mutableStateOf(false) }
+    var abriendoLista by remember { mutableStateOf(false) }
     var aEnfocar by remember { mutableStateOf<Habito?>(null) }
     var recienCreado by remember { mutableStateOf<Habito?>(null) }
 
@@ -218,10 +219,34 @@ private fun App(oscuro: Boolean, onCambiarTema: (Boolean) -> Unit) {
         }
     }
 
+    /**
+     * Alta en bloque desde la pantalla de listas.
+     *
+     * No pasa por guardarHabito a propósito: ese ofrece empezar una sesión nada
+     * más crear, y hacerlo cuatro veces seguidas sería insoportable.
+     */
+    fun crearVarios(nuevos: List<Habito>) {
+        val conEventos = nuevos.map { it.copy(eventoCalendario = Calendario.sincronizar(contexto, it)) }
+        aplicar(habitos + conEventos)
+        conEventos.forEach { Recordatorios.programar(contexto, it) }
+    }
+
     fun borrarHabito(habito: Habito) {
         Recordatorios.cancelar(contexto, habito.id)
         Calendario.quitar(contexto, habito)
         aplicar(habitos.filterNot { it.id == habito.id })
+    }
+
+    if (abriendoLista) {
+        PantallaLista(
+            yaCreados = habitos,
+            onCancelar = { abriendoLista = false },
+            onCrear = { nuevos ->
+                crearVarios(nuevos)
+                abriendoLista = false
+            }
+        )
+        return
     }
 
     if (abriendoEditor) {
@@ -259,6 +284,7 @@ private fun App(oscuro: Boolean, onCambiarTema: (Boolean) -> Unit) {
                     habitos = habitos,
                     onCambiar = { aplicar(it) },
                     onNuevo = { editando = null; abriendoEditor = true },
+                    onNuevaLista = { abriendoLista = true },
                     onEditar = { editando = it; abriendoEditor = true },
                     onBorrar = { borrarHabito(it) },
                     onEnfocar = { aEnfocar = it }

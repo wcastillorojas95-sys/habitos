@@ -44,20 +44,24 @@ import java.time.LocalDate
 import java.util.UUID
 
 /**
- * Una categoria del explorador, con su ilustracion y sus actividades sugeridas.
- *
  * Las plantillas no son decoracion: al tocarlas se abre el editor con el habito
  * ya relleno. La friccion de crear un habito desde cero es justo lo que hace que
  * la gente no cree ninguno.
  */
-private data class Categoria(
+/**
+ * Una categoria del catalogo, con su ilustracion y sus actividades sugeridas.
+ *
+ * Vive aqui pero lo usan dos pantallas: Explorar y la creacion de listas. Tener
+ * una sola fuente evita que una ofrezca actividades que la otra no conoce.
+ */
+data class Categoria(
     val nombre: String,
     val ilustracion: Int,
     val color: Int,
     val actividades: List<Plantilla>
 )
 
-private data class Plantilla(
+data class Plantilla(
     val nombre: String,
     val icono: String,
     val meta: Meta = Meta.SI_NO,
@@ -65,7 +69,7 @@ private data class Plantilla(
     val unidad: String = ""
 )
 
-private val CATEGORIAS = listOf(
+val CATEGORIAS = listOf(
     Categoria("Esencial", R.drawable.ilu_essential, 0, listOf(
         Plantilla("Escribir el diario", "escribir"),
         Plantilla("Planificar el día", "nota"),

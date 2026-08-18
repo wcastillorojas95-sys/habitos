@@ -66,6 +66,7 @@ fun PantallaHoy(
     habitos: List<Habito>,
     onCambiar: (List<Habito>) -> Unit,
     onNuevo: () -> Unit,
+    onNuevaLista: () -> Unit,
     onEditar: (Habito) -> Unit,
     onBorrar: (Habito) -> Unit,
     onEnfocar: (Habito) -> Unit
@@ -153,6 +154,8 @@ fun PantallaHoy(
                         fontWeight = FontWeight.ExtraBold,
                         modifier = Modifier.weight(1f)
                     )
+                    BotonSecundario(texto = "Lista", onClick = onNuevaLista)
+                    Spacer(Modifier.width(8.dp))
                     BotonPildora(texto = "Nuevo", onClick = onNuevo)
                 }
             }
@@ -171,7 +174,13 @@ fun PantallaHoy(
             }
 
             if (delDia.isEmpty()) {
-                item { EstadoVacio(hayHabitos = activos.isNotEmpty(), onNuevo = onNuevo) }
+                item {
+                    EstadoVacio(
+                        hayHabitos = activos.isNotEmpty(),
+                        onNuevo = onNuevo,
+                        onNuevaLista = onNuevaLista
+                    )
+                }
             }
         }
     }
@@ -730,7 +739,7 @@ private fun BotonPildora(texto: String, onClick: () -> Unit) {
 }
 
 @Composable
-private fun EstadoVacio(hayHabitos: Boolean, onNuevo: () -> Unit) {
+private fun EstadoVacio(hayHabitos: Boolean, onNuevo: () -> Unit, onNuevaLista: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -754,6 +763,35 @@ private fun EstadoVacio(hayHabitos: Boolean, onNuevo: () -> Unit) {
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(20.dp))
-        BotonPildora(texto = "Nuevo hábito", onClick = onNuevo)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            BotonSecundario(texto = "Elegir de una lista", onClick = onNuevaLista)
+            Spacer(Modifier.width(8.dp))
+            BotonPildora(texto = "Nuevo hábito", onClick = onNuevo)
+        }
+    }
+}
+
+/** Píldora clara, para la acción que acompaña a la principal sin competir con ella. */
+@Composable
+private fun BotonSecundario(texto: String, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(
+                width = 1.5.dp,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.45f),
+                shape = RoundedCornerShape(50)
+            )
+            .clickable { onClick() }
+            .padding(horizontal = 14.dp, vertical = 9.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = texto,
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.primary
+        )
     }
 }
